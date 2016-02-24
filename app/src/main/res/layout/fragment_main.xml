@@ -6,12 +6,16 @@
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
-    tools:context="com.blongdev.sift.MainActivityFragment"
+    tools:context=".SubredditFragment"
     tools:showIn="@layout/activity_main">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Hello World!" />
+<android.support.v7.widget.AppCompatTextView
+    android:layout_width="100dp"
+    android:layout_height="100dp"
+    android:text="Text">
+
+
+
+</android.support.v7.widget.AppCompatTextView>
 
 </RelativeLayout>
