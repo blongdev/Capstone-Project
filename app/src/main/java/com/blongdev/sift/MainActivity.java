@@ -1,16 +1,11 @@
 package com.blongdev.sift;
 
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.ActionBarActivity;
-import android.app.FragmentTransaction;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
-import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentStatePagerAdapter;
-import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -39,33 +34,6 @@ public class MainActivity extends AppCompatActivity {
         mPager = (ViewPager) findViewById(R.id.pager);
         mPagerAdapter = new SubredditPagerAdapter(getSupportFragmentManager());
         mPager.setAdapter(mPagerAdapter);
-
-//        mPager.setOnPageChangeListener(
-//                new ViewPager.SimpleOnPageChangeListener() {
-//                    @Override
-//                    public void onPageSelected(int position) {
-//                        // When swiping between pages, select the
-//                        // corresponding tab.
-//                        //getActionBar().setSelectedNavigationItem(position);
-//                    }
-//                });
-
-//        ActionBar.TabListener tabListener = new ActionBar.TabListener() {
-//            public void onTabSelected(ActionBar.Tab tab, FragmentTransaction ft) {
-//                // When the tab is selected, switch to the
-//                // corresponding page in the ViewPager.
-//                mPager.setCurrentItem(tab.getPosition());
-//            }
-//            public void onTabUnselected(ActionBar.Tab tab, FragmentTransaction ft) {
-//                // hide the given tab
-//            }
-//
-//            public void onTabReselected(ActionBar.Tab tab, FragmentTransaction ft) {
-//                // probably ignore this event
-//            }
-//        };
-
-
 
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);

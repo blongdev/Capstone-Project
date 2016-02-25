@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.v7.widget.CardView
+xmlns:android="http://schemas.android.com/apk/res/android"
+xmlns:card_view="http://schemas.android.com/apk/res-auto"
+android:id="@+id/card_view"
+android:layout_gravity="center"
+android:layout_width="match_parent"
+android:layout_height="wrap_content"
+android:layout_margin="4dp"
+card_view:cardCornerRadius="4dp">
+
+    <GridLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:columnCount="6" >
+
+        <TextView
+            android:id="@+id/post_username"
+            style="@style/PostUsername"
+            android:text="Username"/>
+
+        <TextView
+            android:id="@+id/post_subreddit"
+            style="@style/PostSubreddit"
+            android:text="Subreddit"/>
+
+
+        <TextView
+            android:id="@+id/post_title"
+            style="@style/PostTitle"
+            android:text="Title"/>
+
+        <TextView
+            android:id="@+id/post_points"
+            style="@style/PostPoints"
+            android:text="Points"/>
+        <TextView
+            android:id="@+id/post_comments"
+            style="@style/PostComments"
+            android:text="Comments"/>
+
+        <TextView
+            android:id="@+id/post_url"
+            style="@style/PostUrl"
+            android:text="URL"/>
+
+        <TextView
+            android:id="@+id/post_age"
+            style="@style/PostAge"
+            android:text="Age"/>
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_row="0"
+            android:layout_rowSpan="3">
+
+            <android.support.v7.widget.AppCompatImageButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@android:drawable/ic_dialog_email" />
+
+            <android.support.v7.widget.AppCompatImageButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@android:drawable/ic_dialog_email" />
+
+        </LinearLayout>
+
+    </GridLayout>
+
+
+
+</android.support.v7.widget.CardView>
