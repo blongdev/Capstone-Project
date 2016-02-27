@@ -48,9 +48,20 @@ public class SubredditFragment extends Fragment {
         List<PostInfo> result = new ArrayList<PostInfo>();
         for (int i=1; i <= size; i++) {
             PostInfo post = new PostInfo();
-            post.mUsername = "Username " + i;
-            post.mSubreddit = "Subreddit " + i;
-            post.mTitle = "Title" + i;
+            post.mUsername = "Username" + i;
+            post.mSubreddit = "Subreddit" + i;
+
+            if(i%3 == 0) {
+                post.mTitle = "This is an extended title to test larger cards in this layout. " +
+                        "How far can I stretch this card before it breaks?";
+            } else {
+                post.mTitle = "Title" + i;
+            }
+
+            post.mPoints = "Points" + i;
+            post.mComments = "Comments" + i;
+            post.mUrl = "Url" + i;
+            post.mAge = "Age" + i;
             result.add(post);
         }
         return result;
