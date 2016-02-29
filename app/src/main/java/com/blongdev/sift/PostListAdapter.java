@@ -69,25 +69,34 @@ public class PostListAdapter extends RecyclerView.Adapter<PostListAdapter.PostVi
             mUrl = (TextView)  v.findViewById(R.id.post_url);
             mAge = (TextView) v.findViewById(R.id.post_age);
 
-            v.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    Intent intent = new Intent(v.getContext(), PostDetailActivity.class);
-                    intent.putExtra("info" , "post");
-                    v.getContext().startActivity(intent);
-                }
-            });
+            v.setOnClickListener(mOnClickListener);
 
-            mUsername.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    Intent intent = new Intent(v.getContext(), PostDetailActivity.class);
-                    intent.putExtra("info" , "username");
-                    v.getContext().startActivity(intent);
-                }
-            });
+            mUsername.setOnClickListener(mOnClickListener);
         }
-    }
 
+        private View.OnClickListener mOnClickListener = (new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String title = mTitle.getText().toString();
+                String username =mUsername.getText().toString();
+                String subreddit = mSubreddit.getText().toString();
+                String points = mPoints.getText().toString();
+                String comments = mComments.getText().toString();
+                String url = mUrl.getText().toString();
+                String age = mAge.getText().toString();
+
+                Intent intent = new Intent(v.getContext(), PostDetailActivity.class);
+                intent.putExtra(v.getContext().getString(R.string.title), title);
+                intent.putExtra(v.getContext().getString(R.string.username), username);
+                intent.putExtra(v.getContext().getString(R.string.subreddit), subreddit);
+                intent.putExtra(v.getContext().getString(R.string.points), points);
+                intent.putExtra(v.getContext().getString(R.string.comments), comments);
+                intent.putExtra(v.getContext().getString(R.string.url), url);
+                intent.putExtra(v.getContext().getString(R.string.age), age);
+
+                v.getContext().startActivity(intent);
+            }
+        });
+    }
 
 }
