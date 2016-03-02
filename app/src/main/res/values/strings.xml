@@ -13,5 +13,9 @@
     <string name="url">age</string>
     <string name="age">age</string>
     <string name="title_activity_user_info">UserInfoActivity</string>
+    <string name="title_activity_post_detail">PostDetailActivity</string>
     <string name="section_format">Hello World from section: %1$d</string>
+
+    <string name="drawer_open">drawer open</string>
+    <string name="drawer_close">drawer close</string>
 </resources>
