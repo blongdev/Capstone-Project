@@ -63,9 +63,7 @@ public class PostDetailFragment extends Fragment {
         mUrl.setText(url);
         mAge.setText(age);
 
-
         return rootView;
-
     }
 
     @Override

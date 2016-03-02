@@ -12,4 +12,6 @@
     <string name="comments">comments</string>
     <string name="url">age</string>
     <string name="age">age</string>
+    <string name="title_activity_user_info">UserInfoActivity</string>
+    <string name="section_format">Hello World from section: %1$d</string>
 </resources>

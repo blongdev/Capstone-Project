@@ -69,16 +69,23 @@ public class PostListAdapter extends RecyclerView.Adapter<PostListAdapter.PostVi
             mUrl = (TextView)  v.findViewById(R.id.post_url);
             mAge = (TextView) v.findViewById(R.id.post_age);
 
-            v.setOnClickListener(mOnClickListener);
-
+            mTitle.setOnClickListener(mOnClickListener);
             mUsername.setOnClickListener(mOnClickListener);
         }
 
         private View.OnClickListener mOnClickListener = (new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if (v == mTitle) {
+                    goToPostDetail(v);
+                } else if (v == mUsername) {
+                    goToUserInfo(v);
+                }
+            }
+
+            private void goToPostDetail(View v) {
                 String title = mTitle.getText().toString();
-                String username =mUsername.getText().toString();
+                String username = mUsername.getText().toString();
                 String subreddit = mSubreddit.getText().toString();
                 String points = mPoints.getText().toString();
                 String comments = mComments.getText().toString();
@@ -93,6 +100,15 @@ public class PostListAdapter extends RecyclerView.Adapter<PostListAdapter.PostVi
                 intent.putExtra(v.getContext().getString(R.string.comments), comments);
                 intent.putExtra(v.getContext().getString(R.string.url), url);
                 intent.putExtra(v.getContext().getString(R.string.age), age);
+
+                v.getContext().startActivity(intent);
+            }
+
+            private void goToUserInfo(View v) {
+                String username = mUsername.getText().toString();
+
+                Intent intent = new Intent(v.getContext(), UserInfoActivity.class);
+                intent.putExtra(v.getContext().getString(R.string.username), username);
 
                 v.getContext().startActivity(intent);
             }
