@@ -15,85 +15,100 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:padding="@dimen/content_spacer"
-        android:orientation="horizontal">
+        android:orientation="vertical">
+
+        <ImageView
+            android:id="@+id/post_image"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:scaleType="centerCrop"/>
 
         <LinearLayout
-            android:id="@+id/post_content"
-            android:layout_width="0dp"
-            android:layout_weight="1"
+            android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:orientation="vertical">
+            android:padding="@dimen/content_spacer"
+            android:orientation="horizontal">
 
-            <RelativeLayout
+            <LinearLayout
+                android:id="@+id/post_content"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="match_parent"
+                android:orientation="vertical">
+
+                <RelativeLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content">
+
+                    <TextView
+                        android:id="@+id/post_username"
+                        style="@style/PostUsername"
+                        android:text="Username"/>
+
+                    <TextView
+                        android:id="@+id/post_subreddit"
+                        style="@style/PostSubreddit"
+                        android:layout_toRightOf="@id/post_username"
+                        android:text="Subreddit"/>
+                </RelativeLayout>
+
+
+                <TextView
+                    android:id="@+id/post_title"
+                    style="@style/PostTitle"
+                    android:layout_gravity="start"
+                    android:text="Title"/>
+
+                <RelativeLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content">
+
+                    <TextView
+                        android:id="@+id/post_points"
+                        style="@style/PostPoints"
+                        android:text="Points"/>
+
+                    <TextView
+                        android:id="@+id/post_comments"
+                        style="@style/PostComments"
+                        android:layout_toRightOf="@id/post_points"
+                        android:text="Comments"/>
+
+                    <TextView
+                        android:id="@+id/post_url"
+                        style="@style/PostUrl"
+                        android:layout_toRightOf="@id/post_comments"
+                        android:text="Url"/>
+
+                    <TextView
+                        android:id="@+id/post_age"
+                        style="@style/PostAge"
+                        android:layout_toRightOf="@id/post_url"
+                        android:text="Age"/>
+
+                </RelativeLayout>
+
+            </LinearLayout>
+
+            <LinearLayout
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content">
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                android:gravity="center_vertical">
 
-                <TextView
-                    android:id="@+id/post_username"
-                    style="@style/PostUsername"
-                    android:text="Username"/>
+                <android.support.v7.widget.AppCompatImageButton
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@android:color/transparent"
+                    android:src="@drawable/ic_expand_less_24dp" />
 
-                <TextView
-                    android:id="@+id/post_subreddit"
-                    style="@style/PostSubreddit"
-                    android:layout_toRightOf="@id/post_username"
-                    android:text="Subreddit"/>
-            </RelativeLayout>
+                <android.support.v7.widget.AppCompatImageButton
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@android:color/transparent"
+                    android:src="@drawable/ic_expand_more_24dp" />
 
-
-            <TextView
-                android:id="@+id/post_title"
-                style="@style/PostTitle"
-                android:layout_gravity="start"
-                android:text="Title"/>
-
-            <RelativeLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content">
-
-                <TextView
-                    android:id="@+id/post_points"
-                    style="@style/PostPoints"
-                    android:text="Points"/>
-
-                <TextView
-                    android:id="@+id/post_comments"
-                    style="@style/PostComments"
-                    android:layout_toRightOf="@id/post_points"
-                    android:text="Comments"/>
-
-                <TextView
-                    android:id="@+id/post_url"
-                    style="@style/PostUrl"
-                    android:layout_toRightOf="@id/post_comments"
-                    android:text="Url"/>
-
-                <TextView
-                    android:id="@+id/post_age"
-                    style="@style/PostAge"
-                    android:layout_toRightOf="@id/post_url"
-                    android:text="Age"/>
-
-            </RelativeLayout>
-
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:orientation="vertical"
-            android:gravity="center_vertical">
-
-            <android.support.v7.widget.AppCompatImageButton
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:src="@android:drawable/ic_dialog_email" />
-
-            <android.support.v7.widget.AppCompatImageButton
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:src="@android:drawable/ic_dialog_email" />
+            </LinearLayout>
 
         </LinearLayout>
 

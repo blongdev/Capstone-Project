@@ -11,4 +11,5 @@ public class PostInfo {
     protected String mComments;
     protected String mUrl;
     protected String mAge;
+    protected String mImageUrl;
 }

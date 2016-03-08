@@ -10,6 +10,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.squareup.picasso.Picasso;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -56,6 +58,14 @@ public class SubredditFragment extends Fragment {
                         "How far can I stretch this card before it breaks?";
             } else {
                 post.mTitle = "Title" + i;
+            }
+
+            if(i%2 == 0) {
+                post.mImageUrl = "http://www.melovemypet.com/wp-content/uploads/2014/05/Bluenosepitbullpuppy1.jpg";
+            } else if (i%5 == 0) {
+                post.mImageUrl = "https://s-media-cache-ak0.pinimg.com/236x/1e/49/8f/1e498f4bb5069b00d92f977dc8187f55.jpg";
+            } else {
+                post.mImageUrl = null;
             }
 
             post.mPoints = "Points" + i;

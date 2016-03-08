@@ -2,15 +2,17 @@ package com.blongdev.sift;
 
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
-import org.w3c.dom.Text;
+import com.squareup.picasso.Picasso;
 
-import java.text.SimpleDateFormat;
 import java.util.List;
 
 /**
@@ -39,6 +41,36 @@ public class PostListAdapter extends RecyclerView.Adapter<PostListAdapter.PostVi
         postViewHolder.mComments.setText(post.mComments);
         postViewHolder.mUrl.setText(post.mUrl);
         postViewHolder.mAge.setText(post.mAge);
+
+        //picasso needs to be passed null to prevent listview from displaying incorrectly cached images
+        //if(!TextUtils.isEmpty(post.mImageUrl)) {
+            Picasso.with(postViewHolder.mImage.getContext())
+                    .load(post.mImageUrl)
+                    //.placeholder(R.drawable.ic_photo_camera_24dp)
+                    .error(R.drawable.drawer_icon)
+                    .into(postViewHolder.mImage, new com.squareup.picasso.Callback() {
+                        @Override
+                        public void onSuccess() {
+
+                        }
+
+                        @Override
+                        public void onError() {
+
+                        }
+                    });
+//            Picasso.Builder builder = new Picasso.Builder(postViewHolder.mImage.getContext());
+//            builder.listener(new Picasso.Listener()
+//            {
+//                @Override
+//                public void onImageLoadFailed(Picasso picasso, Uri uri, Exception exception)
+//                {
+//                    exception.printStackTrace();
+//                }
+//            });
+//            builder.build().load("http://i.imgur.com/DvpvklR.png").into(postViewHolder.mImage);
+
+        //}
     }
 
     @Override
@@ -58,6 +90,9 @@ public class PostListAdapter extends RecyclerView.Adapter<PostListAdapter.PostVi
         protected TextView mComments;
         protected TextView mUrl;
         protected TextView mAge;
+        protected ImageView mImage;
+
+        protected Context mContext;
 
         public PostViewHolder(View v) {
             super(v);
@@ -68,15 +103,17 @@ public class PostListAdapter extends RecyclerView.Adapter<PostListAdapter.PostVi
             mComments = (TextView)  v.findViewById(R.id.post_comments);
             mUrl = (TextView)  v.findViewById(R.id.post_url);
             mAge = (TextView) v.findViewById(R.id.post_age);
+            mImage = (ImageView) v.findViewById(R.id.post_image);
 
             mTitle.setOnClickListener(mOnClickListener);
             mUsername.setOnClickListener(mOnClickListener);
+            mImage.setOnClickListener(mOnClickListener);
         }
 
         private View.OnClickListener mOnClickListener = (new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (v == mTitle) {
+                if (v == mTitle || v == mImage) {
                     goToPostDetail(v);
                 } else if (v == mUsername) {
                     goToUserInfo(v);
