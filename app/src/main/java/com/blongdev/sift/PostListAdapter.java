@@ -92,8 +92,6 @@ public class PostListAdapter extends RecyclerView.Adapter<PostListAdapter.PostVi
         protected TextView mAge;
         protected ImageView mImage;
 
-        protected Context mContext;
-
         public PostViewHolder(View v) {
             super(v);
             mUsername =  (TextView) v.findViewById(R.id.post_username);
