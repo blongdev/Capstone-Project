@@ -3,4 +3,13 @@
     <color name="colorPrimary">#3F51B5</color>
     <color name="colorPrimaryDark">#303F9F</color>
     <color name="colorAccent">#FF4081</color>
+
+    <color name="indigoOne">#303F9F</color>
+    <color name="indigoTwo">#3F51B5</color>
+    <color name="indigoThree">#5C6BC0</color>
+    <color name="indigoFour">#7986CB</color>
+    <color name="indigoFive">#9FA8DA</color>
+    <color name="indigoSix">#3949AB</color>
+
+
 </resources>
