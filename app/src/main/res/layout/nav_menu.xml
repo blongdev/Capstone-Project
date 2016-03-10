@@ -6,19 +6,40 @@
     <group android:checkableBehavior="single">
 
         <item
-            android:id="@+id/nav_inbox"
+            android:id="@+id/nav_home"
+            android:icon="@drawable/ic_home_24dp"
             android:checked="false"
-            android:title="Inbox" />
+            android:title="Home" />
 
         <item
-            android:id="@+id/nav_subreddits"
+            android:id="@+id/nav_profile"
             android:checked="false"
-            android:title="Subreddits" />
+            android:icon="@drawable/ic_person_24dp"
+            android:title="Profile" />
+
+        <item
+            android:id="@+id/nav_inbox"
+            android:checked="false"
+            android:icon="@drawable/ic_email_24dp"
+            android:title="Inbox" />
 
         <item
             android:id="@+id/nav_friends"
             android:checked="false"
+            android:icon="@drawable/ic_people_24dp"
             android:title="Friends" />
+
+        <item
+            android:id="@+id/nav_subreddits"
+            android:checked="false"
+            android:icon="@drawable/ic_folder_24dp"
+            android:title="Subreddits" />
+
+        <item
+            android:id="@+id/nav_settings"
+            android:checked="false"
+            android:icon="@drawable/ic_settings_24dp"
+            android:title="Settings" />
 
     </group>
 </menu>

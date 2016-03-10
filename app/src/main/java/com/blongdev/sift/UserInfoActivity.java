@@ -91,8 +91,17 @@ public class UserInfoActivity extends AppCompatActivity {
                 Intent intent;
 
                 switch (menuItem.getItemId()){
+                    case R.id.nav_home:
+                        intent = new Intent(getApplicationContext(), MainActivity.class);
+                        startActivity(intent);
+                        return true;
+                    case R.id.nav_profile:
+                        intent = new Intent(getApplicationContext(), UserInfoActivity.class);
+                        intent.putExtra(getString(R.string.username), "My Profile");
+                        startActivity(intent);
+                        return true;
                     case R.id.nav_inbox:
-                        intent = new Intent(getApplicationContext(), FriendsListActivity.class);
+                        intent = new Intent(getApplicationContext(), MessageActivity.class);
                         startActivity(intent);
                         return true;
                     case R.id.nav_friends:
@@ -100,8 +109,13 @@ public class UserInfoActivity extends AppCompatActivity {
                         startActivity(intent);
                         return true;
                     case R.id.nav_subreddits:
-                        intent = new Intent(getApplicationContext(), FriendsListActivity.class);
+                        intent = new Intent(getApplicationContext(), SubredditListActivity.class);
                         startActivity(intent);
+                        return true;
+                    case R.id.nav_settings:
+                        intent = new Intent(getApplicationContext(), SettingsActivity.class);
+                        startActivity(intent);
+                        return true;
                     default:
                         return true;
                 }

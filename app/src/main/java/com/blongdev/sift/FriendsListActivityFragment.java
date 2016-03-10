@@ -9,8 +9,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
+
+import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 
@@ -76,6 +79,7 @@ public class FriendsListActivityFragment extends Fragment {
                 view = LayoutInflater.from(getContext()).inflate(R.layout.friend, parent, false);
                 viewHolder = new UserViewHolder();
                 viewHolder.mUsername = (TextView) view.findViewById(R.id.friend_username);
+                viewHolder.mImage = (ImageView) view.findViewById(R.id.friend_icon);
                 view.setTag(viewHolder);
             } else {
                 viewHolder = (UserViewHolder) view.getTag();
@@ -84,6 +88,7 @@ public class FriendsListActivityFragment extends Fragment {
             UserInfo user = mFriends.get(position);
             if(user != null) {
                 viewHolder.mUsername.setText(user.mUsername);
+                Picasso.with(getContext()).load(R.drawable.ic_account_circle_24dp).placeholder(R.drawable.ic_account_circle_24dp).into(viewHolder.mImage);
             }
 
             return view;
@@ -95,5 +100,6 @@ public class FriendsListActivityFragment extends Fragment {
         protected TextView mUsername;
         protected TextView mPoints;
         protected TextView mAge;
+        protected ImageView mImage;
     }
 }
