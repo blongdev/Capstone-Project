@@ -16,7 +16,9 @@
         <android.support.design.widget.AppBarLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:theme="@style/AppTheme.AppBarOverlay">
+            android:theme="@style/AppTheme.AppBarOverlay"
+            app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
 
             <android.support.v7.widget.Toolbar
                 android:id="@+id/toolbar"
@@ -24,7 +26,17 @@
                 android:layout_height="?attr/actionBarSize"
                 android:background="?attr/colorPrimary"
                 app:popupTheme="@style/AppTheme.PopupOverlay"
-                app:layout_scrollFlags="scroll|exitUntilCollapsed" />
+                app:layout_scrollFlags="scroll|exitUntilCollapsed"
+                app:layout_collapseMode="parallax">
+
+            </android.support.v7.widget.Toolbar>
+
+            <android.support.design.widget.TabLayout
+                android:id="@+id/subreddit_tabs"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:tabMode="scrollable"
+                app:tabGravity="fill"/>
 
         </android.support.design.widget.AppBarLayout>
 
@@ -35,17 +47,18 @@
             android:layout_height="match_parent"
             android:background="@android:color/white"
             app:layout_behavior="@string/appbar_scrolling_view_behavior">
-
-            <android.support.v4.view.PagerTitleStrip
-                android:id="@+id/pager_title_strip"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_gravity="top"
-                android:background="#33b5e5"
-                android:textColor="#fff"
-                android:paddingTop="4dp"
-                android:paddingBottom="4dp" />
+            <!--<android.support.v4.view.PagerTabStrip-->
+            <!--android:id="@+id/pager_title_strip"-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:layout_gravity="top"-->
+            <!--android:background="@color/colorPrimary"-->
+            <!--android:textColor="#fff"-->
+            <!--android:paddingTop="4dp"-->
+            <!--android:paddingBottom="4dp"-->
+            <!--android:elevation="4dp" />-->
         </android.support.v4.view.ViewPager>
+
 
 
 
