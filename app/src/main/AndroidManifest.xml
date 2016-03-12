@@ -45,6 +45,12 @@
             android:name=".SubredditListActivity"
             android:label="@string/title_activity_subreddit_list"
             android:theme="@style/AppTheme.NoActionBar"></activity>
+
+        <provider
+            android:name=".database.SiftProvider"
+            android:authorities="com.blongdev.sift.database.SiftProvider"
+            />
+
     </application>
 
 </manifest>
