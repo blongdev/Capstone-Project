@@ -21,6 +21,9 @@
     <string name="title_activity_friends_list">FriendsListActivity</string>
     <string name="title_activity_settings">Settings</string>
 
+    <string name="image_url">imageUrl</string>
+
+
     <!-- Strings related to Settings -->
 
     <!-- Example General settings -->

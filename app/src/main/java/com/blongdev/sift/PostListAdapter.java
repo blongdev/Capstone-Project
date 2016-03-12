@@ -1,8 +1,12 @@
 package com.blongdev.sift;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Bundle;
+import android.support.v4.app.FragmentManager;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
@@ -41,6 +45,7 @@ public class PostListAdapter extends RecyclerView.Adapter<PostListAdapter.PostVi
         postViewHolder.mComments.setText(post.mComments);
         postViewHolder.mUrl.setText(post.mUrl);
         postViewHolder.mAge.setText(post.mAge);
+        postViewHolder.mImageUrl = post.mImageUrl;
 
         //picasso needs to be passed null to prevent listview from displaying incorrectly cached images
         //if(!TextUtils.isEmpty(post.mImageUrl)) {
@@ -92,6 +97,8 @@ public class PostListAdapter extends RecyclerView.Adapter<PostListAdapter.PostVi
         protected TextView mAge;
         protected ImageView mImage;
 
+        protected String mImageUrl;
+
         public PostViewHolder(View v) {
             super(v);
             mUsername =  (TextView) v.findViewById(R.id.post_username);
@@ -108,13 +115,21 @@ public class PostListAdapter extends RecyclerView.Adapter<PostListAdapter.PostVi
             mImage.setOnClickListener(mOnClickListener);
         }
 
+        //TODO create an interface to handle all clicks with abstract methods
         private View.OnClickListener mOnClickListener = (new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (v == mTitle || v == mImage) {
+                if (v == mTitle) {
                     goToPostDetail(v);
                 } else if (v == mUsername) {
                     goToUserInfo(v);
+                } else if (v == mImage) {
+                    FragmentManager fm = ((AppCompatActivity) v.getContext()).getSupportFragmentManager();
+                    ImageDialogFragment imageFragment = new ImageDialogFragment();
+                    Bundle args = new Bundle();
+                    args.putString(v.getContext().getString(R.string.image_url), mImageUrl);
+                    imageFragment.setArguments(args);
+                    imageFragment.show(fm, "ImageDialogFragment");
                 }
             }
 
