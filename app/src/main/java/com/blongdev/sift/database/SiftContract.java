@@ -11,18 +11,19 @@ public final class SiftContract {
     public static final String AUTHORITY = "com.blongdev.sift.database.SiftProvider";
     public static final Uri BASE_CONTENT_URI = Uri.parse("content://" + AUTHORITY);
 
-    public static final  int    DATABASE_VERSION   = 1;
-    public static final  String DATABASE_NAME      = "sift.db";
-    private static final String TEXT_TYPE          = " TEXT";
-    private static final String COMMA_SEP          = ",";
+    public static final int DATABASE_VERSION = 1;
+    public static final String DATABASE_NAME = "sift.db";
+    private static final String TEXT_TYPE = " TEXT";
+    private static final String COMMA_SEP = ",";
 
-    private SiftContract() {}
+    private SiftContract() {
+    }
 
     public static abstract class Posts implements BaseColumns {
-        public static final String TABLE_NAME       = "posts";
+        public static final String TABLE_NAME = "posts";
         public static final Uri CONTENT_URI = Uri.parse(BASE_CONTENT_URI + "/" + TABLE_NAME);
         public static final String COLUMN_TITLE = "title";
-        public static final String COLUMN_OWNER= "owner";
+        public static final String COLUMN_OWNER = "owner";
         public static final String COLUMN_POINTS = "points";
 
 
@@ -33,5 +34,35 @@ public final class SiftContract {
                 COLUMN_OWNER + TEXT_TYPE + COMMA_SEP +
                 COLUMN_POINTS + TEXT_TYPE + COMMA_SEP + " )";
         public static final String DELETE_TABLE = "DROP TABLE IF EXISTS " + TABLE_NAME;
+    }
+
+    public static abstract class Accounts implements BaseColumns {
+        public static final String TABLE_NAME = "accounts";
+        public static final Uri CONTENT_URI = Uri.parse(BASE_CONTENT_URI + "/" + TABLE_NAME);
+
+    }
+
+    public static abstract class Comments implements BaseColumns {
+        public static final String TABLE_NAME = "comments";
+        public static final Uri CONTENT_URI = Uri.parse(BASE_CONTENT_URI + "/" + TABLE_NAME);
+
+    }
+
+    public static abstract class Users implements BaseColumns {
+        public static final String TABLE_NAME = "users";
+        public static final Uri CONTENT_URI = Uri.parse(BASE_CONTENT_URI + "/" + TABLE_NAME);
+
+    }
+
+    public static abstract class Subreddits implements BaseColumns {
+        public static final String TABLE_NAME = "subreddits";
+        public static final Uri CONTENT_URI = Uri.parse(BASE_CONTENT_URI + "/" + TABLE_NAME);
+
+    }
+
+    public static abstract class Messages implements BaseColumns {
+        public static final String TABLE_NAME = "messages";
+        public static final Uri CONTENT_URI = Uri.parse(BASE_CONTENT_URI + "/" + TABLE_NAME);
+
     }
 }

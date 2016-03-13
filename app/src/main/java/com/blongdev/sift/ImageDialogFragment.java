@@ -22,10 +22,13 @@ import com.squareup.picasso.Picasso;
  */
 public class ImageDialogFragment extends DialogFragment {
 
+    private static final boolean PINCH_ZOOM_ENABLED = false;
+
     Matrix mMatrix;
     ImageView mImageView;
 
     float mInitialScaleFactor = 1;
+    float mScaleFactor = 1f;
 
     ScaleGestureDetector mScaleGestureDetector;
 
@@ -44,15 +47,18 @@ public class ImageDialogFragment extends DialogFragment {
         Picasso.with(getContext()).load(imageUrl).into(mImageView);
 
         mMatrix = mImageView.getMatrix();
-        mScaleGestureDetector = new ScaleGestureDetector(getContext(), new ScaleListener());
 
-        mImageView.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                mScaleGestureDetector.onTouchEvent(event);
-                return true;
-            }
-        });
+        if (PINCH_ZOOM_ENABLED) {
+            mScaleGestureDetector = new ScaleGestureDetector(getContext(), new ScaleListener());
+
+            mImageView.setOnTouchListener(new View.OnTouchListener() {
+                @Override
+                public boolean onTouch(View v, MotionEvent event) {
+                    mScaleGestureDetector.onTouchEvent(event);
+                    return true;
+                }
+            });
+        }
 
         return rootView;
     }
@@ -61,9 +67,10 @@ public class ImageDialogFragment extends DialogFragment {
         @Override
         public boolean onScale(ScaleGestureDetector detector) {
             //previously scaled, needs adjustment. not working well yet
-            float scaleFactor = detector.getScaleFactor() * mInitialScaleFactor;
+            mScaleFactor *=  detector.getScaleFactor();
+            mScaleFactor = Math.max(0.2f*mInitialScaleFactor, Math.min(mScaleFactor, 5f*mInitialScaleFactor));
 
-            mMatrix.setScale(scaleFactor,scaleFactor);
+            mMatrix.setScale(mScaleFactor,mScaleFactor);
             mImageView.setImageMatrix(mMatrix);
             return true;
         }
@@ -73,23 +80,21 @@ public class ImageDialogFragment extends DialogFragment {
     public void onResume()
     {
         DisplayMetrics metrics = getResources().getDisplayMetrics();
-        int screenWidth = metrics.widthPixels;
-        int screenHeight = metrics.heightPixels;
+        int maxWidth = metrics.widthPixels;
+        int maxHeight = metrics.heightPixels;
 
         int imageWidth = mImageView.getDrawable().getIntrinsicWidth();
         int imageHeight = mImageView.getDrawable().getIntrinsicHeight();
 
-        if (imageHeight > imageWidth && imageHeight > 0) {
-            mInitialScaleFactor = Float.valueOf(screenHeight)/Float.valueOf(imageHeight);
-            if (imageWidth * mInitialScaleFactor > screenWidth) {
-
-            }
+        if ((maxHeight - imageHeight) < (maxWidth - imageWidth)) {
+            mInitialScaleFactor = Float.valueOf(maxHeight)/Float.valueOf(imageHeight);
         } else if(imageWidth > 0){
-            mInitialScaleFactor =  Float.valueOf(screenWidth)/Float.valueOf(imageWidth);
+            mInitialScaleFactor = Float.valueOf(maxWidth)/Float.valueOf(imageWidth);
         }
 
         mMatrix.setScale(mInitialScaleFactor, mInitialScaleFactor);
         mImageView.setImageMatrix(mMatrix);
+        mScaleFactor = mInitialScaleFactor;
 
         int newWidth = (int)(imageWidth * mInitialScaleFactor);
         int newHeight = (int)(imageHeight * mInitialScaleFactor);
