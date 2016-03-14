@@ -11,7 +11,7 @@
     <color name="indigoFive">#9FA8DA</color>
     <color name="indigoSix">#3949AB</color>
 
-    <color name="comment_bg_color">#d3d3d3</color>
+    <color name="comment_bg_color">#eeeeee</color>
     <color name="comment_line_color">@android:color/black</color>
 
 </resources>

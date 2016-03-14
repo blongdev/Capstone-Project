@@ -10,7 +10,7 @@
     <string name="subreddit">subreddit</string>
     <string name="points">points</string>
     <string name="comments">comments</string>
-    <string name="url">age</string>
+    <string name="url">url</string>
     <string name="age">age</string>
     <string name="title_activity_user_info">UserInfoActivity</string>
     <string name="title_activity_post_detail">PostDetailActivity</string>

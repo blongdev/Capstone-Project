@@ -150,6 +150,7 @@ public class PostListAdapter extends RecyclerView.Adapter<PostListAdapter.PostVi
                 intent.putExtra(v.getContext().getString(R.string.comments), comments);
                 intent.putExtra(v.getContext().getString(R.string.url), url);
                 intent.putExtra(v.getContext().getString(R.string.age), age);
+                intent.putExtra(v.getContext().getString(R.string.image_url), mImageUrl);
 
                 v.getContext().startActivity(intent);
             }

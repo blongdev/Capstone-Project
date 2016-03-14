@@ -3,8 +3,11 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context="com.blongdev.sift.PostDetailFragment"
+    android:clipToPadding="false"
+    android:background="@android:color/white"
     android:elevation="6dp">
 
-    <include layout="@layout/post_detail" />
+        <include layout="@layout/post_detail" />
+
 
 </FrameLayout>

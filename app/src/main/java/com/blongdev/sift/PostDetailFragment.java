@@ -8,7 +8,10 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
+
+import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -24,6 +27,7 @@ public class PostDetailFragment extends Fragment {
     TextView mComments;
     TextView mUrl;
     TextView mAge;
+    ImageView mImage;
 
     public PostDetailFragment() {
         // Required empty public constructor
@@ -49,6 +53,7 @@ public class PostDetailFragment extends Fragment {
         String comments = intent.getStringExtra(getString(R.string.comments));
         String url = intent.getStringExtra(getString(R.string.url));
         String age = intent.getStringExtra(getString(R.string.age));
+        String imageUrl = intent.getStringExtra(getString(R.string.image_url));
 
         mTitle = (TextView) rootView.findViewById(R.id.post_title);
         mUsername = (TextView) rootView.findViewById(R.id.post_username);
@@ -57,6 +62,8 @@ public class PostDetailFragment extends Fragment {
         mComments = (TextView) rootView.findViewById(R.id.post_comments);
         mUrl = (TextView) rootView.findViewById(R.id.post_url);
         mAge = (TextView) rootView.findViewById(R.id.post_age);
+        mImage = (ImageView) rootView.findViewById(R.id.post_detail_image);
+
 
         mTitle.setText(title);
         mUsername.setText(username);
@@ -65,6 +72,8 @@ public class PostDetailFragment extends Fragment {
         mComments.setText(comments);
         mUrl.setText(url);
         mAge.setText(age);
+
+        Picasso.with(getContext()).load(imageUrl).into(mImage);
 
         return rootView;
     }
