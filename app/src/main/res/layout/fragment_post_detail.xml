@@ -2,7 +2,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.blongdev.sift.PostDetailFragment">
+    tools:context="com.blongdev.sift.PostDetailFragment"
+    android:elevation="6dp">
 
     <include layout="@layout/post_detail" />
 

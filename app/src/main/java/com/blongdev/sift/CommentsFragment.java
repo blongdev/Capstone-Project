@@ -7,18 +7,23 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.unnamed.b.atv.model.TreeNode;
+import com.unnamed.b.atv.view.AndroidTreeView;
+
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 
 
 public class CommentsFragment extends Fragment {
-    CommentListAdapter mCommentListAdapter;
-    CommentsView mCommentsView;
-    List<String> mListDataHeader;
-    HashMap<String, List<String>> mListDataChild;
+
+    TreeNode mRoot;
+    FrameLayout mCommentsContainer;
 
     public CommentsFragment() {
         // Required empty public constructor
@@ -36,58 +41,86 @@ public class CommentsFragment extends Fragment {
         // Inflate the layout for this fragment
         View rootView =  inflater.inflate(R.layout.fragment_comments, container, false);
 
-        // get the listview
-        mCommentsView = (CommentsView) rootView.findViewById(R.id.comments_view);
+        createTree();
 
-        // preparing list data
-        prepareListData();
+        mCommentsContainer = (FrameLayout) rootView.findViewById(R.id.comments_container);
+        AndroidTreeView tView = new AndroidTreeView(getActivity(), mRoot);
+        tView.setDefaultContainerStyle(R.style.CommentStyle);
+        //tView.setDefaultViewHolder(CommentViewHolder.class);
+        mCommentsContainer.addView(tView.getView());
 
-        mCommentListAdapter = new CommentListAdapter(getActivity(), mListDataHeader, mListDataChild);
-
-        // setting list adapter
-        mCommentsView.setAdapter(mCommentListAdapter);
 
         return rootView;
     }
 
-    private void prepareListData() {
-        mListDataHeader = new ArrayList<String>();
-        mListDataChild = new HashMap<String, List<String>>();
-
-        // Adding child data
-        mListDataHeader.add("Top 250");
-        mListDataHeader.add("Now Showing");
-        mListDataHeader.add("Coming Soon..");
-
-        // Adding child data
-        List<String> top250 = new ArrayList<String>();
-        top250.add("The Shawshank Redemption");
-        top250.add("The Godfather");
-        top250.add("The Godfather: Part II");
-        top250.add("Pulp Fiction");
-        top250.add("The Good, the Bad and the Ugly");
-        top250.add("The Dark Knight");
-        top250.add("12 Angry Men");
-
-        List<String> nowShowing = new ArrayList<String>();
-        nowShowing.add("The Conjuring");
-        nowShowing.add("Despicable Me 2");
-        nowShowing.add("Turbo");
-        nowShowing.add("Grown Ups 2");
-        nowShowing.add("Red 2");
-        nowShowing.add("The Wolverine");
-
-        List<String> comingSoon = new ArrayList<String>();
-        comingSoon.add("2 Guns");
-        comingSoon.add("The Smurfs 2");
-        comingSoon.add("The Spectacular Now");
-        comingSoon.add("The Canyons");
-        comingSoon.add("Europa Report");
-
-        mListDataChild.put(mListDataHeader.get(0), top250); // Header, Child data
-        mListDataChild.put(mListDataHeader.get(1), nowShowing);
-        mListDataChild.put(mListDataHeader.get(2), comingSoon);
+    private TreeNode createCommentNode(String title) {
+        CommentInfo comment = new CommentInfo();
+        comment.mTitle = title;
+        return new TreeNode(comment).setViewHolder(new CommentViewHolder(getContext()));
     }
+
+    private void createTree() {
+        mRoot = TreeNode.root();
+
+        for (int i = 0; i < 15; i++) {
+            TreeNode parent = createCommentNode("Comment " + i);
+            for (int j = 0; j < 3; j++) {
+                TreeNode child = createCommentNode("Reply " + i + " " + j);
+                for (int k = 0; k < 3; k++) {
+                    TreeNode child2 = createCommentNode("Reply " + i + " " + j + " " + k);
+                    child.addChild(child2);
+                }
+                parent.addChild(child);
+            }
+            mRoot.addChild(parent);
+        }
+
+
+//        TreeNode parent = createCommentNode("Comment 1");
+//        TreeNode parent2 = createCommentNode("Comment 2");
+//        TreeNode child0 = createCommentNode("Comment 3");
+//        TreeNode child1 = createCommentNode("Comment 4");
+//        TreeNode child2 = createCommentNode("Comment 5");
+//        TreeNode child3 = createCommentNode("Comment 6");
+//        parent.addChildren(child0, child1);
+//        child1.addChildren(child2, child3);
+//        mRoot.addChild(parent);
+//        mRoot.addChild(parent2);
+    }
+
+    public class CommentViewHolder extends TreeNode.BaseNodeViewHolder<CommentInfo> {
+
+        public CommentViewHolder(Context context) {
+            super(context);
+        }
+
+        @Override
+        public View createNodeView(TreeNode node, CommentInfo value) {
+            final LayoutInflater inflater = LayoutInflater.from(context);
+            final View view = inflater.inflate(R.layout.comment, null, false);
+
+//            final float dpScale = getResources().getDisplayMetrics().density;
+//            int padding_left = (int) (15 * dpScale + 0.5f) * node.getLevel();
+//            int padding = (int) (6 * dpScale + 0.5f);
+
+            int padding_left = (int) getResources().getDimension(R.dimen.comment_indent) * (node.getLevel()-1);
+            int padding = (int) getResources().getDimension(R.dimen.comment_padding);
+
+
+            LinearLayout commentView = (LinearLayout) view.findViewById(R.id.comment_view);
+            commentView.setPadding(padding_left, 0, padding, 0);
+
+            TextView tvValue = (TextView) view.findViewById(R.id.comment_body);
+            tvValue.setText(value.mTitle);
+
+
+
+            return view;
+        }
+
+
+    }
+
 
     @Override
     public void onAttach(Context context) {

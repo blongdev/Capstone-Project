@@ -67,4 +67,12 @@
 
     </style>
 
+    <style name="CommentTitle" parent="PostText">
+        <item name="android:textSize">20sp</item>
+    </style>
+
+    <style name="CommentStyle">
+        <item name="android:layout_width">match_parent</item>
+    </style>
+
 </resources>

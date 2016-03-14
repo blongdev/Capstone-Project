@@ -48,6 +48,13 @@ public class FriendsListActivityFragment extends Fragment {
                 Intent intent = new Intent(getContext(), UserInfoActivity.class);
                 intent.putExtra(getString(R.string.username), user.mUsername);
                 startActivity(intent);
+
+
+//                if (position % 2 == 0) {
+//
+//                } else {
+//
+//                }
             }
         });
 

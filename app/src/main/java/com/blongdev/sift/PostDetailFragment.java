@@ -50,14 +50,13 @@ public class PostDetailFragment extends Fragment {
         String url = intent.getStringExtra(getString(R.string.url));
         String age = intent.getStringExtra(getString(R.string.age));
 
-        View cardView = rootView.findViewById(R.id.card_view);
-        mTitle = (TextView) cardView.findViewById(R.id.post_title);
-        mUsername = (TextView) cardView.findViewById(R.id.post_username);
-        mSubreddit = (TextView) cardView.findViewById(R.id.post_subreddit);
-        mPoints = (TextView) cardView.findViewById(R.id.post_points);
-        mComments = (TextView) cardView.findViewById(R.id.post_comments);
-        mUrl = (TextView) cardView.findViewById(R.id.post_url);
-        mAge = (TextView) cardView.findViewById(R.id.post_age);
+        mTitle = (TextView) rootView.findViewById(R.id.post_title);
+        mUsername = (TextView) rootView.findViewById(R.id.post_username);
+        mSubreddit = (TextView) rootView.findViewById(R.id.post_subreddit);
+        mPoints = (TextView) rootView.findViewById(R.id.post_points);
+        mComments = (TextView) rootView.findViewById(R.id.post_comments);
+        mUrl = (TextView) rootView.findViewById(R.id.post_url);
+        mAge = (TextView) rootView.findViewById(R.id.post_age);
 
         mTitle.setText(title);
         mUsername.setText(username);

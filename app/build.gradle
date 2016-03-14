@@ -34,4 +34,7 @@ dependencies {
     compile 'com.android.support:support-v4:23.2.0'
     compile 'com.squareup.picasso:picasso:2.5.2'
     //compile "net.dean.jraw:JRAW:0.8.0"
+
+    //comment tree
+    compile 'com.github.bmelnychuk:atv:1.2.+'
 }
