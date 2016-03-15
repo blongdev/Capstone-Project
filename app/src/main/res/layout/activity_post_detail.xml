@@ -59,7 +59,6 @@
                 android:name="com.blongdev.sift.CommentsFragment"
                 ></fragment>
 
-
         </LinearLayout>
 
     </android.support.design.widget.CoordinatorLayout>

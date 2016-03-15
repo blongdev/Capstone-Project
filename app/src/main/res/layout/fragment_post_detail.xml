@@ -5,9 +5,9 @@
     tools:context="com.blongdev.sift.PostDetailFragment"
     android:clipToPadding="false"
     android:background="@android:color/white"
-    android:elevation="6dp">
+    android:elevation="4dp">
 
-        <include layout="@layout/post_detail" />
+    <include layout="@layout/post_detail" />
 
 
 </FrameLayout>

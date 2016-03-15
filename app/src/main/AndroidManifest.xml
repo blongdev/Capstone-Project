@@ -44,13 +44,16 @@
         <activity
             android:name=".SubredditListActivity"
             android:label="@string/title_activity_subreddit_list"
-            android:theme="@style/AppTheme.NoActionBar"></activity>
+            android:theme="@style/AppTheme.NoActionBar" />
 
         <provider
             android:name=".database.SiftProvider"
-            android:authorities="com.blongdev.sift.database.SiftProvider"
-            />
+            android:authorities="com.blongdev.sift.database.SiftProvider" />
 
+        <activity
+            android:name=".MessageDetailActivity"
+            android:label="@string/title_activity_message_detail"
+            android:theme="@style/AppTheme.NoActionBar"></activity>
     </application>
 
 </manifest>
