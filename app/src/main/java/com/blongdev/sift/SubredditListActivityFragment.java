@@ -1,15 +1,29 @@
 package com.blongdev.sift;
 
+import android.content.Context;
+import android.content.Intent;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
+import android.widget.TextView;
+
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * A placeholder fragment containing a simple view.
  */
 public class SubredditListActivityFragment extends Fragment {
+
+    ListView mSubredditListView;
+    ArrayList<SubredditInfo> mSubreddits;
+    SubredditAdapter mSubredditAdapter;
 
     public SubredditListActivityFragment() {
     }
@@ -17,6 +31,68 @@ public class SubredditListActivityFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_subreddit_list, container, false);
+        View rootView = inflater.inflate(R.layout.fragment_subreddit_list, container, false);
+
+        mSubreddits = new ArrayList<SubredditInfo>();
+        mSubredditListView = (ListView) rootView.findViewById(R.id.subreddit_list);
+
+        populateSubreddits();
+
+        mSubredditAdapter = new SubredditAdapter(getActivity(), mSubreddits);
+        mSubredditListView.setAdapter(mSubredditAdapter);
+
+        mSubredditListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                SubredditInfo sub = mSubreddits.get(position);
+                Intent intent = new Intent(getContext(), MainActivity.class);
+                intent.putExtra(getString(R.string.username), sub.mName);
+                startActivity(intent);
+            }
+        });
+
+        return rootView;
+    }
+
+    public class SubredditAdapter extends ArrayAdapter<SubredditInfo> {
+        public SubredditAdapter(Context context, ArrayList<SubredditInfo> subreddits) {
+            super(context, 0, subreddits);
+        }
+
+        @Override
+        public View getView(int position, View view, ViewGroup parent) {
+
+            SubredditViewHolder viewHolder;
+
+            if (view == null) {
+                view = LayoutInflater.from(getContext()).inflate(R.layout.subreddit, parent, false);
+                viewHolder = new SubredditViewHolder();
+                viewHolder.mName = (TextView) view.findViewById(R.id.subreddit_name);
+                view.setTag(viewHolder);
+            } else {
+                viewHolder = (SubredditViewHolder) view.getTag();
+            }
+
+            SubredditInfo sub = mSubreddits.get(position);
+            if(sub != null) {
+                viewHolder.mName.setText(sub.mName);
+                //Picasso.with(getContext()).load(R.drawable.ic_account_circle_24dp).placeholder(R.drawable.ic_account_circle_24dp).into(viewHolder.mImage);
+            }
+
+            return view;
+        }
+
+    }
+
+    public void populateSubreddits() {
+        for (int i = 1; i<=15; i++) {
+            SubredditInfo sub = new SubredditInfo();
+            sub.mName = "Subreddit " + i;
+            mSubreddits.add(sub);
+        }
+    }
+
+    public static class SubredditViewHolder {
+        protected TextView mName;
     }
 }
