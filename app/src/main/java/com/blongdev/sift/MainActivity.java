@@ -1,6 +1,7 @@
 package com.blongdev.sift;
 
 import android.content.Intent;
+import android.database.Cursor;
 import android.os.Debug;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.TabLayout;
@@ -23,6 +24,7 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import com.blongdev.sift.database.SiftContract;
 import com.blongdev.sift.database.SiftDbHelper;
 
 public class MainActivity extends AppCompatActivity {
@@ -41,9 +43,13 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        //TODO find better place for this
-        SiftDbHelper dbHelper = new SiftDbHelper(this);
-        dbHelper.createDb();
+        Cursor cursor = getContentResolver().query(SiftContract.Posts.CONTENT_URI, null, null, null, null);
+        if (cursor != null) {
+            if (!cursor.moveToFirst()) {
+                SiftDbHelper dbHelper = new SiftDbHelper(this);
+                dbHelper.insertDummyData();
+            }
+        }
 
         //final ActionBar actionBar = getSupportActionBar();
         //actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);

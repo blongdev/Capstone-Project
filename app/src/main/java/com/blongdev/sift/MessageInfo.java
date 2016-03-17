@@ -4,9 +4,13 @@ package com.blongdev.sift;
  * Created by Brian on 2/24/2016.
  */
 public class MessageInfo {
-    protected String mTo;
-    protected String mFrom;
-    protected String mTitle;
-    protected String mBody;
-    protected String mDate;
+    public int mAccountId;
+    public String mTo;
+    public int mToUserId;
+    public String mFrom;
+    public int mFromUserId;
+    public String mTitle;
+    public String mBody;
+    public int mDate;
+    public boolean mRead;
 }

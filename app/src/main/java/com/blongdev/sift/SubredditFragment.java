@@ -68,10 +68,10 @@ public class SubredditFragment extends Fragment {
                 post.mImageUrl = null;
             }
 
-            post.mPoints = "Points" + i;
-            post.mComments = "Comments" + i;
+            post.mPoints = 12;
+            post.mComments = 5;
             post.mUrl = "Url" + i;
-            post.mAge = "Age" + i;
+            post.mAge = 4;
             result.add(post);
         }
         return result;

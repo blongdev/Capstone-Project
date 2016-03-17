@@ -55,7 +55,7 @@ public class CommentsFragment extends Fragment {
 
     private TreeNode createCommentNode(String title) {
         CommentInfo comment = new CommentInfo();
-        comment.mTitle = title;
+        comment.mBody= title;
         return new TreeNode(comment).setViewHolder(new CommentViewHolder(getContext()));
     }
 
@@ -110,8 +110,8 @@ public class CommentsFragment extends Fragment {
             LinearLayout commentView = (LinearLayout) view.findViewById(R.id.comment_view);
             commentView.setPadding(padding_left, 0, padding, 0);
 
-            TextView tvValue = (TextView) view.findViewById(R.id.comment_body);
-            tvValue.setText(value.mTitle);
+            TextView body = (TextView) view.findViewById(R.id.comment_body);
+            body.setText(value.mBody);
 
 
 

@@ -41,10 +41,10 @@ public class PostListAdapter extends RecyclerView.Adapter<PostListAdapter.PostVi
         postViewHolder.mUsername.setText(post.mUsername);
         postViewHolder.mSubreddit.setText(post.mSubreddit);
         postViewHolder.mTitle.setText(post.mTitle);
-        postViewHolder.mPoints.setText(post.mPoints);
-        postViewHolder.mComments.setText(post.mComments);
+        postViewHolder.mPoints.setText(post.mPoints + " Points");
+        postViewHolder.mComments.setText(post.mComments + " Comments");
         postViewHolder.mUrl.setText(post.mUrl);
-        postViewHolder.mAge.setText(post.mAge);
+        postViewHolder.mAge.setText(post.mAge + " Hours ago");
         postViewHolder.mImageUrl = post.mImageUrl;
 
         //picasso needs to be passed null to prevent listview from displaying incorrectly cached images

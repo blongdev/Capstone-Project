@@ -231,10 +231,10 @@ public class UserInfoActivity extends AppCompatActivity {
                     post.mTitle = "Title" + i;
                 }
 
-                post.mPoints = "Points" + i;
-                post.mComments = "Comments" + i;
+                post.mPoints = 12;
+                post.mComments = 5;
                 post.mUrl = "Url" + i;
-                post.mAge = "Age" + i;
+                post.mAge = 4;
                 result.add(post);
             }
             return result;

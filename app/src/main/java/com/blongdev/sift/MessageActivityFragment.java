@@ -98,7 +98,7 @@ public class MessageActivityFragment extends Fragment {
             msg.mTo = "To: " + i;
             msg.mTitle = "Title " + i;
             msg.mBody = "Body " + i;
-            msg.mDate = "Date " + i;
+            msg.mDate = 12;
             mMessages.add(msg);
         }
     }

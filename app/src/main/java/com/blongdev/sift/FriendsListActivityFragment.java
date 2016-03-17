@@ -65,8 +65,8 @@ public class FriendsListActivityFragment extends Fragment {
         for (int i = 1; i<=10; i++) {
             UserInfo user = new UserInfo();
             user.mUsername = "Username" + i;
-            user.mPoints = "" + i;
-            user.mAge = i + "yrs";
+            user.mPoints = (int )(Math.random() * 300);
+            user.mAge = (int )(Math.random() * 300);
             mFriends.add(user);
         }
     }
