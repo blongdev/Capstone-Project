@@ -1,6 +1,7 @@
 package com.blongdev.sift;
 
 import android.content.Intent;
+import android.os.Debug;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
@@ -22,6 +23,8 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import com.blongdev.sift.database.SiftDbHelper;
+
 public class MainActivity extends AppCompatActivity {
 
     private static final int NUM_PAGES = 5;
@@ -37,6 +40,10 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+        //TODO find better place for this
+        SiftDbHelper dbHelper = new SiftDbHelper(this);
+        dbHelper.createDb();
 
         //final ActionBar actionBar = getSupportActionBar();
         //actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
