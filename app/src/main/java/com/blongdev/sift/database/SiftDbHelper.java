@@ -297,12 +297,13 @@ public class SiftDbHelper extends SQLiteOpenHelper {
             mContentResolver.insert(SiftContract.Votes.CONTENT_URI, cv);
         }
     }
+
     public void insertDummyFriends() {
         for (int i=1; i <= NUM_DUMMY_FRIENDS; i++) {
             FriendInfo friend = new FriendInfo();
 
             friend.mAccountId = (int) (Math.random() * NUM_DUMMY_ACCOUNTS) + 1;
-            friend.mFriendId = (int) (Math.random() * NUM_DUMMY_POSTS) + 1;
+            friend.mFriendId = (int) (Math.random() * NUM_DUMMY_USERS) + 1;
 
             ContentValues cv = new ContentValues();
             cv.put(SiftContract.Friends.COLUMN_ACCOUNT_ID, friend.mAccountId);
