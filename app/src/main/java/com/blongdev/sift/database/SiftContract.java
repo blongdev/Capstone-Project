@@ -5,6 +5,8 @@ import android.app.Notification;
 import android.net.Uri;
 import android.provider.BaseColumns;
 
+import java.util.concurrent.ConcurrentMap;
+
 /**
  * Created by Brian on 3/12/2016.
  */
@@ -18,6 +20,10 @@ public final class SiftContract {
     private static final String TEXT_TYPE = " TEXT";
     private static final String INTEGER_TYPE = " INTEGER";
     private static final String COMMA_SEP = ", ";
+
+
+
+
 
     private SiftContract() {
         
@@ -191,7 +197,10 @@ public final class SiftContract {
 
     public static abstract class Subscriptions implements BaseColumns {
         public static final String TABLE_NAME = "subscriptions";
+        public static final String VIEW_NAME = "subscriptions_view";
         public static final Uri CONTENT_URI = Uri.parse(BASE_CONTENT_URI + "/" + TABLE_NAME);
+        public static final Uri VIEW_URI = Uri.parse(BASE_CONTENT_URI + "/" + VIEW_NAME);
+
 
         public static final String COLUMN_SUBREDDIT_ID = "subredditId";
         public static final String COLUMN_ACCOUNT_ID = "accountId";
@@ -204,12 +213,25 @@ public final class SiftContract {
                 " FOREIGN KEY(" + COLUMN_ACCOUNT_ID + ") REFERENCES " + Accounts.TABLE_NAME + "(" + Accounts._ID + ")" + COMMA_SEP +
                 " FOREIGN KEY(" + COLUMN_SUBREDDIT_ID + ") REFERENCES " + Subreddits.TABLE_NAME + "(" + Subreddits._ID + ")" + " )";
 
+
+        public static final String CREATE_VIEW = "CREATE VIEW " + VIEW_NAME + " AS SELECT " + Subscriptions.COLUMN_ACCOUNT_ID + COMMA_SEP +
+                Subscriptions.COLUMN_SUBREDDIT_ID + COMMA_SEP +
+                Subreddits.COLUMN_NAME + COMMA_SEP + Subreddits.COLUMN_DATE_CREATED +
+                " FROM " + Subscriptions.TABLE_NAME + " INNER JOIN " + Subreddits.TABLE_NAME +
+                " WHERE " + Subscriptions.COLUMN_SUBREDDIT_ID + " = " + Subreddits.TABLE_NAME + "." + Subreddits._ID;
+
+        public static final String DELETE_VIEW = "DROP VIEW IF EXISTS " + VIEW_NAME;
+
         public static final String DELETE_TABLE = "DROP TABLE IF EXISTS " + TABLE_NAME;
     }
 
     public static abstract class Favorites implements BaseColumns {
         public static final String TABLE_NAME = "favorites";
+        public static final String VIEW_NAME = "favorites_view";
+
         public static final Uri CONTENT_URI = Uri.parse(BASE_CONTENT_URI + "/" + TABLE_NAME);
+        public static final Uri VIEW_URI = Uri.parse(BASE_CONTENT_URI + "/" + VIEW_NAME);
+
 
         public static final String COLUMN_POST_ID = "postId";
         public static final String COLUMN_ACCOUNT_ID = "accountId";
@@ -224,6 +246,16 @@ public final class SiftContract {
                 " FOREIGN KEY(" + COLUMN_POST_ID + ") REFERENCES " + Users.TABLE_NAME + "(" + Posts._ID + ")" + " )";
 
 
+        public static final String CREATE_VIEW = "CREATE VIEW " + VIEW_NAME + " AS SELECT " + Favorites.COLUMN_ACCOUNT_ID + COMMA_SEP +
+                Favorites.COLUMN_POST_ID + COMMA_SEP +
+                Posts.COLUMN_TITLE + COMMA_SEP + Posts.COLUMN_DATE_CREATED + COMMA_SEP + Posts.COLUMN_OWNER_USERNAME + COMMA_SEP +
+                Posts.COLUMN_OWNER_ID + COMMA_SEP + Posts.COLUMN_SUBREDDIT_ID + COMMA_SEP + Posts.COLUMN_SUBREDDIT_NAME + COMMA_SEP +
+                Posts.COLUMN_IMAGE_URL + COMMA_SEP + Posts.COLUMN_POINTS + COMMA_SEP + Posts.COLUMN_NUM_COMMENTS +
+                " FROM " + Favorites.TABLE_NAME + " INNER JOIN " + Posts.TABLE_NAME +
+                " WHERE " + Favorites.COLUMN_POST_ID + " = " + Posts.TABLE_NAME + "." + Posts._ID;
+
+
+        public static final String DELETE_VIEW = "DROP VIEW IF EXISTS " + VIEW_NAME;
         public static final String DELETE_TABLE = "DROP TABLE IF EXISTS " + TABLE_NAME;
     }
 
@@ -255,7 +287,10 @@ public final class SiftContract {
 
     public static abstract class Friends implements BaseColumns {
         public static final String TABLE_NAME = "friends";
+        public static final String VIEW_NAME = "friends_view";
         public static final Uri CONTENT_URI = Uri.parse(BASE_CONTENT_URI + "/" + TABLE_NAME);
+        public static final Uri VIEW_URI = Uri.parse(BASE_CONTENT_URI + "/" + VIEW_NAME);
+
 
         public static final String COLUMN_ACCOUNT_ID = "accountId";
         public static final String COLUMN_FRIEND_USER_ID = "friendUserId";
@@ -268,6 +303,17 @@ public final class SiftContract {
                 " FOREIGN KEY(" + COLUMN_ACCOUNT_ID + ") REFERENCES " + Accounts.TABLE_NAME + "(" + Accounts._ID + ")" + COMMA_SEP +
                 " FOREIGN KEY(" + COLUMN_FRIEND_USER_ID + ") REFERENCES " + Users.TABLE_NAME + "(" + Users._ID + ")" + " )";
 
+        public static final String CREATE_VIEW = "CREATE VIEW " + VIEW_NAME + " AS SELECT " + Friends.COLUMN_ACCOUNT_ID + COMMA_SEP +
+                Friends.COLUMN_FRIEND_USER_ID + COMMA_SEP +
+                Users.COLUMN_USERNAME + COMMA_SEP + Users.COLUMN_USER_TYPE + COMMA_SEP + Users.COLUMN_DATE_CREATED + COMMA_SEP + Users.COLUMN_POINTS +
+                " FROM " + Friends.TABLE_NAME + " INNER JOIN " + Users.TABLE_NAME +
+                " WHERE " + Friends.COLUMN_FRIEND_USER_ID + " = " + Users.TABLE_NAME + "." + Users._ID;
+
+        public static final String DELETE_VIEW = "DROP VIEW IF EXISTS " + VIEW_NAME;
+
         public static final String DELETE_TABLE = "DROP TABLE IF EXISTS " + TABLE_NAME;
     }
+
+
+
 }

@@ -6,4 +6,7 @@ package com.blongdev.sift;
 public class SubscriptionInfo {
     public int mAccountId;
     public int mSubredditId;
+
+    public String mSubredditName;
+    public int mSubredditDate;
 }

@@ -23,6 +23,8 @@
 
     <string name="image_url">imageUrl</string>
 
+    <string name="subreddit_id">subredditId</string>
+
 
     <!-- Strings related to Settings -->
 

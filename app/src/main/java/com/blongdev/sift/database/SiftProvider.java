@@ -28,6 +28,11 @@ public class SiftProvider extends ContentProvider {
     public static final int FAVORITES = 9;
     public static final int VOTES = 10;
     public static final int FRIENDS = 11;
+    public static final int FAVORITES_VIEW = 12;
+    public static final int SUBSCRIPTIONS_VIEW = 13;
+    public static final int FRIENDS_VIEW = 14;
+
+
 
     private static final UriMatcher sURIMatcher = new UriMatcher(UriMatcher.NO_MATCH);
 
@@ -43,6 +48,10 @@ public class SiftProvider extends ContentProvider {
         sURIMatcher.addURI(SiftContract.AUTHORITY, SiftContract.Favorites.TABLE_NAME, FAVORITES);
         sURIMatcher.addURI(SiftContract.AUTHORITY, SiftContract.Votes.TABLE_NAME, VOTES);
         sURIMatcher.addURI(SiftContract.AUTHORITY, SiftContract.Friends.TABLE_NAME, FRIENDS);
+        sURIMatcher.addURI(SiftContract.AUTHORITY, SiftContract.Favorites.VIEW_NAME, FAVORITES_VIEW);
+        sURIMatcher.addURI(SiftContract.AUTHORITY, SiftContract.Subscriptions.VIEW_NAME, SUBSCRIPTIONS_VIEW);
+        sURIMatcher.addURI(SiftContract.AUTHORITY, SiftContract.Friends.VIEW_NAME, FRIENDS_VIEW);
+
     }
 
     @Override
@@ -149,16 +158,52 @@ public class SiftProvider extends ContentProvider {
     public Cursor query(Uri uri, String[] projection, String selection,
                                String[] selectionArgs, String sortOrder) {
         SQLiteQueryBuilder queryBuilder = new SQLiteQueryBuilder();
-        queryBuilder.setTables(SiftContract.Posts.TABLE_NAME);
-
         int uriType = sURIMatcher.match(uri);
 
         switch (uriType) {
             case POSTS_ID:
+                queryBuilder.setTables(SiftContract.Posts.TABLE_NAME);
                 queryBuilder.appendWhere(SiftContract.Posts._ID + "="
                         + uri.getLastPathSegment());
                 break;
             case POSTS:
+                queryBuilder.setTables(SiftContract.Posts.TABLE_NAME);
+                break;
+            case USERS:
+                queryBuilder.setTables(SiftContract.Users.TABLE_NAME);
+                break;
+            case SUBREDDITS:
+                queryBuilder.setTables(SiftContract.Subreddits.TABLE_NAME);
+                break;
+            case MESSAGES:
+                queryBuilder.setTables(SiftContract.Messages.TABLE_NAME);
+                break;
+            case ACCOUNTS:
+                queryBuilder.setTables(SiftContract.Accounts.TABLE_NAME);
+                break;
+            case SUBSCRIPTIONS:
+                queryBuilder.setTables(SiftContract.Subscriptions.TABLE_NAME);
+                break;
+            case FAVORITES:
+                queryBuilder.setTables(SiftContract.Favorites.TABLE_NAME);
+                break;
+            case COMMENTS:
+                queryBuilder.setTables(SiftContract.Comments.TABLE_NAME);
+                break;
+            case VOTES:
+                queryBuilder.setTables(SiftContract.Votes.TABLE_NAME);
+                break;
+            case FRIENDS:
+                queryBuilder.setTables(SiftContract.Friends.TABLE_NAME);
+                break;
+            case FAVORITES_VIEW:
+                queryBuilder.setTables(SiftContract.Favorites.VIEW_NAME);
+                break;
+            case SUBSCRIPTIONS_VIEW:
+                queryBuilder.setTables(SiftContract.Subscriptions.VIEW_NAME);
+                break;
+            case FRIENDS_VIEW:
+                queryBuilder.setTables(SiftContract.Friends.VIEW_NAME);
                 break;
             default:
                 throw new IllegalArgumentException("Unknown URI");

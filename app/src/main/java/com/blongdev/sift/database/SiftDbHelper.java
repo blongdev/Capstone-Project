@@ -54,28 +54,34 @@ public class SiftDbHelper extends SQLiteOpenHelper {
         db.execSQL(SiftContract.Favorites.CREATE_TABLE);
         db.execSQL(SiftContract.Votes.CREATE_TABLE);
         db.execSQL(SiftContract.Friends.CREATE_TABLE);
+
+        db.execSQL(SiftContract.Friends.CREATE_VIEW);
+        db.execSQL(SiftContract.Subscriptions.CREATE_VIEW);
+        db.execSQL(SiftContract.Favorites.CREATE_VIEW);
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        db.execSQL(SiftContract.Posts.DELETE_TABLE);
-        db.execSQL(SiftContract.Accounts.DELETE_TABLE);
-        db.execSQL(SiftContract.Comments.DELETE_TABLE);
-        db.execSQL(SiftContract.Subreddits.DELETE_TABLE);
-        db.execSQL(SiftContract.Users.DELETE_TABLE);
-        db.execSQL(SiftContract.Messages.DELETE_TABLE);
-        db.execSQL(SiftContract.Subscriptions.DELETE_TABLE);
-        db.execSQL(SiftContract.Favorites.DELETE_TABLE);
-        db.execSQL(SiftContract.Votes.DELETE_TABLE);
-        db.execSQL(SiftContract.Friends.DELETE_TABLE);
+//        db.execSQL(SiftContract.Posts.DELETE_TABLE);
+//        db.execSQL(SiftContract.Accounts.DELETE_TABLE);
+//        db.execSQL(SiftContract.Comments.DELETE_TABLE);
+//        db.execSQL(SiftContract.Subreddits.DELETE_TABLE);
+//        db.execSQL(SiftContract.Users.DELETE_TABLE);
+//        db.execSQL(SiftContract.Messages.DELETE_TABLE);
+//        db.execSQL(SiftContract.Subscriptions.DELETE_TABLE);
+//        db.execSQL(SiftContract.Favorites.DELETE_TABLE);
+//        db.execSQL(SiftContract.Votes.DELETE_TABLE);
+//        db.execSQL(SiftContract.Friends.DELETE_TABLE);
+//
+//        db.execSQL(SiftContract.Friends.DELETE_VIEW);
+//        db.execSQL(SiftContract.Subscriptions.DELETE_VIEW);
+//        db.execSQL(SiftContract.Favorites.DELETE_VIEW);
+
         onCreate(db);
     }
 
 
-
-
-
-    public static final int NUM_DUMMY_POSTS = 50;
+    public static final int NUM_DUMMY_POSTS = 100;
     public static final int NUM_DUMMY_SUBREDDITS = 30;
     public static final int NUM_DUMMY_COMMENTS = 500;
     public static final int NUM_DUMMY_USERS = 50;

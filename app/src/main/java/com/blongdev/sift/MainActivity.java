@@ -27,14 +27,16 @@ import android.widget.Toast;
 import com.blongdev.sift.database.SiftContract;
 import com.blongdev.sift.database.SiftDbHelper;
 
-public class MainActivity extends AppCompatActivity {
+import java.util.ArrayList;
 
-    private static final int NUM_PAGES = 5;
+public class MainActivity extends AppCompatActivity {
 
     ViewPager mPager;
     SubredditPagerAdapter mPagerAdapter;
     private DrawerLayout mDrawerLayout;
     private NavigationView mNavigationView;
+
+    private ArrayList<SubscriptionInfo> mSubreddits;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,11 +45,23 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        Cursor cursor = getContentResolver().query(SiftContract.Posts.CONTENT_URI, null, null, null, null);
+        mSubreddits = new ArrayList<SubscriptionInfo>();
+
+
+        Cursor cursor = getContentResolver().query(SiftContract.Subscriptions.VIEW_URI, null, null, null, null);
         if (cursor != null) {
-            if (!cursor.moveToFirst()) {
+
+            if (cursor.getCount() <= 0){
+                //TODO replace dummy data with initial sync
                 SiftDbHelper dbHelper = new SiftDbHelper(this);
                 dbHelper.insertDummyData();
+            } else {
+                while (cursor.moveToNext()) {
+                    SubscriptionInfo sub = new SubscriptionInfo();
+                    sub.mSubredditId = cursor.getInt(cursor.getColumnIndex(SiftContract.Subscriptions.COLUMN_SUBREDDIT_ID));
+                    sub.mSubredditName = cursor.getString(cursor.getColumnIndex(SiftContract.Subreddits.COLUMN_NAME));
+                    mSubreddits.add(sub);
+                }
             }
         }
 
@@ -180,30 +194,48 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public Fragment getItem(int position) {
-            return new SubredditFragment();
+            SubscriptionInfo sub = mSubreddits.get(position);
+            Bundle args = new Bundle();
+            args.putInt(getString(R.string.subreddit_id), sub.mSubredditId);
+            SubredditFragment subFrag = new SubredditFragment();
+            subFrag.setArguments(args);
+            return subFrag;
         }
 
         @Override
         public int getCount() {
-            return NUM_PAGES;
+//            int count = 0;
+//            Cursor cursor = getContentResolver().query(SiftContract.Subscriptions.CONTENT_URI, null, null, null, null);
+//            if (cursor != null)
+//            {
+//                count = cursor.getCount();
+//            }
+//            return count;
+
+            return mSubreddits.size();
         }
 
         @Override
         public CharSequence getPageTitle(int position) {
-            switch (position) {
-                case 0:
-                    return "Tab One";
-                case 1:
-                    return "Tab Two";
-                case 2:
-                    return "Tab Three";
-                case 3:
-                    return "Tab Four";
-                case 4:
-                    return "Tab Five";
-            }
 
-            return null;
+            SubscriptionInfo sub = mSubreddits.get(position);
+            return sub.mSubredditName;
+//
+//            switch (position) {
+//                case 0:
+//                    return "Tab One";
+//                case 1:
+//                    return "Tab Two";
+//                case 2:
+//                    return "Tab Three";
+//                case 3:
+//                    return "Tab Four";
+//                case 4:
+//                    return "Tab Five";
+//                default:
+//                    return "" + position;
+//            }
+            //return null;
         }
     }
 }
