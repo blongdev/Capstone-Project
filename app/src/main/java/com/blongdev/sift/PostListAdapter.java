@@ -46,6 +46,7 @@ public class PostListAdapter extends RecyclerView.Adapter<PostListAdapter.PostVi
         postViewHolder.mUrl.setText(post.mUrl);
         postViewHolder.mAge.setText(post.mAge + " Hours ago");
         postViewHolder.mImageUrl = post.mImageUrl;
+        postViewHolder.mPostId = post.mId;
 
         //picasso needs to be passed null to prevent listview from displaying incorrectly cached images
         //if(!TextUtils.isEmpty(post.mImageUrl)) {
@@ -98,6 +99,7 @@ public class PostListAdapter extends RecyclerView.Adapter<PostListAdapter.PostVi
         protected ImageView mImage;
 
         protected String mImageUrl;
+        protected int mPostId;
 
         public PostViewHolder(View v) {
             super(v);
@@ -151,6 +153,7 @@ public class PostListAdapter extends RecyclerView.Adapter<PostListAdapter.PostVi
                 intent.putExtra(v.getContext().getString(R.string.url), url);
                 intent.putExtra(v.getContext().getString(R.string.age), age);
                 intent.putExtra(v.getContext().getString(R.string.image_url), mImageUrl);
+                intent.putExtra(v.getContext().getString(R.string.post_id), mPostId);
 
                 v.getContext().startActivity(intent);
             }

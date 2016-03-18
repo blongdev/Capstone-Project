@@ -1,7 +1,9 @@
 package com.blongdev.sift;
 
+import android.app.FragmentTransaction;
 import android.content.Intent;
 import android.support.design.widget.NavigationView;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
@@ -15,6 +17,7 @@ public class PostDetailActivity extends AppCompatActivity {
 
     private NavigationView mNavigationView;
     private DrawerLayout mDrawerLayout;
+    private int mPostId = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -23,6 +26,24 @@ public class PostDetailActivity extends AppCompatActivity {
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+        Intent intent = getIntent();
+        if (intent != null) {
+            mPostId = intent.getIntExtra(getString(R.string.post_id), 0);
+        }
+
+        //add post and comment fragments
+        FragmentManager fm = getSupportFragmentManager();
+        PostDetailFragment postFragment = new PostDetailFragment();
+        CommentsFragment commentsFragment = new CommentsFragment();
+        Bundle args = new Bundle();
+        args.putInt(getString(R.string.post_id), mPostId);
+        postFragment.setArguments(args);
+        commentsFragment.setArguments(args);
+        android.support.v4.app.FragmentTransaction ft = fm.beginTransaction();
+        ft.add(R.id.post_detail_fragment, postFragment);
+        ft.add(R.id.comments_fragment, commentsFragment);
+        ft.commit();
 
         mNavigationView = (NavigationView) findViewById(R.id.navigation_view);
         mNavigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {

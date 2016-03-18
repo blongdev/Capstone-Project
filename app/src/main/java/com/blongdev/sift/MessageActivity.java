@@ -18,6 +18,9 @@ import android.text.TextUtils;
 import android.view.MenuItem;
 import android.view.View;
 
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+
 public class MessageActivity extends AppCompatActivity {
 
     DrawerLayout mDrawerLayout;
@@ -25,6 +28,7 @@ public class MessageActivity extends AppCompatActivity {
 
     private SectionsPagerAdapter mSectionsPagerAdapter;
     private ViewPager mViewPager;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

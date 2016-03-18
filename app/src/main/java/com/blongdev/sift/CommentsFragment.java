@@ -113,8 +113,6 @@ public class CommentsFragment extends Fragment {
             TextView body = (TextView) view.findViewById(R.id.comment_body);
             body.setText(value.mBody);
 
-
-
             return view;
         }
 

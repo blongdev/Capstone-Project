@@ -2,6 +2,7 @@ package com.blongdev.sift;
 
 import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -13,6 +14,7 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.blongdev.sift.database.SiftContract;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
@@ -49,12 +51,6 @@ public class FriendsListActivityFragment extends Fragment {
                 intent.putExtra(getString(R.string.username), user.mUsername);
                 startActivity(intent);
 
-
-//                if (position % 2 == 0) {
-//
-//                } else {
-//
-//                }
             }
         });
 
@@ -62,13 +58,25 @@ public class FriendsListActivityFragment extends Fragment {
     }
 
     public void populateFriends() {
-        for (int i = 1; i<=10; i++) {
-            UserInfo user = new UserInfo();
-            user.mUsername = "Username" + i;
-            user.mPoints = (int )(Math.random() * 300);
-            user.mAge = (int )(Math.random() * 300);
-            mFriends.add(user);
+        String selection = SiftContract.Friends.COLUMN_ACCOUNT_ID + " = ?";
+        Cursor cursor = getContext().getContentResolver().query(SiftContract.Friends.VIEW_URI, null, null, null, null);
+        if (cursor != null) {
+            while (cursor.moveToNext()) {
+                UserInfo friend = new UserInfo();
+                friend.mUsername = cursor.getString(cursor.getColumnIndex(SiftContract.Users.COLUMN_USERNAME));
+                friend.mPoints = cursor.getInt(cursor.getColumnIndex(SiftContract.Users.COLUMN_POINTS));
+                friend.mAge = cursor.getInt(cursor.getColumnIndex(SiftContract.Users.COLUMN_DATE_CREATED));
+                mFriends.add(friend);
+            }
         }
+
+//        for (int i = 1; i<=10; i++) {
+//            UserInfo user = new UserInfo();
+//            user.mUsername = "Username" + i;
+//            user.mPoints = (int )(Math.random() * 300);
+//            user.mAge = (int )(Math.random() * 300);
+//            mFriends.add(user);
+//        }
     }
 
 

@@ -24,6 +24,7 @@
     <string name="image_url">imageUrl</string>
 
     <string name="subreddit_id">subredditId</string>
+    <string name="post_id">postId</string>
 
 
     <!-- Strings related to Settings -->

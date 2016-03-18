@@ -50,7 +50,6 @@ public class MainActivity extends AppCompatActivity {
 
         Cursor cursor = getContentResolver().query(SiftContract.Subscriptions.VIEW_URI, null, null, null, null);
         if (cursor != null) {
-
             if (cursor.getCount() <= 0){
                 //TODO replace dummy data with initial sync
                 SiftDbHelper dbHelper = new SiftDbHelper(this);

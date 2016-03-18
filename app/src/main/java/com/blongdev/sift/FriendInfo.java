@@ -6,4 +6,10 @@ package com.blongdev.sift;
 public class FriendInfo {
     public int mAccountId;
     public int mFriendId;
+
+    public String mFriendUsername;
+    public int mFriendUserType;
+    public int mFriendDate;
+    public int mFriendPoints;
+
 }

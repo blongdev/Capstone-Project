@@ -46,18 +46,16 @@
 
             app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-            <fragment android:id="@+id/post_detail_fragment"
+            <FrameLayout android:id="@+id/post_detail_fragment"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="top"
-                android:name="com.blongdev.sift.PostDetailFragment"
-                ></fragment>
+                ></FrameLayout>
 
-            <fragment android:id="@+id/comments_fragment"
+            <FrameLayout android:id="@+id/comments_fragment"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:name="com.blongdev.sift.CommentsFragment"
-                ></fragment>
+                ></FrameLayout>
 
         </LinearLayout>
 

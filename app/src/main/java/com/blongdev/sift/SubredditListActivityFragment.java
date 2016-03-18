@@ -2,6 +2,7 @@ package com.blongdev.sift;
 
 import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -11,6 +12,9 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
+
+import com.blongdev.sift.database.SiftContract;
+import com.blongdev.sift.database.SiftDbHelper;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
@@ -85,11 +89,22 @@ public class SubredditListActivityFragment extends Fragment {
     }
 
     public void populateSubreddits() {
-        for (int i = 1; i<=15; i++) {
-            SubredditInfo sub = new SubredditInfo();
-            sub.mName = "Subreddit " + i;
-            mSubreddits.add(sub);
+        Cursor cursor = getContext().getContentResolver().query(SiftContract.Subscriptions.VIEW_URI, null, null, null, null);
+        if (cursor != null) {
+                while (cursor.moveToNext()) {
+                    SubredditInfo sub = new SubredditInfo();
+                    sub.mId = cursor.getInt(cursor.getColumnIndex(SiftContract.Subscriptions.COLUMN_SUBREDDIT_ID));
+                    sub.mName = cursor.getString(cursor.getColumnIndex(SiftContract.Subreddits.COLUMN_NAME));
+                    mSubreddits.add(sub);
+                }
         }
+
+//
+//        for (int i = 1; i<=15; i++) {
+//            SubredditInfo sub = new SubredditInfo();
+//            sub.mName = "Subreddit " + i;
+//            mSubreddits.add(sub);
+//        }
     }
 
     public static class SubredditViewHolder {
