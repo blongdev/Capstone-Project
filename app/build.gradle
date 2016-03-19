@@ -17,11 +17,13 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+
+    packagingOptions {
+        exclude 'META-INF/NOTICE'
+        exclude 'META-INF/LICENSE'
+    }
 }
 
-repositories {
-    jcenter()
-}
 
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
@@ -33,7 +35,9 @@ dependencies {
     compile 'com.android.support:design:23.2.0'
     compile 'com.android.support:support-v4:23.2.0'
     compile 'com.squareup.picasso:picasso:2.5.2'
-    //compile "net.dean.jraw:JRAW:0.8.0"
+
+    //reddit wrapper
+    compile 'net.dean.jraw:JRAW:0.8.0'
 
     //comment tree
     compile 'com.github.bmelnychuk:atv:1.2.+'
