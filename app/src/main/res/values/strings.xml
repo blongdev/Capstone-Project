@@ -1,5 +1,9 @@
 <resources>
     <string name="app_name">Sift</string>
+    
+    <string name="client_id">pFsQuM_0DQdv-g</string>
+    <string name="redirect_url">http://www.google.com</string>
+    
     <string name="action_settings">Settings</string>
 
     <!-- TODO: Remove or change this placeholder text -->

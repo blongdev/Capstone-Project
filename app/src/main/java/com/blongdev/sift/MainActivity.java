@@ -2,6 +2,7 @@ package com.blongdev.sift;
 
 import android.content.Intent;
 import android.database.Cursor;
+import android.net.Uri;
 import android.os.Debug;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.TabLayout;
@@ -17,6 +18,7 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -27,6 +29,14 @@ import android.widget.Toast;
 import com.blongdev.sift.database.SiftContract;
 import com.blongdev.sift.database.SiftDbHelper;
 
+import net.dean.jraw.RedditClient;
+import net.dean.jraw.http.UserAgent;
+import net.dean.jraw.http.oauth.Credentials;
+import net.dean.jraw.http.oauth.OAuthHelper;
+
+import java.net.MalformedURLException;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
@@ -35,6 +45,7 @@ public class MainActivity extends AppCompatActivity {
     SubredditPagerAdapter mPagerAdapter;
     private DrawerLayout mDrawerLayout;
     private NavigationView mNavigationView;
+    RedditClient mRedditClient;
 
     private ArrayList<SubscriptionInfo> mSubreddits;
 
@@ -94,9 +105,32 @@ public class MainActivity extends AppCompatActivity {
                         startActivity(intent);
                         return true;
                     case R.id.nav_profile:
-                        intent = new Intent(getApplicationContext(), UserInfoActivity.class);
-                        intent.putExtra(getString(R.string.username), "My Profile");
-                        startActivity(intent);
+//                        intent = new Intent(getApplicationContext(), UserInfoActivity.class);
+//                        intent.putExtra(getString(R.string.username), "My Profile");
+//                        startActivity(intent);
+
+                        String versionName = BuildConfig.VERSION_NAME;
+                        UserAgent myUserAgent = UserAgent.of("Android", "com.blongdev.sift", versionName, "toothkey");
+                        if (mRedditClient == null) {
+                            mRedditClient = new RedditClient(myUserAgent);
+                        }
+                        if (!mRedditClient.isAuthenticated()) {
+                            Credentials credentials = Credentials.installedApp(getString(R.string.client_id), getString(R.string.redirect_url));
+                            OAuthHelper oAuth = mRedditClient.getOAuthHelper();
+                            String[] scopes = new String[]{"identity", "edit", "flair", "history", "modconfig", "modflair",
+                                    "modlog", "modposts", "modwiki", "mysubreddits", "privatemessages", "read", "report",
+                                    "save", "submit", "subscribe", "vote", "wikiedit", "wikiread"};
+                            URL url = oAuth.getAuthorizationUrl(credentials, true, scopes);
+                            try {
+                                intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url.toURI().toString()));
+                                startActivity(intent);
+                            } catch (URISyntaxException e) {
+                                e.printStackTrace();
+                            }
+                        } else {
+                            Toast.makeText(getApplicationContext(), "Authenticated", Toast.LENGTH_SHORT).show();
+                        }
+
                         return true;
                     case R.id.nav_inbox:
                         intent = new Intent(getApplicationContext(), MessageActivity.class);
