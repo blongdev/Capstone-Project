@@ -31,7 +31,7 @@ import java.net.URL;
 public class AuthenticationActivity extends AppCompatActivity {
 
     WebView mWebView;
-    RedditClient mRedditClient;
+    Reddit mReddit;
 
     private static final String LOG_TAG = "Authentication Activity";
 
@@ -44,14 +44,11 @@ public class AuthenticationActivity extends AppCompatActivity {
 
         mWebView = (WebView) findViewById(R.id.web_view);
 
-        String versionName = BuildConfig.VERSION_NAME;
-        UserAgent myUserAgent = UserAgent.of("Android", "com.blongdev.sift", versionName, "toothkey");
-        if (mRedditClient == null) {
-            mRedditClient = new RedditClient(myUserAgent);
-        }
-        if (!mRedditClient.isAuthenticated()) {
+        mReddit = Reddit.getInstance();
+
+        if (!mReddit.mRedditClient.isAuthenticated()) {
             final Credentials credentials = Credentials.installedApp(getString(R.string.client_id), getString(R.string.redirect_url));
-            final OAuthHelper oAuth = mRedditClient.getOAuthHelper();
+            final OAuthHelper oAuth = mReddit.mRedditClient.getOAuthHelper();
             String[] scopes = new String[]{"identity", "edit", "flair", "history", "modconfig", "modflair",
                     "modlog", "modposts", "modwiki", "mysubreddits", "privatemessages", "read", "report",
                     "save", "submit", "subscribe", "vote", "wikiedit", "wikiread"};
@@ -114,10 +111,10 @@ public class AuthenticationActivity extends AppCompatActivity {
             try {
                 OAuthData oAuthData =  mOAuthHelper.onUserChallenge(params[0], mCredentials);
                 if (oAuthData != null) {
-                    mRedditClient.authenticate(oAuthData);
-                    Log.v(LOG_TAG, "Reddit client authentication: " + mRedditClient.isAuthenticated());
+                    mReddit.mRedditClient.authenticate(oAuthData);
+                    Log.v(LOG_TAG, "Reddit client authentication: " + mReddit.mRedditClient.isAuthenticated());
                     //TODO: Save refresh token:
-                    String refreshToken = mRedditClient.getOAuthData().getRefreshToken();
+                    String refreshToken = mReddit.mRedditClient.getOAuthData().getRefreshToken();
                     Log.v(LOG_TAG, "Refresh Token: " + refreshToken);
                 } else {
                     Log.e(LOG_TAG, "Passed in OAuthData was null");
@@ -133,10 +130,7 @@ public class AuthenticationActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(OAuthData oAuthData) {
             Log.v(LOG_TAG, "onPostExecute()");
-            if (mRedditClient.isAuthenticated()) {
-                Toast.makeText(getApplicationContext(), "AUTHENTICATED", Toast.LENGTH_LONG).show();
-            }
-
+            finish();
         }
     }
 

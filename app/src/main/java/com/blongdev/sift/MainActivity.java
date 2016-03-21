@@ -24,6 +24,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.blongdev.sift.database.SiftContract;
@@ -45,7 +46,7 @@ public class MainActivity extends AppCompatActivity {
     SubredditPagerAdapter mPagerAdapter;
     private DrawerLayout mDrawerLayout;
     private NavigationView mNavigationView;
-    RedditClient mRedditClient;
+    Reddit mReddit;
 
     private ArrayList<SubscriptionInfo> mSubreddits;
 
@@ -58,6 +59,7 @@ public class MainActivity extends AppCompatActivity {
 
         mSubreddits = new ArrayList<SubscriptionInfo>();
 
+        mReddit = Reddit.getInstance();
 
         Cursor cursor = getContentResolver().query(SiftContract.Subscriptions.VIEW_URI, null, null, null, null);
         if (cursor != null) {
@@ -85,8 +87,13 @@ public class MainActivity extends AppCompatActivity {
 
         TabLayout tabLayout = (TabLayout) findViewById(R.id.subreddit_tabs);
         tabLayout.setupWithViewPager(mPager);
-
         mNavigationView = (NavigationView) findViewById(R.id.navigation_view);
+        View navHeader = mNavigationView.inflateHeaderView(R.layout.nav_header);
+        if (mReddit.mRedditClient.isAuthenticated()) {
+            String username = mReddit.mRedditClient.getAuthenticatedUser();
+            TextView navUser = (TextView) navHeader.findViewById(R.id.nav_username);
+            navUser.setText(username);
+        }
         mNavigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
 
             @Override
@@ -105,9 +112,14 @@ public class MainActivity extends AppCompatActivity {
                         startActivity(intent);
                         return true;
                     case R.id.nav_profile:
-                        intent = new Intent(getApplicationContext(), AuthenticationActivity.class);
+                        Reddit reddit = Reddit.getInstance();
+                        if (!reddit.mRedditClient.isAuthenticated()) {
+                            intent = new Intent(getApplicationContext(), AuthenticationActivity.class);
 //                        intent.putExtra(getString(R.string.username), "My Profile");
-                        startActivity(intent);
+                            startActivity(intent);
+                        } else {
+                            Toast.makeText(getApplicationContext(), "AUTHENTICATED", Toast.LENGTH_LONG).show();
+                        }
                         return true;
                     case R.id.nav_inbox:
                         intent = new Intent(getApplicationContext(), MessageActivity.class);
