@@ -53,6 +53,10 @@
         <activity
             android:name=".MessageDetailActivity"
             android:label="@string/title_activity_message_detail"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".AuthenticationActivity"
+            android:label="@string/title_activity_authentication"
             android:theme="@style/AppTheme.NoActionBar"></activity>
     </application>
 

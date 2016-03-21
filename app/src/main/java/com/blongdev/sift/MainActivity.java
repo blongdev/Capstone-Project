@@ -105,32 +105,9 @@ public class MainActivity extends AppCompatActivity {
                         startActivity(intent);
                         return true;
                     case R.id.nav_profile:
-//                        intent = new Intent(getApplicationContext(), UserInfoActivity.class);
+                        intent = new Intent(getApplicationContext(), AuthenticationActivity.class);
 //                        intent.putExtra(getString(R.string.username), "My Profile");
-//                        startActivity(intent);
-
-                        String versionName = BuildConfig.VERSION_NAME;
-                        UserAgent myUserAgent = UserAgent.of("Android", "com.blongdev.sift", versionName, "toothkey");
-                        if (mRedditClient == null) {
-                            mRedditClient = new RedditClient(myUserAgent);
-                        }
-                        if (!mRedditClient.isAuthenticated()) {
-                            Credentials credentials = Credentials.installedApp(getString(R.string.client_id), getString(R.string.redirect_url));
-                            OAuthHelper oAuth = mRedditClient.getOAuthHelper();
-                            String[] scopes = new String[]{"identity", "edit", "flair", "history", "modconfig", "modflair",
-                                    "modlog", "modposts", "modwiki", "mysubreddits", "privatemessages", "read", "report",
-                                    "save", "submit", "subscribe", "vote", "wikiedit", "wikiread"};
-                            URL url = oAuth.getAuthorizationUrl(credentials, true, scopes);
-                            try {
-                                intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url.toURI().toString()));
-                                startActivity(intent);
-                            } catch (URISyntaxException e) {
-                                e.printStackTrace();
-                            }
-                        } else {
-                            Toast.makeText(getApplicationContext(), "Authenticated", Toast.LENGTH_SHORT).show();
-                        }
-
+                        startActivity(intent);
                         return true;
                     case R.id.nav_inbox:
                         intent = new Intent(getApplicationContext(), MessageActivity.class);
