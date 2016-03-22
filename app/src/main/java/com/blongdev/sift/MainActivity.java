@@ -34,19 +34,25 @@ import net.dean.jraw.RedditClient;
 import net.dean.jraw.http.UserAgent;
 import net.dean.jraw.http.oauth.Credentials;
 import net.dean.jraw.http.oauth.OAuthHelper;
+import net.dean.jraw.models.Listing;
+import net.dean.jraw.models.Submission;
+import net.dean.jraw.paginators.SubredditPaginator;
 
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements Reddit.OnRefreshCompleted {
 
     ViewPager mPager;
     SubredditPagerAdapter mPagerAdapter;
     private DrawerLayout mDrawerLayout;
     private NavigationView mNavigationView;
     Reddit mReddit;
+
+    View mNavHeader;
+
 
     private ArrayList<SubscriptionInfo> mSubreddits;
 
@@ -59,7 +65,16 @@ public class MainActivity extends AppCompatActivity {
 
         mSubreddits = new ArrayList<SubscriptionInfo>();
 
-        mReddit = Reddit.getInstance();
+
+//        SubredditPaginator paginator = new SubredditPaginator(mReddit.mRedditClient);
+//        while (paginator.hasNext()) {
+//            Listing<Submission> page = paginator.next();
+//            SubscriptionInfo sub = new SubscriptionInfo();
+//            sub.mSubredditId = paginator.getSubreddit();
+//            sub.mSubredditName = paginator.
+//            mSubreddits.add(sub);
+//        }
+
 
         Cursor cursor = getContentResolver().query(SiftContract.Subscriptions.VIEW_URI, null, null, null, null);
         if (cursor != null) {
@@ -88,12 +103,7 @@ public class MainActivity extends AppCompatActivity {
         TabLayout tabLayout = (TabLayout) findViewById(R.id.subreddit_tabs);
         tabLayout.setupWithViewPager(mPager);
         mNavigationView = (NavigationView) findViewById(R.id.navigation_view);
-        View navHeader = mNavigationView.inflateHeaderView(R.layout.nav_header);
-        if (mReddit.mRedditClient.isAuthenticated()) {
-            String username = mReddit.mRedditClient.getAuthenticatedUser();
-            TextView navUser = (TextView) navHeader.findViewById(R.id.nav_username);
-            navUser.setText(username);
-        }
+        mNavHeader = mNavigationView.inflateHeaderView(R.layout.nav_header);
         mNavigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
 
             @Override
@@ -161,6 +171,10 @@ public class MainActivity extends AppCompatActivity {
         actionBarDrawerToggle.syncState();
 
 
+        mReddit = Reddit.getInstance();
+        mReddit.refreshKey(getApplicationContext(), this);
+
+
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -226,38 +240,25 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public int getCount() {
-//            int count = 0;
-//            Cursor cursor = getContentResolver().query(SiftContract.Subscriptions.CONTENT_URI, null, null, null, null);
-//            if (cursor != null)
-//            {
-//                count = cursor.getCount();
-//            }
-//            return count;
-
             return mSubreddits.size();
         }
 
         @Override
         public CharSequence getPageTitle(int position) {
-
             SubscriptionInfo sub = mSubreddits.get(position);
             return sub.mSubredditName;
-//
-//            switch (position) {
-//                case 0:
-//                    return "Tab One";
-//                case 1:
-//                    return "Tab Two";
-//                case 2:
-//                    return "Tab Three";
-//                case 3:
-//                    return "Tab Four";
-//                case 4:
-//                    return "Tab Five";
-//                default:
-//                    return "" + position;
-//            }
-            //return null;
         }
     }
+
+    @Override
+    public void onRefreshCompleted() {
+        if (mReddit.mRedditClient.isAuthenticated()) {
+            String username = mReddit.mRedditClient.getAuthenticatedUser();
+            TextView navUser = (TextView) mNavHeader.findViewById(R.id.nav_username);
+            navUser.setText(username);
+
+            mPager.setAdapter(mPagerAdapter);
+        }
+    }
+
 }

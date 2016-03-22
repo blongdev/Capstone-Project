@@ -30,6 +30,11 @@ public class PostListAdapter extends RecyclerView.Adapter<PostListAdapter.PostVi
         this.mPostList = postList;
     }
 
+    public void refreshWithList(List<PostInfo> postList) {
+        this.mPostList = postList;
+        notifyDataSetChanged();
+    }
+
     @Override
     public int getItemCount() {
         return mPostList.size();

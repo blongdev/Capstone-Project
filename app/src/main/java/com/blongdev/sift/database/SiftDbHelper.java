@@ -97,7 +97,7 @@ public class SiftDbHelper extends SQLiteOpenHelper {
         insertDummyPosts();
         insertDummyUsers();
         insertDummySubreddits();
-        insertDummyAccounts();
+        //insertDummyAccounts();
         insertDummyMessages();
         insertDummyComments();
         insertDummySubscriptions();

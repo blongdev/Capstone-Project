@@ -46,8 +46,7 @@ public class AuthenticationActivity extends AppCompatActivity {
 
         mReddit = Reddit.getInstance();
 
-        if (!mReddit.mRedditClient.isAuthenticated()) {
-            final Credentials credentials = Credentials.installedApp(getString(R.string.client_id), getString(R.string.redirect_url));
+        final Credentials credentials = Credentials.installedApp(getString(R.string.client_id), getString(R.string.redirect_url));
             final OAuthHelper oAuth = mReddit.mRedditClient.getOAuthHelper();
             String[] scopes = new String[]{"identity", "edit", "flair", "history", "modconfig", "modflair",
                     "modlog", "modposts", "modwiki", "mysubreddits", "privatemessages", "read", "report",
@@ -71,14 +70,11 @@ public class AuthenticationActivity extends AppCompatActivity {
                 @Override
                 public void onPageStarted(WebView view, String url, Bitmap favicon) {
                     if (url.contains("code=")) {
-                        new UserChallengeTask(oAuth, credentials).execute(url);
+                        mReddit.runUserChallengeTask(url, getApplicationContext());
+                        finish();
                     }
                 }
             });
-
-        } else {
-            Toast.makeText(getApplicationContext(), "Authenticated", Toast.LENGTH_SHORT).show();
-        }
 
 
 
@@ -93,45 +89,5 @@ public class AuthenticationActivity extends AppCompatActivity {
     }
 
 
-    private final class UserChallengeTask extends AsyncTask<String, Void, OAuthData> {
-
-        private OAuthHelper mOAuthHelper;
-        private Credentials mCredentials;
-
-        public UserChallengeTask(OAuthHelper oAuthHelper, Credentials credentials) {
-            Log.v(LOG_TAG, "UserChallengeTask()");
-            mOAuthHelper = oAuthHelper;
-            mCredentials = credentials;
-        }
-
-        @Override
-        protected OAuthData doInBackground(String... params) {
-            Log.v(LOG_TAG, "doInBackground()");
-            Log.v(LOG_TAG, "params[0]: " + params[0]);
-            try {
-                OAuthData oAuthData =  mOAuthHelper.onUserChallenge(params[0], mCredentials);
-                if (oAuthData != null) {
-                    mReddit.mRedditClient.authenticate(oAuthData);
-                    Log.v(LOG_TAG, "Reddit client authentication: " + mReddit.mRedditClient.isAuthenticated());
-                    //TODO: Save refresh token:
-                    String refreshToken = mReddit.mRedditClient.getOAuthData().getRefreshToken();
-                    Log.v(LOG_TAG, "Refresh Token: " + refreshToken);
-                } else {
-                    Log.e(LOG_TAG, "Passed in OAuthData was null");
-                }
-            } catch (IllegalStateException | NetworkException | OAuthException e) {
-                // Handle me gracefully
-                Log.e(LOG_TAG, "OAuth failed");
-                Log.e(LOG_TAG, e.getMessage());
-            }
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(OAuthData oAuthData) {
-            Log.v(LOG_TAG, "onPostExecute()");
-            finish();
-        }
-    }
 
 }

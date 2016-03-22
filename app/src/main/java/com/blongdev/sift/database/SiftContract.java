@@ -78,6 +78,7 @@ public final class SiftContract {
         public static final String COLUMN_DATE_CREATED = "dateCreated";
         public static final String COLUMN_PASSWORD = "password";
         public static final String COLUMN_USER_ID = "userId";
+        public static final String COLUMN_REFRESH_KEY = "refreshKey";
 
         public static final String CREATE_TABLE = "CREATE TABLE " +
                 TABLE_NAME + " (" +
@@ -86,6 +87,7 @@ public final class SiftContract {
                 COLUMN_PASSWORD + TEXT_TYPE + COMMA_SEP +
                 COLUMN_DATE_CREATED + INTEGER_TYPE + COMMA_SEP +
                 COLUMN_USER_ID + INTEGER_TYPE + COMMA_SEP +
+                COLUMN_REFRESH_KEY + TEXT_TYPE + COMMA_SEP +
                 " FOREIGN KEY(" + COLUMN_USER_ID + ") REFERENCES " + Users.TABLE_NAME + "(" + Users._ID + ")" +  " )";
 
         public static final String DELETE_TABLE = "DROP TABLE IF EXISTS " + TABLE_NAME;
