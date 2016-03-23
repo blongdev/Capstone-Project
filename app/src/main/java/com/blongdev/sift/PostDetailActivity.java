@@ -14,18 +14,12 @@ import android.view.View;
 import android.widget.Toast;
 
 public class PostDetailActivity extends AppCompatActivity {
-
-    private NavigationView mNavigationView;
-    private DrawerLayout mDrawerLayout;
     private int mPostId = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_post_detail);
-
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
 
         Intent intent = getIntent();
         if (intent != null) {
@@ -45,66 +39,5 @@ public class PostDetailActivity extends AppCompatActivity {
         ft.add(R.id.comments_fragment, commentsFragment);
         ft.commit();
 
-        mNavigationView = (NavigationView) findViewById(R.id.navigation_view);
-        mNavigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
-
-            @Override
-            public boolean onNavigationItemSelected(MenuItem menuItem) {
-
-                if(menuItem.isChecked()) menuItem.setChecked(false);
-                else menuItem.setChecked(true);
-
-                mDrawerLayout.closeDrawers();
-
-                Intent intent;
-
-                switch (menuItem.getItemId()){
-                    case R.id.nav_home:
-                        intent = new Intent(getApplicationContext(), MainActivity.class);
-                        startActivity(intent);
-                        return true;
-                    case R.id.nav_profile:
-                        intent = new Intent(getApplicationContext(), UserInfoActivity.class);
-                        intent.putExtra(getString(R.string.username), "My Profile");
-                        startActivity(intent);
-                        return true;
-                    case R.id.nav_inbox:
-                        intent = new Intent(getApplicationContext(), MessageActivity.class);
-                        startActivity(intent);
-                        return true;
-                    case R.id.nav_friends:
-                        intent = new Intent(getApplicationContext(), FriendsListActivity.class);
-                        startActivity(intent);
-                        return true;
-                    case R.id.nav_subreddits:
-                        intent = new Intent(getApplicationContext(), SubredditListActivity.class);
-                        startActivity(intent);
-                        return true;
-                    case R.id.nav_settings:
-                        intent = new Intent(getApplicationContext(), SettingsActivity.class);
-                        startActivity(intent);
-                        return true;
-                    default:
-                        return true;
-                }
-            }
-        });
-
-        mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
-        ActionBarDrawerToggle actionBarDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout,toolbar, R.string.drawer_open, R.string.drawer_close){
-
-            @Override
-            public void onDrawerClosed(View drawerView) {
-                super.onDrawerClosed(drawerView);
-            }
-
-            @Override
-            public void onDrawerOpened(View drawerView) {
-                super.onDrawerOpened(drawerView);
-            }
-        };
-
-        mDrawerLayout.setDrawerListener(actionBarDrawerToggle);
-        actionBarDrawerToggle.syncState();
     }
 }

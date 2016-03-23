@@ -72,17 +72,6 @@
 
     </android.support.design.widget.CoordinatorLayout>
 
-    <!--&lt;!&ndash; The navigation drawer &ndash;&gt;-->
-    <!--<ListView android:id="@+id/left_drawer"-->
-        <!--android:layout_width="240dp"-->
-        <!--android:layout_height="match_parent"-->
-        <!--android:layout_gravity="start"-->
-        <!--android:choiceMode="singleChoice"-->
-        <!--android:divider="@android:color/transparent"-->
-        <!--android:dividerHeight="0dp"-->
-        <!--android:background="#FFF"/>-->
-
-
     <android.support.design.widget.NavigationView
         android:id="@+id/navigation_view"
         android:layout_width="wrap_content"
@@ -92,3 +81,4 @@
         app:menu="@layout/nav_menu" />
 
 </android.support.v4.widget.DrawerLayout>
+

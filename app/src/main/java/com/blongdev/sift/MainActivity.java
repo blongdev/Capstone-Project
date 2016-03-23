@@ -3,6 +3,7 @@ package com.blongdev.sift;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Debug;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.TabLayout;
@@ -38,21 +39,16 @@ import net.dean.jraw.models.Listing;
 import net.dean.jraw.models.Submission;
 import net.dean.jraw.paginators.SubredditPaginator;
 
+import java.lang.reflect.Array;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 
-public class MainActivity extends AppCompatActivity implements Reddit.OnRefreshCompleted {
+public class MainActivity extends BaseActivity {
 
     ViewPager mPager;
     SubredditPagerAdapter mPagerAdapter;
-    private DrawerLayout mDrawerLayout;
-    private NavigationView mNavigationView;
-    Reddit mReddit;
-
-    View mNavHeader;
-
 
     private ArrayList<SubscriptionInfo> mSubreddits;
 
@@ -60,40 +56,25 @@ public class MainActivity extends AppCompatActivity implements Reddit.OnRefreshC
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
 
         mSubreddits = new ArrayList<SubscriptionInfo>();
 
-
-//        SubredditPaginator paginator = new SubredditPaginator(mReddit.mRedditClient);
-//        while (paginator.hasNext()) {
-//            Listing<Submission> page = paginator.next();
-//            SubscriptionInfo sub = new SubscriptionInfo();
-//            sub.mSubredditId = paginator.getSubreddit();
-//            sub.mSubredditName = paginator.
-//            mSubreddits.add(sub);
+//
+//        Cursor cursor = getContentResolver().query(SiftContract.Subscriptions.VIEW_URI, null, null, null, null);
+//        if (cursor != null) {
+//            if (cursor.getCount() <= 0){
+//                //TODO replace dummy data with initial sync
+//                SiftDbHelper dbHelper = new SiftDbHelper(this);
+//                dbHelper.insertDummyData();
+//            } else {
+//                while (cursor.moveToNext()) {
+//                    SubscriptionInfo sub = new SubscriptionInfo();
+//                    sub.mSubredditId = cursor.getInt(cursor.getColumnIndex(SiftContract.Subscriptions.COLUMN_SUBREDDIT_ID));
+//                    sub.mSubredditName = cursor.getString(cursor.getColumnIndex(SiftContract.Subreddits.COLUMN_NAME));
+//                    mSubreddits.add(sub);
+//                }
+//            }
 //        }
-
-
-        Cursor cursor = getContentResolver().query(SiftContract.Subscriptions.VIEW_URI, null, null, null, null);
-        if (cursor != null) {
-            if (cursor.getCount() <= 0){
-                //TODO replace dummy data with initial sync
-                SiftDbHelper dbHelper = new SiftDbHelper(this);
-                dbHelper.insertDummyData();
-            } else {
-                while (cursor.moveToNext()) {
-                    SubscriptionInfo sub = new SubscriptionInfo();
-                    sub.mSubredditId = cursor.getInt(cursor.getColumnIndex(SiftContract.Subscriptions.COLUMN_SUBREDDIT_ID));
-                    sub.mSubredditName = cursor.getString(cursor.getColumnIndex(SiftContract.Subreddits.COLUMN_NAME));
-                    mSubreddits.add(sub);
-                }
-            }
-        }
-
-        //final ActionBar actionBar = getSupportActionBar();
-        //actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
 
         // Instantiate a ViewPager and a PagerAdapter.
         mPager = (ViewPager) findViewById(R.id.pager);
@@ -102,78 +83,8 @@ public class MainActivity extends AppCompatActivity implements Reddit.OnRefreshC
 
         TabLayout tabLayout = (TabLayout) findViewById(R.id.subreddit_tabs);
         tabLayout.setupWithViewPager(mPager);
-        mNavigationView = (NavigationView) findViewById(R.id.navigation_view);
-        mNavHeader = mNavigationView.inflateHeaderView(R.layout.nav_header);
-        mNavigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
 
-            @Override
-            public boolean onNavigationItemSelected(MenuItem menuItem) {
-
-                if(menuItem.isChecked()) menuItem.setChecked(false);
-                else menuItem.setChecked(true);
-
-                mDrawerLayout.closeDrawers();
-
-                Intent intent;
-
-                switch (menuItem.getItemId()){
-                    case R.id.nav_home:
-                        intent = new Intent(getApplicationContext(), MainActivity.class);
-                        startActivity(intent);
-                        return true;
-                    case R.id.nav_profile:
-                        Reddit reddit = Reddit.getInstance();
-                        if (!reddit.mRedditClient.isAuthenticated()) {
-                            intent = new Intent(getApplicationContext(), AuthenticationActivity.class);
-//                        intent.putExtra(getString(R.string.username), "My Profile");
-                            startActivity(intent);
-                        } else {
-                            Toast.makeText(getApplicationContext(), "AUTHENTICATED", Toast.LENGTH_LONG).show();
-                        }
-                        return true;
-                    case R.id.nav_inbox:
-                        intent = new Intent(getApplicationContext(), MessageActivity.class);
-                        startActivity(intent);
-                        return true;
-                    case R.id.nav_friends:
-                        intent = new Intent(getApplicationContext(), FriendsListActivity.class);
-                        startActivity(intent);
-                        return true;
-                    case R.id.nav_subreddits:
-                        intent = new Intent(getApplicationContext(), SubredditListActivity.class);
-                        startActivity(intent);
-                        return true;
-                    case R.id.nav_settings:
-                        intent = new Intent(getApplicationContext(), SettingsActivity.class);
-                        startActivity(intent);
-                        return true;
-                    default:
-                        return true;
-                }
-            }
-        });
-
-        mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
-        ActionBarDrawerToggle actionBarDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout,toolbar, R.string.drawer_open, R.string.drawer_close){
-
-            @Override
-            public void onDrawerClosed(View drawerView) {
-                super.onDrawerClosed(drawerView);
-            }
-
-            @Override
-            public void onDrawerOpened(View drawerView) {
-                super.onDrawerOpened(drawerView);
-            }
-        };
-
-        mDrawerLayout.setDrawerListener(actionBarDrawerToggle);
-        actionBarDrawerToggle.syncState();
-
-
-        mReddit = Reddit.getInstance();
-        mReddit.refreshKey(getApplicationContext(), this);
-
+        new GetSubredditsTask().execute();
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -246,19 +157,44 @@ public class MainActivity extends AppCompatActivity implements Reddit.OnRefreshC
         @Override
         public CharSequence getPageTitle(int position) {
             SubscriptionInfo sub = mSubreddits.get(position);
+            if (sub.mSubredditName == null) {
+                return "FrontPage";
+            }
             return sub.mSubredditName;
         }
     }
 
     @Override
     public void onRefreshCompleted() {
+        super.onRefreshCompleted();
         if (mReddit.mRedditClient.isAuthenticated()) {
-            String username = mReddit.mRedditClient.getAuthenticatedUser();
-            TextView navUser = (TextView) mNavHeader.findViewById(R.id.nav_username);
-            navUser.setText(username);
-
             mPager.setAdapter(mPagerAdapter);
         }
     }
+
+    private final class GetSubredditsTask extends AsyncTask<String, Void, ArrayList<SubscriptionInfo>> {
+        @Override
+        protected ArrayList<SubscriptionInfo> doInBackground(String... params) {
+            //Debug.waitForDebugger();
+            ArrayList<SubscriptionInfo> subredditArray = new ArrayList<SubscriptionInfo>();
+            SubredditPaginator paginator = new SubredditPaginator(mReddit.mRedditClient);
+            while (paginator.hasNext()) {
+                paginator.next();
+                SubscriptionInfo sub = new SubscriptionInfo();
+                //post.mId =
+                sub.mSubredditName = paginator.getSubreddit();
+                subredditArray.add(sub);
+            }
+
+            return subredditArray;
+        }
+
+        @Override
+        protected void onPostExecute(ArrayList<SubscriptionInfo> subs) {
+            mSubreddits = subs;
+            mPagerAdapter.notifyDataSetChanged();
+        }
+    }
+
 
 }

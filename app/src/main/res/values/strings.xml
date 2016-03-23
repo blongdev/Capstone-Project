@@ -91,4 +91,5 @@
     <string name="title_activity_subreddit_list">SubredditListActivity</string>
     <string name="title_activity_message_detail">MessageDetailActivity</string>
     <string name="title_activity_authentication">AuthenticationActivity</string>
+    <string name="title_activity_base">BaseActivity</string>
 </resources>
