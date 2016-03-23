@@ -13,7 +13,9 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
-public class PostDetailActivity extends AppCompatActivity {
+import com.fasterxml.jackson.databind.deser.Deserializers;
+
+public class PostDetailActivity extends BaseActivity {
     private int mPostId = 0;
 
     @Override
