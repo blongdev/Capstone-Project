@@ -88,7 +88,7 @@ public class PostListAdapter extends RecyclerView.Adapter<PostListAdapter.PostVi
     public PostViewHolder onCreateViewHolder(ViewGroup viewGroup, int i) {
         View itemView = LayoutInflater.
                 from(viewGroup.getContext()).
-                inflate(R.layout.post, viewGroup, false);
+                inflate(R.layout.post_thin, viewGroup, false);
 
         return new PostViewHolder(itemView);
     }

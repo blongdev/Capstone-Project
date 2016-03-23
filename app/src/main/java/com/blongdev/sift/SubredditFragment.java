@@ -92,7 +92,7 @@ public class SubredditFragment extends Fragment {
                 //post.mSubredditId = cursor.getInt(cursor.getColumnIndex(SiftContract.Posts.COLUMN_SUBREDDIT_ID));
                 post.mPoints = submission.getScore();
                 post.mImageUrl = submission.getThumbnail();
-                post.mUrl = submission.getShortURL();
+                //post.mUrl = submission.getShortURL();
                 post.mComments = submission.getCommentCount();
                 //post.mAge= submission.getCreated().getTime();
 //              post.mFavorited = cursor.getInt(cursor.getColumnIndex(SiftContract.Posts.COLUMN_FAVORITED)) == 1 ? true : false;

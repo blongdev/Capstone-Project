@@ -27,14 +27,14 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    style="@style/PostPoints"
+                    style="@style/CommentInfo"
                     android:id="@+id/comment_username"
                     android:text="Username" />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    style="@style/PostPoints"
+                    style="@style/CommentInfo"
                     android:layout_toRightOf="@id/comment_username"
                     android:id="@+id/comment_points"
                     android:text="Points" />
@@ -42,7 +42,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    style="@style/PostAge"
+                    style="@style/CommentInfo"
                     android:layout_toRightOf="@id/comment_points"
                     android:id="@+id/comment_age"
                     android:text="Age" />
@@ -54,7 +54,7 @@
                 android:layout_height="wrap_content"
                 style="@style/CommentTitle"
                 android:id="@+id/comment_body"
-                android:layout_gravity="center_horizontal"
+                android:layout_gravity="start|top"
                 android:padding="4dp"
                 android:paddingTop="0dp"/>
 
