@@ -1,8 +1,9 @@
-package com.blongdev.sift;
+package com.blongdev.sift.sync;
 
 import android.app.Service;
 import android.content.Intent;
 import android.os.IBinder;
+import android.util.Log;
 
 /**
  * Created by Brian on 3/23/2016.
@@ -17,6 +18,8 @@ public class SiftSyncService extends Service {
      */
     @Override
     public void onCreate() {
+        super.onCreate();
+        Log.i("SiftSyncService", "Service created");
         /*
          * Create the sync adapter as a singleton.
          * Set the sync adapter as syncable

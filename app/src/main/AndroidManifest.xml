@@ -51,7 +51,9 @@
 
         <provider
             android:name=".database.SiftProvider"
-            android:authorities="com.blongdev.sift.database.SiftProvider" />
+            android:authorities="com.blongdev.sift.database.SiftProvider"
+            android:label="SiftProvider"
+            android:syncable="true"/>
 
         <activity
             android:name=".MessageDetailActivity"
@@ -67,9 +69,8 @@
             android:theme="@style/AppTheme.NoActionBar"></activity>
 
         <service
-            android:name="com.blongdev.sift.SiftSyncService"
-            android:exported="true"
-            android:process=":sync">
+            android:name=".sync.SiftSyncService"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.content.SyncAdapter"/>
             </intent-filter>
@@ -78,7 +79,7 @@
         </service>
 
         <service
-            android:name="com.blongdev.sift.AuthenticatorService">
+            android:name=".sync.AuthenticatorService">
             <intent-filter>
                 <action android:name="android.accounts.AccountAuthenticator"/>
             </intent-filter>

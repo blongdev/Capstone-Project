@@ -1,4 +1,4 @@
-package com.blongdev.sift;
+package com.blongdev.sift.sync;
 
 import android.accounts.AbstractAccountAuthenticator;
 import android.accounts.Account;

@@ -1,8 +1,9 @@
-package com.blongdev.sift;
+package com.blongdev.sift.sync;
 
 import android.app.Service;
 import android.content.Intent;
 import android.os.IBinder;
+import android.util.Log;
 
 /**
  * Created by Brian on 3/23/2016.
@@ -14,6 +15,7 @@ public class AuthenticatorService extends Service {
     @Override
     public void onCreate() {
         // Create a new authenticator object
+        Log.i("Authenticator", "Service created");
         mAuthenticator = new Authenticator(this);
     }
     /*

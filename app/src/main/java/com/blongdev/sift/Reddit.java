@@ -2,6 +2,7 @@ package com.blongdev.sift;
 
 import android.accounts.Account;
 import android.accounts.AccountManager;
+import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
@@ -31,7 +32,7 @@ public class Reddit {
     private static final String CLIENT_ID = "pFsQuM_0DQdv-g";
     private static final String REDIRECT_URL = "http://www.google.com";
 
-    public static final String ACCOUNT_TYPE = "blongdev.com";
+    public static final String ACCOUNT_TYPE = "com.blongdev";
     public static final String GENERAL_ACCOUNT = "General";
 
 
@@ -69,8 +70,7 @@ public class Reddit {
     }
 
     public void addGeneralAccount(Context context) {
-        mAccount = CreateSyncAccount(context, GENERAL_ACCOUNT);
-        context.getContentResolver().addPeriodicSync(mAccount, SiftContract.AUTHORITY, Bundle.EMPTY, SYNC_INTERVAL);
+        CreateSyncAccount(context, GENERAL_ACCOUNT);
     }
 
     public void refreshKey(Context context, OnRefreshCompleted callback) {
@@ -161,12 +161,15 @@ public class Reddit {
         //subreddits
 
 
-        //
-
         //add account for sync adapter
         mAccount = CreateSyncAccount(context, username);
-        context.getContentResolver().addPeriodicSync(mAccount, SiftContract.AUTHORITY, Bundle.EMPTY, SYNC_INTERVAL);
-
+        if (mAccount != null) {
+            //request manual sync
+            Bundle settingsBundle = new Bundle();
+            settingsBundle.putBoolean(ContentResolver.SYNC_EXTRAS_MANUAL, true);
+            settingsBundle.putBoolean(ContentResolver.SYNC_EXTRAS_EXPEDITED, true);
+            ContentResolver.requestSync(mAccount, SiftContract.AUTHORITY, settingsBundle);
+        }
     }
 
     private final class RefreshTokenTask extends AsyncTask<String, Void, OAuthData> {
@@ -224,13 +227,21 @@ public class Reddit {
              * then call context.setIsSyncable(account, AUTHORITY, 1)
              * here.
              */
+
+            ContentResolver.setIsSyncable(newAccount, SiftContract.AUTHORITY, 1);
+            ContentResolver.setSyncAutomatically(newAccount, SiftContract.AUTHORITY, true);
+            ContentResolver.addPeriodicSync(newAccount, SiftContract.AUTHORITY, Bundle.EMPTY, SYNC_INTERVAL);
+
+
+            return newAccount;
+
         } else {
             /*
              * The account exists or some other error occurred. Log this, report it,
              * or handle it internally.
              */
         }
-        return newAccount;
+        return null;
     }
 //
 //    public AsyncTask refreshToken() {

@@ -175,7 +175,6 @@ public class MainActivity extends BaseActivity {
     private final class GetSubredditsTask extends AsyncTask<String, Void, ArrayList<SubscriptionInfo>> {
         @Override
         protected ArrayList<SubscriptionInfo> doInBackground(String... params) {
-            //Debug.waitForDebugger();
             ArrayList<SubscriptionInfo> subredditArray = new ArrayList<SubscriptionInfo>();
             SubredditPaginator paginator = new SubredditPaginator(mReddit.mRedditClient);
             while (paginator.hasNext()) {
