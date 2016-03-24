@@ -19,26 +19,21 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class BaseActivity extends AppCompatActivity implements Reddit.OnRefreshCompleted {
+import com.blongdev.sift.database.SiftContract;
 
-    public static final String ACCOUNT_TYPE = "blongdev.com";
-    public static final String ACCOUNT = "Sift";
+public class BaseActivity extends AppCompatActivity implements Reddit.OnRefreshCompleted {
 
     Reddit mReddit;
     private DrawerLayout mDrawerLayout;
     private NavigationView mNavigationView;
     View mNavHeader;
 
-    Account mAccount;
-
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         mReddit = Reddit.getInstance();
-
-        mAccount = CreateSyncAccount(this);
+        mReddit.addGeneralAccount(this);
 
         if (!mReddit.mRedditClient.isAuthenticated()) {
             mReddit.refreshKey(getApplicationContext(), this);
@@ -140,39 +135,6 @@ public class BaseActivity extends AppCompatActivity implements Reddit.OnRefreshC
     public void setContentView(@LayoutRes int layoutResID) {
         super.setContentView(layoutResID);
         onCreateDrawer();
-    }
-
-    /**
-     * Create a new dummy account for the sync adapter
-     *
-     * @param context The application context
-     */
-    public static Account CreateSyncAccount(Context context) {
-        // Create the account type and default account
-        Account newAccount = new Account(
-                ACCOUNT, ACCOUNT_TYPE);
-        // Get an instance of the Android account manager
-        AccountManager accountManager =
-                (AccountManager) context.getSystemService(
-                        ACCOUNT_SERVICE);
-        /*
-         * Add the account and account type, no password or user data
-         * If successful, return the Account object, otherwise report an error.
-         */
-        if (accountManager.addAccountExplicitly(newAccount, null, null)) {
-            /*
-             * If you don't set android:syncable="true" in
-             * in your <provider> element in the manifest,
-             * then call context.setIsSyncable(account, AUTHORITY, 1)
-             * here.
-             */
-        } else {
-            /*
-             * The account exists or some other error occurred. Log this, report it,
-             * or handle it internally.
-             */
-        }
-        return newAccount;
     }
 
 }

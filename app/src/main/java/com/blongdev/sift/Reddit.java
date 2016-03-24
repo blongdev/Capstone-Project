@@ -1,12 +1,14 @@
 package com.blongdev.sift;
 
 import android.accounts.Account;
+import android.accounts.AccountManager;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Bundle;
 import android.util.Log;
 
 import com.blongdev.sift.database.SiftContract;
@@ -29,6 +31,14 @@ public class Reddit {
     private static final String CLIENT_ID = "pFsQuM_0DQdv-g";
     private static final String REDIRECT_URL = "http://www.google.com";
 
+    public static final String ACCOUNT_TYPE = "blongdev.com";
+    public static final String GENERAL_ACCOUNT = "General";
+
+
+    public static final long SECONDS_PER_MINUTE = 60L;
+    public static final long SYNC_INTERVAL_IN_MINUTES = 60L;
+    public static final long SYNC_INTERVAL = SYNC_INTERVAL_IN_MINUTES * SECONDS_PER_MINUTE;
+
     private static Reddit ourInstance = new Reddit();
     public RedditClient mRedditClient;
     public UserAgent mUserAgent;
@@ -36,6 +46,8 @@ public class Reddit {
     public Credentials mCredentials;
     public OAuthHelper mOAuthHelper;
     public LoggedInAccount mMe;
+    Account mAccount;
+
 
     private static final String LOG_TAG = "Reddit Singleton";
 
@@ -54,6 +66,11 @@ public class Reddit {
         if (mRedditClient.isAuthenticated()) {
             mMe = mRedditClient.me();
         }
+    }
+
+    public void addGeneralAccount(Context context) {
+        mAccount = CreateSyncAccount(context, GENERAL_ACCOUNT);
+        context.getContentResolver().addPeriodicSync(mAccount, SiftContract.AUTHORITY, Bundle.EMPTY, SYNC_INTERVAL);
     }
 
     public void refreshKey(Context context, OnRefreshCompleted callback) {
@@ -86,6 +103,7 @@ public class Reddit {
                 if (oAuthData != null) {
                     mRedditClient.authenticate(oAuthData);
                     addUser(mContext);
+
                 } else {
                     Log.e(LOG_TAG, "Passed in OAuthData was null");
                 }
@@ -145,6 +163,10 @@ public class Reddit {
 
         //
 
+        //add account for sync adapter
+        mAccount = CreateSyncAccount(context, username);
+        context.getContentResolver().addPeriodicSync(mAccount, SiftContract.AUTHORITY, Bundle.EMPTY, SYNC_INTERVAL);
+
     }
 
     private final class RefreshTokenTask extends AsyncTask<String, Void, OAuthData> {
@@ -177,6 +199,38 @@ public class Reddit {
             Log.v(LOG_TAG, "onPostExecute()");
             mOnRefreshCompleted.onRefreshCompleted();
         }
+    }
+
+    /**
+     * Create a new dummy account for the sync adapter
+     *
+     * @param context The application context
+     */
+    public static Account CreateSyncAccount(Context context, String accountName) {
+        // Create the account type and default account
+        Account newAccount = new Account(
+                accountName, ACCOUNT_TYPE);
+        // Get an instance of the Android account manager
+        AccountManager accountManager =
+                (AccountManager) context.getSystemService(context.ACCOUNT_SERVICE);
+        /*
+         * Add the account and account type, no password or user data
+         * If successful, return the Account object, otherwise report an error.
+         */
+        if (accountManager.addAccountExplicitly(newAccount, null, null)) {
+            /*
+             * If you don't set android:syncable="true" in
+             * in your <provider> element in the manifest,
+             * then call context.setIsSyncable(account, AUTHORITY, 1)
+             * here.
+             */
+        } else {
+            /*
+             * The account exists or some other error occurred. Log this, report it,
+             * or handle it internally.
+             */
+        }
+        return newAccount;
     }
 //
 //    public AsyncTask refreshToken() {

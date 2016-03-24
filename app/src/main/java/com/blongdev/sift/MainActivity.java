@@ -59,22 +59,22 @@ public class MainActivity extends BaseActivity {
 
         mSubreddits = new ArrayList<SubscriptionInfo>();
 
-//
-//        Cursor cursor = getContentResolver().query(SiftContract.Subscriptions.VIEW_URI, null, null, null, null);
-//        if (cursor != null) {
-//            if (cursor.getCount() <= 0){
-//                //TODO replace dummy data with initial sync
-//                SiftDbHelper dbHelper = new SiftDbHelper(this);
-//                dbHelper.insertDummyData();
-//            } else {
-//                while (cursor.moveToNext()) {
-//                    SubscriptionInfo sub = new SubscriptionInfo();
-//                    sub.mSubredditId = cursor.getInt(cursor.getColumnIndex(SiftContract.Subscriptions.COLUMN_SUBREDDIT_ID));
-//                    sub.mSubredditName = cursor.getString(cursor.getColumnIndex(SiftContract.Subreddits.COLUMN_NAME));
-//                    mSubreddits.add(sub);
-//                }
-//            }
-//        }
+
+        Cursor cursor = getContentResolver().query(SiftContract.Subscriptions.VIEW_URI, null, null, null, null);
+        if (cursor != null) {
+            if (cursor.getCount() <= 0){
+                //TODO replace dummy data with initial sync
+                SiftDbHelper dbHelper = new SiftDbHelper(this);
+                dbHelper.insertDummyData();
+            } else {
+                while (cursor.moveToNext()) {
+                    SubscriptionInfo sub = new SubscriptionInfo();
+                    sub.mSubredditId = cursor.getInt(cursor.getColumnIndex(SiftContract.Subscriptions.COLUMN_SUBREDDIT_ID));
+                    sub.mSubredditName = cursor.getString(cursor.getColumnIndex(SiftContract.Subreddits.COLUMN_NAME));
+                    mSubreddits.add(sub);
+                }
+            }
+        }
 
         // Instantiate a ViewPager and a PagerAdapter.
         mPager = (ViewPager) findViewById(R.id.pager);
@@ -84,7 +84,7 @@ public class MainActivity extends BaseActivity {
         TabLayout tabLayout = (TabLayout) findViewById(R.id.subreddit_tabs);
         tabLayout.setupWithViewPager(mPager);
 
-        new GetSubredditsTask().execute();
+        //new GetSubredditsTask().execute();
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
