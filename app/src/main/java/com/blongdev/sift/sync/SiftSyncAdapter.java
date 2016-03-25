@@ -71,7 +71,9 @@ public class SiftSyncAdapter extends AbstractThreadedSyncAdapter {
             UserSubredditsPaginator subscribed = new UserSubredditsPaginator(reddit.mRedditClient, "subscriber");
             Listing<Subreddit> subreddits = subscribed.next();
             for (Subreddit s : subreddits) {
-
+                cv.put(SiftContract.Subreddits.COLUMN_NAME, s.getDisplayName());
+                mContentResolver.insert(SiftContract.Subreddits.CONTENT_URI, cv);
+                cv.clear();
             }
 
             ImportantUserPaginator friends = new ImportantUserPaginator(reddit.mRedditClient, "friends");
@@ -94,7 +96,8 @@ public class SiftSyncAdapter extends AbstractThreadedSyncAdapter {
 //            } catch (RemoteException e) {
 //                e.printStackTrace();
 //            }
-        }
 
+            Log.v("SiftSyncAdapter", "Sync Completed");
+        }
     }
 }

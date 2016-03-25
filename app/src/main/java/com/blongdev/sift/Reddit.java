@@ -163,13 +163,13 @@ public class Reddit {
 
         //add account for sync adapter
         mAccount = CreateSyncAccount(context, username);
-        if (mAccount != null) {
-            //request manual sync
-            Bundle settingsBundle = new Bundle();
-            settingsBundle.putBoolean(ContentResolver.SYNC_EXTRAS_MANUAL, true);
-            settingsBundle.putBoolean(ContentResolver.SYNC_EXTRAS_EXPEDITED, true);
-            ContentResolver.requestSync(mAccount, SiftContract.AUTHORITY, settingsBundle);
-        }
+//        if (mAccount != null) {
+//            //request manual sync
+//            Bundle settingsBundle = new Bundle();
+//            settingsBundle.putBoolean(ContentResolver.SYNC_EXTRAS_MANUAL, true);
+//            settingsBundle.putBoolean(ContentResolver.SYNC_EXTRAS_EXPEDITED, true);
+//            ContentResolver.requestSync(mAccount, SiftContract.AUTHORITY, settingsBundle);
+//        }
     }
 
     private final class RefreshTokenTask extends AsyncTask<String, Void, OAuthData> {
