@@ -71,6 +71,8 @@ public class AuthenticationActivity extends AppCompatActivity {
                 public void onPageStarted(WebView view, String url, Bitmap favicon) {
                     if (url.contains("code=")) {
                         mReddit.runUserChallengeTask(url, getApplicationContext());
+                        Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+                        startActivity(intent);
                         finish();
                     }
                 }

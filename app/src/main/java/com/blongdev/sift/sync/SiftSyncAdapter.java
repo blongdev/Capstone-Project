@@ -72,6 +72,7 @@ public class SiftSyncAdapter extends AbstractThreadedSyncAdapter {
             Listing<Subreddit> subreddits = subscribed.next();
             for (Subreddit s : subreddits) {
                 cv.put(SiftContract.Subreddits.COLUMN_NAME, s.getDisplayName());
+                cv.put(SiftContract.Subreddits.COLUMN_SERVER_ID, s.getId());
                 mContentResolver.insert(SiftContract.Subreddits.CONTENT_URI, cv);
                 cv.clear();
             }
@@ -79,14 +80,24 @@ public class SiftSyncAdapter extends AbstractThreadedSyncAdapter {
             ImportantUserPaginator friends = new ImportantUserPaginator(reddit.mRedditClient, "friends");
             Listing<UserRecord> friend = friends.next();
             for (UserRecord u : friend) {
-
+                cv.put(SiftContract.Users.COLUMN_USERNAME, u.getNote());
+                cv.put(SiftContract.Users.COLUMN_SERVER_ID, u.getId());
+                mContentResolver.insert(SiftContract.Subreddits.CONTENT_URI, cv);
+                cv.clear();
             }
 
             InboxPaginator inbox = new InboxPaginator(reddit.mRedditClient, "inbox");
             Listing<Message> message = inbox.next();
             for (Message m : message) {
-
+                cv.put(SiftContract.Messages.COLUMN_USER_FROM, m.getAuthor());
+                cv.put(SiftContract.Messages.COLUMN_TITLE, m.getSubject());
+                cv.put(SiftContract.Messages.COLUMN_BODY, m.getBody());
+                cv.put(SiftContract.Messages.COLUMN_SERVER_ID, m.getId());
+                mContentResolver.insert(SiftContract.Messages.CONTENT_URI, cv);
+                cv.clear();
             }
+
+
 //
 //            net.dean.jraw.models.Account user = reddit.mRedditClient.getUser();
 //

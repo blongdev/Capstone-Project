@@ -14,7 +14,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceLarge"
-        android:text="Username"
+        android:text="@string/nav_header_add_account"
         android:textColor="@android:color/white"
         android:id="@+id/nav_username"
         android:padding="16dp"

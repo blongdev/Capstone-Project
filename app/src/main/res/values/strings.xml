@@ -5,6 +5,7 @@
     <string name="redirect_url">http://www.google.com</string>
 
     <string name="action_settings">Settings</string>
+    <string name="nav_header_add_account">Add Account</string>
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
@@ -19,6 +20,8 @@
     <string name="title_activity_user_info">UserInfoActivity</string>
     <string name="title_activity_post_detail">PostDetailActivity</string>
     <string name="section_format">Hello World from section: %1$d</string>
+
+    <string name="body">body</string>
 
     <string name="drawer_open">drawer open</string>
     <string name="drawer_close">drawer close</string>

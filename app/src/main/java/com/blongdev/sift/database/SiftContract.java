@@ -20,6 +20,7 @@ public final class SiftContract {
     private static final String TEXT_TYPE = " TEXT";
     private static final String INTEGER_TYPE = " INTEGER";
     private static final String COMMA_SEP = ", ";
+    private static final String UNIQUE = " UNIQUE";
 
 
 
@@ -131,6 +132,7 @@ public final class SiftContract {
         public static final String COLUMN_USER_TYPE = "userType";
         public static final String COLUMN_POINTS = "points";
         public static final String COLUMN_DATE_CREATED = "dateCreated";
+        public static final String COLUMN_SERVER_ID = "serverId";
 
         public static final int USER_TYPE_NEUTRAL = 0;
         public static final int USER_TYPE_FRIEND = 1;
@@ -143,7 +145,8 @@ public final class SiftContract {
                 COLUMN_USERNAME + TEXT_TYPE + COMMA_SEP +
                 COLUMN_USER_TYPE + INTEGER_TYPE + COMMA_SEP +
                 COLUMN_DATE_CREATED + INTEGER_TYPE + COMMA_SEP +
-                COLUMN_POINTS + INTEGER_TYPE + " )";
+                COLUMN_POINTS + INTEGER_TYPE + COMMA_SEP +
+                COLUMN_SERVER_ID + TEXT_TYPE + UNIQUE + " )";
 
 
         public static final String DELETE_TABLE = "DROP TABLE IF EXISTS " + TABLE_NAME;
@@ -155,13 +158,15 @@ public final class SiftContract {
 
         public static final String COLUMN_NAME = "name";
         public static final String COLUMN_DATE_CREATED = "dateCreated";
+        public static final String COLUMN_SERVER_ID = "serverId";
 
 
         public static final String CREATE_TABLE = "CREATE TABLE " +
                 TABLE_NAME + " (" +
                 _ID + " INTEGER PRIMARY KEY," +
                 COLUMN_NAME + TEXT_TYPE + COMMA_SEP +
-                COLUMN_DATE_CREATED + INTEGER_TYPE + " )";
+                COLUMN_DATE_CREATED + INTEGER_TYPE + COMMA_SEP +
+                COLUMN_SERVER_ID + TEXT_TYPE + UNIQUE + " )";
 
 
         public static final String DELETE_TABLE = "DROP TABLE IF EXISTS " + TABLE_NAME;
@@ -178,6 +183,7 @@ public final class SiftContract {
         public static final String COLUMN_READ = "read";
         public static final String COLUMN_DATE = "date";
         public static final String COLUMN_ACCOUNT_ID = "accountId";
+        public static final String COLUMN_SERVER_ID = "serverId";
 
 
         public static final String CREATE_TABLE = "CREATE TABLE " +
@@ -190,6 +196,7 @@ public final class SiftContract {
                 COLUMN_DATE + INTEGER_TYPE + COMMA_SEP +
                 COLUMN_READ + INTEGER_TYPE + COMMA_SEP +
                 COLUMN_ACCOUNT_ID + INTEGER_TYPE + COMMA_SEP +
+                COLUMN_SERVER_ID + TEXT_TYPE + UNIQUE + COMMA_SEP +
                 " FOREIGN KEY(" + COLUMN_ACCOUNT_ID + ") REFERENCES " + Accounts.TABLE_NAME + "(" + Accounts._ID + ")" + COMMA_SEP +
                 " FOREIGN KEY(" + COLUMN_USER_TO + ") REFERENCES " + Users.TABLE_NAME + "(" + Users._ID + ")" + COMMA_SEP +
                 " FOREIGN KEY(" + COLUMN_USER_FROM + ") REFERENCES " + Users.TABLE_NAME + "(" + Users._ID + ")" + " )";

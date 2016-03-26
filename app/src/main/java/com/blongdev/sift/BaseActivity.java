@@ -65,13 +65,9 @@ public class BaseActivity extends AppCompatActivity implements Reddit.OnRefreshC
                         return true;
                     case R.id.nav_profile:
                         Reddit reddit = Reddit.getInstance();
-                        if (!reddit.mRedditClient.isAuthenticated()) {
-                            intent = new Intent(getApplicationContext(), AuthenticationActivity.class);
-//                        intent.putExtra(getString(R.string.username), "My Profile");
-                            startActivity(intent);
-                        } else {
-                            Toast.makeText(getApplicationContext(), "AUTHENTICATED", Toast.LENGTH_LONG).show();
-                        }
+                        intent = new Intent(getApplicationContext(), UserInfoActivity.class);
+                        intent.putExtra(getString(R.string.username), "My Profile");
+                        startActivity(intent);
                         return true;
                     case R.id.nav_inbox:
                         intent = new Intent(getApplicationContext(), MessageActivity.class);
@@ -112,12 +108,18 @@ public class BaseActivity extends AppCompatActivity implements Reddit.OnRefreshC
         mDrawerLayout.setDrawerListener(actionBarDrawerToggle);
         actionBarDrawerToggle.syncState();
 
+        TextView navUser = (TextView) mNavHeader.findViewById(R.id.nav_username);
         if (mReddit.mRedditClient.isAuthenticated()) {
             String username = mReddit.mRedditClient.getAuthenticatedUser();
-            TextView navUser = (TextView) mNavHeader.findViewById(R.id.nav_username);
             navUser.setText(username);
         } else {
-
+            navUser.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent authIntent = new Intent(getApplicationContext(), AuthenticationActivity.class);
+                    startActivity(authIntent);
+                }
+            });
         }
 
     }
