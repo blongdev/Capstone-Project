@@ -2,7 +2,9 @@ package com.blongdev.sift;
 
 import android.app.FragmentTransaction;
 import android.content.Intent;
+import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -11,12 +13,17 @@ import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.FrameLayout;
 import android.widget.Toast;
 
 import com.fasterxml.jackson.databind.deser.Deserializers;
 
 public class PostDetailActivity extends BaseActivity {
     private int mPostId = 0;
+    PostDetailFragment mPostFragment;
+    CommentsFragment mCommentsFragment;
+    FragmentManager mFragmentManager;
+    boolean mPostShowing;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,17 +36,39 @@ public class PostDetailActivity extends BaseActivity {
         }
 
         //add post and comment fragments
-        FragmentManager fm = getSupportFragmentManager();
-        PostDetailFragment postFragment = new PostDetailFragment();
-        CommentsFragment commentsFragment = new CommentsFragment();
+        mFragmentManager = getSupportFragmentManager();
+        mPostFragment = new PostDetailFragment();
+        mCommentsFragment = new CommentsFragment();
         Bundle args = new Bundle();
         args.putInt(getString(R.string.post_id), mPostId);
-        postFragment.setArguments(args);
-        commentsFragment.setArguments(args);
-        android.support.v4.app.FragmentTransaction ft = fm.beginTransaction();
-        ft.add(R.id.post_detail_fragment, postFragment);
-        ft.add(R.id.comments_fragment, commentsFragment);
+        mPostFragment.setArguments(args);
+        mCommentsFragment.setArguments(args);
+        android.support.v4.app.FragmentTransaction ft = mFragmentManager.beginTransaction();
+        ft.add(R.id.post_detail_fragment, mPostFragment);
+        ft.add(R.id.comments_fragment, mCommentsFragment);
         ft.commit();
 
+        FrameLayout postView = (FrameLayout) findViewById(R.id.post_detail_fragment);
+        final FrameLayout commentsView = (FrameLayout) findViewById(R.id.comments_fragment);
+
+
+        mPostShowing = true;
+        commentsView.setVisibility(View.GONE);
+
+        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                android.support.v4.app.FragmentTransaction ft = mFragmentManager.beginTransaction();
+                if (mPostShowing) {
+                    mPostShowing = false;
+                    commentsView.setVisibility(View.VISIBLE);
+                } else {
+                    mPostShowing = true;
+                    commentsView.setVisibility(View.GONE);
+                }
+                ft.commit();
+            }
+        });
     }
 }
