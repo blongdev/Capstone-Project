@@ -4,9 +4,9 @@
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-    <uses-permission android:name="android.permission.READ_SYNC_SETTINGS"/>
-    <uses-permission android:name="android.permission.WRITE_SYNC_SETTINGS"/>
-    <uses-permission android:name="android.permission.AUTHENTICATE_ACCOUNTS"/>
+    <uses-permission android:name="android.permission.READ_SYNC_SETTINGS" />
+    <uses-permission android:name="android.permission.WRITE_SYNC_SETTINGS" />
+    <uses-permission android:name="android.permission.AUTHENTICATE_ACCOUNTS" />
 
     <application
         android:allowBackup="true"
@@ -53,7 +53,7 @@
             android:name=".database.SiftProvider"
             android:authorities="com.blongdev.sift.database.SiftProvider"
             android:label="SiftProvider"
-            android:syncable="true"/>
+            android:syncable="true" />
 
         <activity
             android:name=".MessageDetailActivity"
@@ -66,27 +66,33 @@
         <activity
             android:name=".BaseActivity"
             android:label="@string/title_activity_base"
-            android:theme="@style/AppTheme.NoActionBar"></activity>
+            android:theme="@style/AppTheme.NoActionBar" />
 
         <service
             android:name=".sync.SiftSyncService"
             android:exported="true">
             <intent-filter>
-                <action android:name="android.content.SyncAdapter"/>
+                <action android:name="android.content.SyncAdapter" />
             </intent-filter>
-            <meta-data android:name="android.content.SyncAdapter"
+
+            <meta-data
+                android:name="android.content.SyncAdapter"
                 android:resource="@xml/sift_sync_adapter" />
         </service>
-
-        <service
-            android:name=".sync.AuthenticatorService">
+        <service android:name=".sync.AuthenticatorService">
             <intent-filter>
-                <action android:name="android.accounts.AccountAuthenticator"/>
+                <action android:name="android.accounts.AccountAuthenticator" />
             </intent-filter>
+
             <meta-data
                 android:name="android.accounts.AccountAuthenticator"
                 android:resource="@xml/authenticator" />
         </service>
+
+        <activity
+            android:name=".SubredditActivity"
+            android:label="@string/title_activity_subreddit"
+            android:theme="@style/AppTheme.NoActionBar"></activity>
     </application>
 
 </manifest>

@@ -121,7 +121,6 @@ public class BaseActivity extends AppCompatActivity implements Reddit.OnRefreshC
                 }
             });
         }
-
     }
 
     @Override

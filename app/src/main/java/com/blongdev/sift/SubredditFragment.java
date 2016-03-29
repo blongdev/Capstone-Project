@@ -1,6 +1,8 @@
 package com.blongdev.sift;
 
+import android.content.ContentResolver;
 import android.content.ContentValues;
+import android.content.Intent;
 import android.database.Cursor;
 import android.os.AsyncTask;
 import android.os.Debug;
@@ -10,10 +12,12 @@ import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ProgressBar;
 
 import com.blongdev.sift.database.SiftContract;
 import com.squareup.picasso.Picasso;
@@ -40,6 +44,8 @@ public class SubredditFragment extends Fragment {
     private ArrayList<PostInfo> mPosts;
     private PostListAdapter mPostListAdapter;
     private RecyclerView mRecyclerView;
+    private ContentResolver mContentResolver;
+    private ProgressBar mLoadingSpinner;
 
     private Reddit mReddit;
 
@@ -51,13 +57,23 @@ public class SubredditFragment extends Fragment {
                              Bundle savedInstanceState) {
 
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
+        mContentResolver = getContext().getContentResolver();
+
+        mLoadingSpinner = (ProgressBar) rootView.findViewById(R.id.progressSpinner);
+        mLoadingSpinner.setVisibility(View.GONE);
 
         mReddit = Reddit.getInstance();
         mPosts = new ArrayList<PostInfo>();
 
         Bundle arg = getArguments();
-        mSubredditId = arg.getInt(getString(R.string.subreddit_id));
-        mSubredditName = arg.getString(getString(R.string.subreddit_name));
+        if (arg != null) {
+            mSubredditId = arg.getInt(getString(R.string.subreddit_id));
+            mSubredditName = arg.getString(getString(R.string.subreddit_name));
+        } else {
+            Intent intent = getActivity().getIntent();
+            mSubredditName = intent.getStringExtra(getString(R.string.subreddit_name));
+            mSubredditId = intent.getIntExtra(getString(R.string.subreddit_id), -1);
+        }
 
         //populatePosts();
         //RACE CONDITION WITH AUTHENTICATION IN MAIN ACTIVITY
@@ -141,14 +157,33 @@ public class SubredditFragment extends Fragment {
         }
 
         @Override
+        protected void onPreExecute() {
+            mLoadingSpinner.setVisibility(View.VISIBLE);
+        }
+
+        @Override
         protected void onPostExecute(ArrayList<PostInfo> posts) {
+            mLoadingSpinner.setVisibility(View.GONE);
             mPosts = posts;
             mPostListAdapter.refreshWithList(posts);
 
+            new AddPostsToDbTask().execute();
+        }
+    }
+
+    private final class AddPostsToDbTask extends AsyncTask<String, Void, Void> {
+        @Override
+        protected Void doInBackground(String... params) {
             //add to db
-            for (PostInfo post : posts) {
+            for (PostInfo post : mPosts) {
                 addPostToDb(post);
             }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void nothing) {
+
         }
 
         private void addPostToDb(PostInfo post) {
@@ -161,11 +196,12 @@ public class SubredditFragment extends Fragment {
             cv.put(SiftContract.Posts.COLUMN_SUBREDDIT_NAME, mSubredditName);
             cv.put(SiftContract.Posts.COLUMN_IMAGE_URL, post.mImageUrl);
             cv.put(SiftContract.Posts.COLUMN_TITLE, post.mTitle);
-            getContext().getContentResolver().insert(SiftContract.Posts.CONTENT_URI, cv);
+            mContentResolver.insert(SiftContract.Posts.CONTENT_URI, cv);
         }
     }
 
-    private void populatePosts() {
+
+        private void populatePosts() {
 
         Reddit reddit = Reddit.getInstance();
 

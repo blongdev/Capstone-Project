@@ -49,8 +49,9 @@ public class SubredditListActivityFragment extends Fragment {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 SubredditInfo sub = mSubreddits.get(position);
-                Intent intent = new Intent(getContext(), MainActivity.class);
-                intent.putExtra(getString(R.string.username), sub.mName);
+                Intent intent = new Intent(getContext(), SubredditActivity.class);
+                intent.putExtra(getString(R.string.subreddit_id), sub.mId);
+                intent.putExtra(getString(R.string.subreddit_name), sub.mName);
                 startActivity(intent);
             }
         });
@@ -89,11 +90,11 @@ public class SubredditListActivityFragment extends Fragment {
     }
 
     public void populateSubreddits() {
-        Cursor cursor = getContext().getContentResolver().query(SiftContract.Subreddits.CONTENT_URI, null, null, null, null);
+        Cursor cursor = getContext().getContentResolver().query(SiftContract.Subscriptions.VIEW_URI, null, null, null, null);
         if (cursor != null) {
                 while (cursor.moveToNext()) {
                     SubredditInfo sub = new SubredditInfo();
-                    //sub.mId = cursor.getInt(cursor.getColumnIndex(SiftContract.Subscriptions.COLUMN_SUBREDDIT_ID));
+                    sub.mId = cursor.getInt(cursor.getColumnIndex(SiftContract.Subscriptions.COLUMN_SUBREDDIT_ID));
                     sub.mName = cursor.getString(cursor.getColumnIndex(SiftContract.Subreddits.COLUMN_NAME));
                     mSubreddits.add(sub);
                 }
