@@ -154,6 +154,7 @@ public class MainActivity extends BaseActivity {
             SubscriptionInfo sub = mSubreddits.get(position);
             Bundle args = new Bundle();
             args.putInt(getString(R.string.subreddit_id), sub.mSubredditId);
+            args.putString(getString(R.string.subreddit_name), sub.mSubredditName);
             SubredditFragment subFrag = new SubredditFragment();
             subFrag.setArguments(args);
             return subFrag;

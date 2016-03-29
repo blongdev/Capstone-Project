@@ -16,6 +16,7 @@ import android.util.Log;
 
 import com.blongdev.sift.AccountInfo;
 import com.blongdev.sift.Reddit;
+import com.blongdev.sift.SubscriptionInfo;
 import com.blongdev.sift.UserInfo;
 import com.blongdev.sift.database.SiftContract;
 
@@ -109,7 +110,7 @@ public class SiftSyncAdapter extends AbstractThreadedSyncAdapter {
             }
 
             if (redditClient.isAuthenticated()) {
-                getData(redditClient, currentAccount.mId);
+                getData(redditClient, currentAccount.mId, provider);
             }
         }
 
@@ -118,7 +119,7 @@ public class SiftSyncAdapter extends AbstractThreadedSyncAdapter {
         Log.v("SiftSyncAdapter", "Sync Completed. Total Time: " + (endTime - startTime)/1000 + " seconds");
     }
 
-    private void getData(RedditClient redditClient, int accountId) {
+    private void getData(RedditClient redditClient, int accountId, ContentProviderClient provider) {
         ContentValues cv = new ContentValues();
         //Subscribed
         UserSubredditsPaginator subscribed = new UserSubredditsPaginator(redditClient, "subscriber");
@@ -139,27 +140,65 @@ public class SiftSyncAdapter extends AbstractThreadedSyncAdapter {
                 mContentResolver.insert(SiftContract.Subscriptions.CONTENT_URI, cv);
                 cv.clear();
 
-                //add posts
-                SubredditPaginator postPager = new SubredditPaginator(redditClient, s.getDisplayName());
-                postPager.setLimit(10);
-                if (postPager.hasNext()) {
-                    Listing<Submission> submissions = postPager.next();
-                    for (Submission post : submissions) {
-                        cv.put(SiftContract.Posts.COLUMN_OWNER_USERNAME, post.getAuthor());
-                        cv.put(SiftContract.Posts.COLUMN_SERVER_ID, post.getId());
-                        cv.put(SiftContract.Posts.COLUMN_NUM_COMMENTS, post.getCommentCount());
-                        cv.put(SiftContract.Posts.COLUMN_POINTS, post.getScore());
-                        cv.put(SiftContract.Posts.COLUMN_SUBREDDIT_ID, subredditId);
-                        cv.put(SiftContract.Posts.COLUMN_SUBREDDIT_NAME, post.getSubredditName());
-                        cv.put(SiftContract.Posts.COLUMN_IMAGE_URL, post.getThumbnail());
-                        cv.put(SiftContract.Posts.COLUMN_TITLE, post.getTitle());
-                        mContentResolver.insert(SiftContract.Posts.CONTENT_URI, cv);
-                        cv.clear();
-                    }
-                    Log.d("SiftSyncAdapter", submissions.size() + " posts added for " + s.getDisplayName());
-                }
+//                //add posts
+//                SubredditPaginator postPager = new SubredditPaginator(redditClient, s.getDisplayName());
+//                postPager.setLimit(10);
+//                if (postPager.hasNext()) {
+//                    Listing<Submission> submissions = postPager.next();
+//                    for (Submission post : submissions) {
+//                        cv.put(SiftContract.Posts.COLUMN_OWNER_USERNAME, post.getAuthor());
+//                        cv.put(SiftContract.Posts.COLUMN_SERVER_ID, post.getId());
+//                        cv.put(SiftContract.Posts.COLUMN_NUM_COMMENTS, post.getCommentCount());
+//                        cv.put(SiftContract.Posts.COLUMN_POINTS, post.getScore());
+//                        cv.put(SiftContract.Posts.COLUMN_SUBREDDIT_ID, subredditId);
+//                        cv.put(SiftContract.Posts.COLUMN_SUBREDDIT_NAME, post.getSubredditName());
+//                        cv.put(SiftContract.Posts.COLUMN_IMAGE_URL, post.getThumbnail());
+//                        cv.put(SiftContract.Posts.COLUMN_TITLE, post.getTitle());
+//                        mContentResolver.insert(SiftContract.Posts.CONTENT_URI, cv);
+//                        cv.clear();
+//                    }
+//                    Log.d("SiftSyncAdapter", submissions.size() + " posts added for " + s.getDisplayName());
+//                }
             }
         }
+
+        //add favorite posts
+//        Cursor cursor = null;
+//        try {
+//            cursor = provider.query(SiftContract.Subscriptions.VIEW_URI, null, null, null, null);
+//            if (cursor != null) {
+//                while (cursor.moveToNext()) {
+//                    int subredditId = cursor.getInt(cursor.getColumnIndex(SiftContract.Subscriptions.COLUMN_SUBREDDIT_ID));
+//                    String subredditName = cursor.getString(cursor.getColumnIndex(SiftContract.Subreddits.COLUMN_NAME));
+//
+//                    SubredditPaginator postPager = new SubredditPaginator(redditClient, subredditName);
+//                    postPager.setLimit(10);
+//                    if (postPager.hasNext()) {
+//                        Listing<Submission> submissions = postPager.next();
+//                        for (Submission post : submissions) {
+//                            cv.put(SiftContract.Posts.COLUMN_OWNER_USERNAME, post.getAuthor());
+//                            cv.put(SiftContract.Posts.COLUMN_SERVER_ID, post.getId());
+//                            cv.put(SiftContract.Posts.COLUMN_NUM_COMMENTS, post.getCommentCount());
+//                            cv.put(SiftContract.Posts.COLUMN_POINTS, post.getScore());
+//                            cv.put(SiftContract.Posts.COLUMN_SUBREDDIT_ID, subredditId);
+//                            cv.put(SiftContract.Posts.COLUMN_SUBREDDIT_NAME, post.getSubredditName());
+//                            cv.put(SiftContract.Posts.COLUMN_IMAGE_URL, post.getThumbnail());
+//                            cv.put(SiftContract.Posts.COLUMN_TITLE, post.getTitle());
+//                            mContentResolver.insert(SiftContract.Posts.CONTENT_URI, cv);
+//                            cv.clear();
+//                        }
+//                        Log.d("SiftSyncAdapter", submissions.size() + " posts added for " + subredditName);
+//                    }
+//                }
+//            }
+//        } catch (RemoteException e) {
+//            e.printStackTrace();
+//        } finally {
+//            if (cursor != null) {
+//                cursor.close();
+//            }
+//        }
+
 
         ImportantUserPaginator friends = new ImportantUserPaginator(redditClient, "friends");
         friends.setLimit(Integer.MAX_VALUE);

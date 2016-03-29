@@ -16,4 +16,5 @@ public class PostInfo {
     public int mAge;
     public String mImageUrl;
     public boolean mFavorited;
+    public String mServerId;
 }

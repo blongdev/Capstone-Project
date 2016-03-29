@@ -1,5 +1,6 @@
 package com.blongdev.sift;
 
+import android.content.ContentValues;
 import android.database.Cursor;
 import android.os.AsyncTask;
 import android.os.Debug;
@@ -35,6 +36,7 @@ public class SubredditFragment extends Fragment {
     ViewPager mPager;
     PagerAdapter mPagerAdapter;
     private int mSubredditId;
+    private String mSubredditName;
     private ArrayList<PostInfo> mPosts;
     private PostListAdapter mPostListAdapter;
     private RecyclerView mRecyclerView;
@@ -55,13 +57,14 @@ public class SubredditFragment extends Fragment {
 
         Bundle arg = getArguments();
         mSubredditId = arg.getInt(getString(R.string.subreddit_id));
+        mSubredditName = arg.getString(getString(R.string.subreddit_name));
 
         //populatePosts();
         //RACE CONDITION WITH AUTHENTICATION IN MAIN ACTIVITY
         // resetting the viewpager adapter in main activity as workaround
-        if (mSubredditId == -1 && mReddit.mRedditClient.isAuthenticated()) {
+        if (Utilities.connectedToNetwork(getContext()) && mReddit.mRedditClient.isAuthenticated()) {
             new GetPostsTask().execute();
-        } else if (mSubredditId > 0) {
+        } else {
             getPostsFromDb();
         }
 
@@ -113,12 +116,12 @@ public class SubredditFragment extends Fragment {
         @Override
         protected ArrayList<PostInfo> doInBackground(String... params) {
             ArrayList<PostInfo> postArray = new ArrayList<PostInfo>();
-            SubredditPaginator paginator = new SubredditPaginator(mReddit.mRedditClient);
+            SubredditPaginator paginator = new SubredditPaginator(mReddit.mRedditClient, mSubredditName);
             if (paginator.hasNext()) {
                 Listing<Submission> firstPage = paginator.next();
                 for (Submission submission : firstPage) {
                     PostInfo post = new PostInfo();
-                    //post.mId =
+                    post.mServerId = submission.getId();
                     post.mTitle = submission.getTitle();
                     post.mUsername = submission.getAuthor();
                     //post.mUserId = submission.
@@ -129,7 +132,7 @@ public class SubredditFragment extends Fragment {
                     //post.mUrl = submission.getShortURL();
                     post.mComments = submission.getCommentCount();
                     //post.mAge= submission.getCreated().getTime();
-//              post.mFavorited = cursor.getInt(cursor.getColumnIndex(SiftContract.Posts.COLUMN_FAVORITED)) == 1 ? true : false;
+//                  post.mFavorited = cursor.getInt(cursor.getColumnIndex(SiftContract.Posts.COLUMN_FAVORITED)) == 1 ? true : false;
                     postArray.add(post);
                 }
             }
@@ -141,6 +144,24 @@ public class SubredditFragment extends Fragment {
         protected void onPostExecute(ArrayList<PostInfo> posts) {
             mPosts = posts;
             mPostListAdapter.refreshWithList(posts);
+
+            //add to db
+            for (PostInfo post : posts) {
+                addPostToDb(post);
+            }
+        }
+
+        private void addPostToDb(PostInfo post) {
+            ContentValues cv = new ContentValues();
+            cv.put(SiftContract.Posts.COLUMN_OWNER_USERNAME, post.mUsername);
+            cv.put(SiftContract.Posts.COLUMN_SERVER_ID, post.mServerId);
+            cv.put(SiftContract.Posts.COLUMN_NUM_COMMENTS, post.mComments);
+            cv.put(SiftContract.Posts.COLUMN_POINTS, post.mPoints);
+            cv.put(SiftContract.Posts.COLUMN_SUBREDDIT_ID, mSubredditId);
+            cv.put(SiftContract.Posts.COLUMN_SUBREDDIT_NAME, mSubredditName);
+            cv.put(SiftContract.Posts.COLUMN_IMAGE_URL, post.mImageUrl);
+            cv.put(SiftContract.Posts.COLUMN_TITLE, post.mTitle);
+            getContext().getContentResolver().insert(SiftContract.Posts.CONTENT_URI, cv);
         }
     }
 
