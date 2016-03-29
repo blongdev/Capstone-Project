@@ -42,6 +42,7 @@ public class Reddit {
 
     private static Reddit ourInstance = new Reddit();
     public RedditClient mRedditClient;
+
     public UserAgent mUserAgent;
     public String mRefreshToken;
     public Credentials mCredentials;
@@ -58,15 +59,22 @@ public class Reddit {
     }
 
     private Reddit() {
-        String versionName = BuildConfig.VERSION_NAME;
-        mUserAgent = UserAgent.of("Android", "com.blongdev.sift", versionName, "toothkey");
+        mUserAgent = getUserAgent();
         mRedditClient = new RedditClient(mUserAgent);
-        mCredentials = Credentials.installedApp(CLIENT_ID, REDIRECT_URL);
+        mCredentials = getCredentials();
         mOAuthHelper = mRedditClient.getOAuthHelper();
 
         if (mRedditClient.isAuthenticated()) {
             mMe = mRedditClient.me();
         }
+    }
+
+    public static UserAgent getUserAgent () {
+        return UserAgent.of("Android", "com.blongdev.sift", BuildConfig.VERSION_NAME, "blongdev");
+    }
+
+    public static Credentials getCredentials() {
+        return Credentials.installedApp(CLIENT_ID, REDIRECT_URL);
     }
 
     public void addGeneralAccount(Context context) {

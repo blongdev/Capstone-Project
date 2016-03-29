@@ -51,7 +51,6 @@ public class PostDetailActivity extends BaseActivity {
         FrameLayout postView = (FrameLayout) findViewById(R.id.post_detail_fragment);
         final FrameLayout commentsView = (FrameLayout) findViewById(R.id.comments_fragment);
 
-
         mPostShowing = true;
         commentsView.setVisibility(View.GONE);
 

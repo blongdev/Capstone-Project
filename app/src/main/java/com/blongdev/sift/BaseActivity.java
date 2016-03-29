@@ -33,7 +33,7 @@ public class BaseActivity extends AppCompatActivity implements Reddit.OnRefreshC
         super.onCreate(savedInstanceState);
 
         mReddit = Reddit.getInstance();
-        mReddit.addGeneralAccount(this);
+        //mReddit.addGeneralAccount(this);
 
         if (!mReddit.mRedditClient.isAuthenticated()) {
             mReddit.refreshKey(getApplicationContext(), this);

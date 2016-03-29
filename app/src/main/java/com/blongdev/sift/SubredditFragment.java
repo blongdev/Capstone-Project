@@ -23,6 +23,7 @@ import net.dean.jraw.models.Listing;
 import net.dean.jraw.models.Submission;
 import net.dean.jraw.paginators.SubredditPaginator;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -49,18 +50,19 @@ public class SubredditFragment extends Fragment {
 
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
 
+        mReddit = Reddit.getInstance();
+        mPosts = new ArrayList<PostInfo>();
+
         Bundle arg = getArguments();
         mSubredditId = arg.getInt(getString(R.string.subreddit_id));
-
-        mReddit = Reddit.getInstance();
-
-        mPosts = new ArrayList<PostInfo>();
 
         //populatePosts();
         //RACE CONDITION WITH AUTHENTICATION IN MAIN ACTIVITY
         // resetting the viewpager adapter in main activity as workaround
-        if (mReddit.mRedditClient.isAuthenticated()) {
+        if (mSubredditId == -1 && mReddit.mRedditClient.isAuthenticated()) {
             new GetPostsTask().execute();
+        } else if (mSubredditId > 0) {
+            getPostsFromDb();
         }
 
         mRecyclerView = (RecyclerView) rootView.findViewById(R.id.cardList);
@@ -76,27 +78,60 @@ public class SubredditFragment extends Fragment {
         return rootView;
     }
 
+    private void getPostsFromDb() {
+        Cursor cursor = null;
+        try {
+            String selection = SiftContract.Posts.COLUMN_SUBREDDIT_ID + " = ?";
+            String[] selectionArgs = new String[]{String.valueOf(mSubredditId)};
+            cursor = getContext().getContentResolver().query(SiftContract.Posts.CONTENT_URI, null, selection, selectionArgs, null, null);
+            if (cursor != null) {
+                while (cursor.moveToNext()) {
+                    PostInfo post = new PostInfo();
+                    post.mId = cursor.getInt(cursor.getColumnIndex(SiftContract.Posts._ID));
+                    post.mTitle = cursor.getString(cursor.getColumnIndex(SiftContract.Posts.COLUMN_TITLE));
+                    post.mUsername = cursor.getString(cursor.getColumnIndex(SiftContract.Posts.COLUMN_OWNER_USERNAME));
+                    post.mUserId = cursor.getInt(cursor.getColumnIndex(SiftContract.Posts.COLUMN_OWNER_ID));
+                    post.mSubreddit = cursor.getString(cursor.getColumnIndex(SiftContract.Posts.COLUMN_SUBREDDIT_NAME));
+                    post.mSubredditId = cursor.getInt(cursor.getColumnIndex(SiftContract.Posts.COLUMN_SUBREDDIT_ID));
+                    post.mPoints = cursor.getInt(cursor.getColumnIndex(SiftContract.Posts.COLUMN_POINTS));
+                    post.mImageUrl = cursor.getString(cursor.getColumnIndex(SiftContract.Posts.COLUMN_IMAGE_URL));
+                    post.mUrl = cursor.getString(cursor.getColumnIndex(SiftContract.Posts.COLUMN_URL));
+                    post.mComments = cursor.getInt(cursor.getColumnIndex(SiftContract.Posts.COLUMN_NUM_COMMENTS));
+                    post.mAge= cursor.getInt(cursor.getColumnIndex(SiftContract.Posts.COLUMN_DATE_CREATED));
+                    post.mFavorited = cursor.getInt(cursor.getColumnIndex(SiftContract.Posts.COLUMN_FAVORITED)) == 1 ? true : false;
+                    mPosts.add(post);
+                }
+            }
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
+        }
+    }
+
     private final class GetPostsTask extends AsyncTask<String, Void, ArrayList<PostInfo>> {
         @Override
         protected ArrayList<PostInfo> doInBackground(String... params) {
             ArrayList<PostInfo> postArray = new ArrayList<PostInfo>();
             SubredditPaginator paginator = new SubredditPaginator(mReddit.mRedditClient);
-            Listing<Submission> firstPage = paginator.next();
-            for (Submission submission : firstPage) {
-                PostInfo post = new PostInfo();
-                //post.mId =
-                post.mTitle = submission.getTitle();
-                post.mUsername = submission.getAuthor();
-                //post.mUserId = submission.
-                post.mSubreddit = submission.getSubredditName();
-                //post.mSubredditId = cursor.getInt(cursor.getColumnIndex(SiftContract.Posts.COLUMN_SUBREDDIT_ID));
-                post.mPoints = submission.getScore();
-                post.mImageUrl = submission.getThumbnail();
-                //post.mUrl = submission.getShortURL();
-                post.mComments = submission.getCommentCount();
-                //post.mAge= submission.getCreated().getTime();
+            if (paginator.hasNext()) {
+                Listing<Submission> firstPage = paginator.next();
+                for (Submission submission : firstPage) {
+                    PostInfo post = new PostInfo();
+                    //post.mId =
+                    post.mTitle = submission.getTitle();
+                    post.mUsername = submission.getAuthor();
+                    //post.mUserId = submission.
+                    post.mSubreddit = submission.getSubredditName();
+                    //post.mSubredditId = cursor.getInt(cursor.getColumnIndex(SiftContract.Posts.COLUMN_SUBREDDIT_ID));
+                    post.mPoints = submission.getScore();
+                    post.mImageUrl = submission.getThumbnail();
+                    //post.mUrl = submission.getShortURL();
+                    post.mComments = submission.getCommentCount();
+                    //post.mAge= submission.getCreated().getTime();
 //              post.mFavorited = cursor.getInt(cursor.getColumnIndex(SiftContract.Posts.COLUMN_FAVORITED)) == 1 ? true : false;
-                postArray.add(post);
+                    postArray.add(post);
+                }
             }
 
             return postArray;

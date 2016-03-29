@@ -73,7 +73,7 @@ public class AuthenticationActivity extends AppCompatActivity {
                         mReddit.runUserChallengeTask(url, getApplicationContext());
                         Intent intent = new Intent(getApplicationContext(), MainActivity.class);
                         startActivity(intent);
-                        finish();
+                        //finish();
                     }
                 }
             });
