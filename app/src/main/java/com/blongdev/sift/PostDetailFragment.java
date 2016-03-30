@@ -3,18 +3,33 @@ package com.blongdev.sift;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
+import android.graphics.Bitmap;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.webkit.WebChromeClient;
+import android.webkit.WebView;
+import android.webkit.WebViewClient;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.blongdev.sift.database.SiftContract;
+import com.squareup.okhttp.internal.Util;
 import com.squareup.picasso.Picasso;
+import com.unnamed.b.atv.model.TreeNode;
+import com.unnamed.b.atv.view.AndroidTreeView;
+
+import net.dean.jraw.models.Comment;
+import net.dean.jraw.models.CommentNode;
+import net.dean.jraw.models.Submission;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -23,6 +38,7 @@ import java.util.List;
 
 public class PostDetailFragment extends Fragment {
 
+    LinearLayout mPostDetailLayout;
     TextView mTitle;
     TextView mUsername;
     TextView mSubreddit;
@@ -31,8 +47,11 @@ public class PostDetailFragment extends Fragment {
     TextView mUrl;
     TextView mAge;
     ImageView mImage;
+    WebView mWebView;
+    private ProgressBar mLoadingSpinner;
 
     private int mPostId = 0;
+    private String mPostServerId;
 
     public PostDetailFragment() {
         // Required empty public constructor
@@ -60,6 +79,8 @@ public class PostDetailFragment extends Fragment {
         String age = intent.getStringExtra(getString(R.string.age));
         String imageUrl = intent.getStringExtra(getString(R.string.image_url));
 //
+
+        mPostDetailLayout = (LinearLayout) rootView.findViewById(R.id.post_detail_layout);
         mTitle = (TextView) rootView.findViewById(R.id.post_title);
         mUsername = (TextView) rootView.findViewById(R.id.post_username);
         mSubreddit = (TextView) rootView.findViewById(R.id.post_subreddit);
@@ -68,6 +89,8 @@ public class PostDetailFragment extends Fragment {
         mUrl = (TextView) rootView.findViewById(R.id.post_url);
         mAge = (TextView) rootView.findViewById(R.id.post_age);
         mImage = (ImageView) rootView.findViewById(R.id.post_detail_image);
+        mWebView = (WebView) rootView.findViewById(R.id.post_web_view);
+        mLoadingSpinner = (ProgressBar) rootView.findViewById(R.id.progressSpinner);
 
 
         mTitle.setText(title);
@@ -78,13 +101,17 @@ public class PostDetailFragment extends Fragment {
         mUrl.setText(url);
         mAge.setText(age);
 
-        Picasso.with(getContext()).load(imageUrl).into(mImage);
+//        Picasso.with(getContext()).load(imageUrl).into(mImage);
 
 
         Bundle args = getArguments();
         if (args != null) {
             mPostId = args.getInt(getString(R.string.post_id));
+            mPostServerId = args.getString(getString(R.string.server_id));
         }
+
+
+
 
 //        String selection = SiftContract.Posts._ID + " = ?";
 //        String[] selectionArgs =  new String[]{String.valueOf(mPostId)};
@@ -110,7 +137,77 @@ public class PostDetailFragment extends Fragment {
 //            mAge.setText(age);
 //
 //            Picasso.with(getContext()).load(imageUrl).into(mImage);
+//
+//            if (!TextUtils.isEmpty(url)) {
+//                mWebView.loadUrl(url);
+//
+//                mWebView.setWebChromeClient(new WebChromeClient() {
+//                    @Override
+//                    public void onProgressChanged(WebView view, int newProgress) {
+////                activity.setProgress(newProgress * 1000);
+////                    progressBar.setProgress(newProgress);
+//                    }
+//                });
+//
+//                mWebView.setWebViewClient(new WebViewClient() {
+//                    @Override
+//                    public void onPageStarted(WebView view, String url, Bitmap favicon) {
+////                    if (url.contains("code=")) {
+////                        mReddit.runUserChallengeTask(url, getApplicationContext());
+////                        Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+////                        startActivity(intent);
+////                        //finish();
+////                    }
+//                    }
+//                });
+//            }
 //        }
+
+
+
+        if (!TextUtils.isEmpty(url)) {
+            String mimeType = Utilities.getMimeType(url);
+            if (!TextUtils.isEmpty(mimeType) && mimeType.contains("image")) {
+                mWebView.setVisibility(View.GONE);
+                mPostDetailLayout.setVisibility(View.GONE);
+                mImage.setVisibility(View.VISIBLE);
+                Picasso.with(getContext()).load(url).into(mImage);
+            } else {
+                mWebView.loadUrl(url);
+
+                mWebView.setWebChromeClient(new WebChromeClient() {
+                    @Override
+                    public void onProgressChanged(WebView view, int newProgress) {
+//                activity.setProgress(newProgress * 1000);
+//                    progressBar.setProgress(newProgress);
+                    }
+                });
+
+                mWebView.setWebViewClient(new WebViewClient() {
+                    @Override
+                    public void onPageStarted(WebView view, String url, Bitmap favicon) {
+                        mPostDetailLayout.setVisibility(View.GONE);
+                        mLoadingSpinner.setVisibility(View.VISIBLE);
+
+//                    if (url.contains("code=")) {
+//                        mReddit.runUserChallengeTask(url, getApplicationContext());
+//                        Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+//                        startActivity(intent);
+//                        //finish();
+//                    }
+                    }
+
+                    @Override
+                    public void onPageFinished(WebView view, String url) {
+                        mLoadingSpinner.setVisibility(View.GONE);
+                    }
+                });
+
+                mWebView.getSettings().setJavaScriptEnabled(true);
+                mWebView.getSettings().setJavaScriptCanOpenWindowsAutomatically(true);
+
+            }
+        }
 
         return rootView;
     }
@@ -126,5 +223,27 @@ public class PostDetailFragment extends Fragment {
     }
 
 
-
+//    private final class getPostTask extends AsyncTask<String, Void, Void> {
+//
+//        @Override
+//        protected void onPreExecute() {
+//            mLoadingSpinner.setVisibility(View.VISIBLE);
+//        }
+//
+//        @Override
+//        protected Void doInBackground(String... params) {
+//            long startTime = System.currentTimeMillis();
+//            Reddit reddit = Reddit.getInstance();
+//            Submission post = reddit.mRedditClient.getSubmission(mPostServerId);
+//
+//            return null;
+//        }
+//
+//        @Override
+//        protected void onPostExecute(Void nothing) {
+//
+//            mLoadingSpinner.setVisibility(View.GONE);
+//
+//        }
+//    }
 }

@@ -56,21 +56,23 @@ public class PostListAdapter extends RecyclerView.Adapter<PostListAdapter.PostVi
 
         //picasso needs to be passed null to prevent listview from displaying incorrectly cached images
         //if(!TextUtils.isEmpty(post.mImageUrl)) {
-            Picasso.with(postViewHolder.mImage.getContext())
-                    .load(post.mImageUrl)
-                    //.placeholder(R.drawable.ic_image_24dp)
-                    //.error(R.drawable.drawer_icon)
-                    .into(postViewHolder.mImage, new com.squareup.picasso.Callback() {
-                        @Override
-                        public void onSuccess() {
 
-                        }
+        Picasso.with(postViewHolder.mImage.getContext())
+                .load(post.mImageUrl)
+                        //.placeholder(R.drawable.ic_image_24dp)
+                        //.error(R.drawable.drawer_icon)
+                .into(postViewHolder.mImage, new com.squareup.picasso.Callback() {
+                    @Override
+                    public void onSuccess() {
 
-                        @Override
-                        public void onError() {
+                    }
 
-                        }
-                    });
+                    @Override
+                    public void onError() {
+
+                    }
+                });
+
 //            Picasso.Builder builder = new Picasso.Builder(postViewHolder.mImage.getContext());
 //            builder.listener(new Picasso.Listener()
 //            {
@@ -89,7 +91,7 @@ public class PostListAdapter extends RecyclerView.Adapter<PostListAdapter.PostVi
     public PostViewHolder onCreateViewHolder(ViewGroup viewGroup, int i) {
         View itemView = LayoutInflater.
                 from(viewGroup.getContext()).
-                inflate(R.layout.post_thin, viewGroup, false);
+                inflate(R.layout.post, viewGroup, false);
 
         return new PostViewHolder(itemView);
     }

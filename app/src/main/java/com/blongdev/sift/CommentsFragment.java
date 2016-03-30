@@ -63,7 +63,6 @@ public class CommentsFragment extends Fragment {
 
         mNoComments = (TextView) rootView.findViewById(R.id.no_comments);
         mLoadingSpinner = (ProgressBar) rootView.findViewById(R.id.progressSpinner);
-        mLoadingSpinner.setVisibility(View.GONE);
 
 
         //createTree();

@@ -7,7 +7,28 @@
     android:background="@android:color/white"
     android:elevation="4dp">
 
-    <include layout="@layout/post_detail" />
+    <WebView
+        android:id="@+id/post_web_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"></WebView>
+
+    <ImageView
+        android:id="@+id/post_detail_image"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@android:color/black"
+        android:visibility="gone"/>
+
+    <include layout="@layout/post_detail"/>
+
+    <ProgressBar
+        android:id="@+id/progressSpinner"
+        style="?android:attr/progressBarStyle"
+        android:paddingTop="@dimen/content_spacer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:visibility="gone"/>
 
 
 </FrameLayout>

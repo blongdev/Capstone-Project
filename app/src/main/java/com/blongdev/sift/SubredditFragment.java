@@ -60,7 +60,7 @@ public class SubredditFragment extends Fragment {
         mContentResolver = getContext().getContentResolver();
 
         mLoadingSpinner = (ProgressBar) rootView.findViewById(R.id.progressSpinner);
-        mLoadingSpinner.setVisibility(View.GONE);
+
 
         mReddit = Reddit.getInstance();
         mPosts = new ArrayList<PostInfo>();
@@ -142,6 +142,7 @@ public class SubredditFragment extends Fragment {
                     post.mUsername = submission.getAuthor();
                     post.mSubreddit = submission.getSubredditName();
                     post.mPoints = submission.getScore();
+                    post.mUrl = submission.getUrl();
                     post.mImageUrl = submission.getThumbnail();
                     post.mComments = submission.getCommentCount();
                     postArray.add(post);
@@ -189,6 +190,7 @@ public class SubredditFragment extends Fragment {
             cv.put(SiftContract.Posts.COLUMN_POINTS, post.mPoints);
             cv.put(SiftContract.Posts.COLUMN_SUBREDDIT_ID, mSubredditId);
             cv.put(SiftContract.Posts.COLUMN_SUBREDDIT_NAME, mSubredditName);
+            cv.put(SiftContract.Posts.COLUMN_URL, post.mUrl);
             cv.put(SiftContract.Posts.COLUMN_IMAGE_URL, post.mImageUrl);
             cv.put(SiftContract.Posts.COLUMN_TITLE, post.mTitle);
             mContentResolver.insert(SiftContract.Posts.CONTENT_URI, cv);
