@@ -139,26 +139,6 @@ public class SiftSyncAdapter extends AbstractThreadedSyncAdapter {
                 cv.put(SiftContract.Subscriptions.COLUMN_SUBREDDIT_ID, subredditId);
                 mContentResolver.insert(SiftContract.Subscriptions.CONTENT_URI, cv);
                 cv.clear();
-
-//                //add posts
-//                SubredditPaginator postPager = new SubredditPaginator(redditClient, s.getDisplayName());
-//                postPager.setLimit(10);
-//                if (postPager.hasNext()) {
-//                    Listing<Submission> submissions = postPager.next();
-//                    for (Submission post : submissions) {
-//                        cv.put(SiftContract.Posts.COLUMN_OWNER_USERNAME, post.getAuthor());
-//                        cv.put(SiftContract.Posts.COLUMN_SERVER_ID, post.getId());
-//                        cv.put(SiftContract.Posts.COLUMN_NUM_COMMENTS, post.getCommentCount());
-//                        cv.put(SiftContract.Posts.COLUMN_POINTS, post.getScore());
-//                        cv.put(SiftContract.Posts.COLUMN_SUBREDDIT_ID, subredditId);
-//                        cv.put(SiftContract.Posts.COLUMN_SUBREDDIT_NAME, post.getSubredditName());
-//                        cv.put(SiftContract.Posts.COLUMN_IMAGE_URL, post.getThumbnail());
-//                        cv.put(SiftContract.Posts.COLUMN_TITLE, post.getTitle());
-//                        mContentResolver.insert(SiftContract.Posts.CONTENT_URI, cv);
-//                        cv.clear();
-//                    }
-//                    Log.d("SiftSyncAdapter", submissions.size() + " posts added for " + s.getDisplayName());
-//                }
             }
         }
 
@@ -205,7 +185,7 @@ public class SiftSyncAdapter extends AbstractThreadedSyncAdapter {
         if (friends.hasNext()) {
             Listing<UserRecord> friend = friends.next();
             for (UserRecord u : friend) {
-                cv.put(SiftContract.Users.COLUMN_USERNAME, u.getNote());
+
                 cv.put(SiftContract.Users.COLUMN_SERVER_ID, u.getId());
                 Uri userUri = mContentResolver.insert(SiftContract.Users.CONTENT_URI, cv);
                 long userId = ContentUris.parseId(userUri);

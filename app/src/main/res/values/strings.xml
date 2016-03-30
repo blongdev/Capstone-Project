@@ -33,6 +33,7 @@
     <string name="subreddit_id">subredditId</string>
     <string name="subreddit_name">subredditName</string>
     <string name="post_id">postId</string>
+    <string name="server_id">serverId</string>
 
     <!-- Strings related to Settings -->
 

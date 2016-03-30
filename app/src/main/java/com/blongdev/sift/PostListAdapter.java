@@ -52,13 +52,14 @@ public class PostListAdapter extends RecyclerView.Adapter<PostListAdapter.PostVi
         postViewHolder.mAge.setText(post.mAge + " Hours ago");
         postViewHolder.mImageUrl = post.mImageUrl;
         postViewHolder.mPostId = post.mId;
+        postViewHolder.mPostServerId = post.mServerId;
 
         //picasso needs to be passed null to prevent listview from displaying incorrectly cached images
         //if(!TextUtils.isEmpty(post.mImageUrl)) {
             Picasso.with(postViewHolder.mImage.getContext())
                     .load(post.mImageUrl)
-                    //.placeholder(R.drawable.ic_photo_camera_24dp)
-                    .error(R.drawable.drawer_icon)
+                    //.placeholder(R.drawable.ic_image_24dp)
+                    //.error(R.drawable.drawer_icon)
                     .into(postViewHolder.mImage, new com.squareup.picasso.Callback() {
                         @Override
                         public void onSuccess() {
@@ -105,6 +106,7 @@ public class PostListAdapter extends RecyclerView.Adapter<PostListAdapter.PostVi
 
         protected String mImageUrl;
         protected int mPostId;
+        protected String mPostServerId;
 
         public PostViewHolder(View v) {
             super(v);
@@ -126,18 +128,19 @@ public class PostListAdapter extends RecyclerView.Adapter<PostListAdapter.PostVi
         private View.OnClickListener mOnClickListener = (new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (v == mTitle) {
+                if (v == mTitle || v == mImage) {
                     goToPostDetail(v);
                 } else if (v == mUsername) {
                     goToUserInfo(v);
-                } else if (v == mImage) {
-                    FragmentManager fm = ((AppCompatActivity) v.getContext()).getSupportFragmentManager();
-                    ImageDialogFragment imageFragment = new ImageDialogFragment();
-                    Bundle args = new Bundle();
-                    args.putString(v.getContext().getString(R.string.image_url), mImageUrl);
-                    imageFragment.setArguments(args);
-                    imageFragment.show(fm, "ImageDialogFragment");
                 }
+//                  else if (v == mImage) {
+//                    FragmentManager fm = ((AppCompatActivity) v.getContext()).getSupportFragmentManager();
+//                    ImageDialogFragment imageFragment = new ImageDialogFragment();
+//                    Bundle args = new Bundle();
+//                    args.putString(v.getContext().getString(R.string.image_url), mImageUrl);
+//                    imageFragment.setArguments(args);
+//                    imageFragment.show(fm, "ImageDialogFragment");
+//                }
             }
 
             private void goToPostDetail(View v) {
@@ -159,6 +162,7 @@ public class PostListAdapter extends RecyclerView.Adapter<PostListAdapter.PostVi
                 intent.putExtra(v.getContext().getString(R.string.age), age);
                 intent.putExtra(v.getContext().getString(R.string.image_url), mImageUrl);
                 intent.putExtra(v.getContext().getString(R.string.post_id), mPostId);
+                intent.putExtra(v.getContext().getString(R.string.server_id), mPostServerId);
 
                 v.getContext().startActivity(intent);
             }

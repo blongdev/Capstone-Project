@@ -20,6 +20,7 @@ import com.fasterxml.jackson.databind.deser.Deserializers;
 
 public class PostDetailActivity extends BaseActivity {
     private int mPostId = 0;
+    private String mPostServerId;
     PostDetailFragment mPostFragment;
     CommentsFragment mCommentsFragment;
     FragmentManager mFragmentManager;
@@ -33,6 +34,7 @@ public class PostDetailActivity extends BaseActivity {
         Intent intent = getIntent();
         if (intent != null) {
             mPostId = intent.getIntExtra(getString(R.string.post_id), 0);
+            mPostServerId = intent.getStringExtra(getString(R.string.server_id));
         }
 
         //add post and comment fragments
@@ -41,6 +43,7 @@ public class PostDetailActivity extends BaseActivity {
         mCommentsFragment = new CommentsFragment();
         Bundle args = new Bundle();
         args.putInt(getString(R.string.post_id), mPostId);
+        args.putString(getString(R.string.server_id), mPostServerId);
         mPostFragment.setArguments(args);
         mCommentsFragment.setArguments(args);
         android.support.v4.app.FragmentTransaction ft = mFragmentManager.beginTransaction();
