@@ -11,9 +11,10 @@
         <solid android:color="@color/comment_line_color" />
     </shape>
 </item>
-<item android:left="5dp" android:top="1dp">
+<item android:left="5dp" android:top="1dp" android:bottom="1dp" android:right="1dp">
     <shape android:shape="rectangle">
         <solid android:color="@color/comment_bg_color" />
+        <corners android:radius="4dp" />
     </shape>
 </item>
 </layer-list>

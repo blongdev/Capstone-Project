@@ -14,6 +14,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.blongdev.sift.database.SiftContract;
@@ -39,6 +40,8 @@ public class CommentsFragment extends Fragment {
     FrameLayout mCommentsContainer;
     String mPostServerId;
     Activity mActivity;
+    TextView mNoComments;
+    ProgressBar mLoadingSpinner;
 
     public CommentsFragment() {
         // Required empty public constructor
@@ -57,6 +60,12 @@ public class CommentsFragment extends Fragment {
         View rootView =  inflater.inflate(R.layout.fragment_comments, container, false);
 
         mActivity = getActivity();
+
+        mNoComments = (TextView) rootView.findViewById(R.id.no_comments);
+        mLoadingSpinner = (ProgressBar) rootView.findViewById(R.id.progressSpinner);
+        mLoadingSpinner.setVisibility(View.GONE);
+
+
         //createTree();
 
         mCommentsContainer = (FrameLayout) rootView.findViewById(R.id.comments_container);
@@ -144,8 +153,6 @@ public class CommentsFragment extends Fragment {
 
             return view;
         }
-
-
     }
 
 
@@ -160,6 +167,12 @@ public class CommentsFragment extends Fragment {
     }
 
     private final class getCommentsTask extends AsyncTask<String, Void, Void> {
+
+        @Override
+        protected void onPreExecute() {
+            mLoadingSpinner.setVisibility(View.VISIBLE);
+        }
+
         @Override
         protected Void doInBackground(String... params) {
             long startTime = System.currentTimeMillis();
@@ -178,6 +191,12 @@ public class CommentsFragment extends Fragment {
 
         @Override
         protected void onPostExecute(Void nothing) {
+            if (mRoot.size() == 0) {
+                mNoComments.setVisibility(View.VISIBLE);
+            }
+
+            mLoadingSpinner.setVisibility(View.GONE);
+
             AndroidTreeView tView = new AndroidTreeView(mActivity, mRoot);
             tView.setDefaultContainerStyle(R.style.CommentStyle);
             mCommentsContainer.addView(tView.getView());

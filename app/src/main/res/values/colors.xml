@@ -12,6 +12,9 @@
     <color name="indigoSix">#3949AB</color>
 
     <color name="comment_bg_color">#eeeeee</color>
+    <!--<color name="comment_bg_color">@android:color/white</color>-->
+    <!--<color name="comment_line_color">@android:color/white</color>-->
     <color name="comment_line_color">#9e9e9e</color>
+
 
 </resources>
