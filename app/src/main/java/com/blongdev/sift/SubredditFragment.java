@@ -118,6 +118,8 @@ public class SubredditFragment extends Fragment {
                     post.mComments = cursor.getInt(cursor.getColumnIndex(SiftContract.Posts.COLUMN_NUM_COMMENTS));
                     post.mAge= cursor.getInt(cursor.getColumnIndex(SiftContract.Posts.COLUMN_DATE_CREATED));
                     post.mFavorited = cursor.getInt(cursor.getColumnIndex(SiftContract.Posts.COLUMN_FAVORITED)) == 1 ? true : false;
+                    post.mBody = cursor.getString(cursor.getColumnIndex(SiftContract.Posts.COLUMN_BODY));
+                    post.mDomain = cursor.getString(cursor.getColumnIndex(SiftContract.Posts.COLUMN_DOMAIN));
                     mPosts.add(post);
                 }
             }
@@ -145,6 +147,8 @@ public class SubredditFragment extends Fragment {
                     post.mUrl = submission.getUrl();
                     post.mImageUrl = submission.getThumbnail();
                     post.mComments = submission.getCommentCount();
+                    post.mBody = submission.getSelftext();
+                    post.mDomain = submission.getDomain();
                     postArray.add(post);
                 }
             }
@@ -193,6 +197,8 @@ public class SubredditFragment extends Fragment {
             cv.put(SiftContract.Posts.COLUMN_URL, post.mUrl);
             cv.put(SiftContract.Posts.COLUMN_IMAGE_URL, post.mImageUrl);
             cv.put(SiftContract.Posts.COLUMN_TITLE, post.mTitle);
+            cv.put(SiftContract.Posts.COLUMN_BODY, post.mBody);
+            cv.put(SiftContract.Posts.COLUMN_DOMAIN, post.mDomain);
             mContentResolver.insert(SiftContract.Posts.CONTENT_URI, cv);
         }
     }

@@ -17,4 +17,6 @@ public class PostInfo {
     public String mImageUrl;
     public boolean mFavorited;
     public String mServerId;
+    public String mBody;
+    public String mDomain;
 }

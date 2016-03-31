@@ -190,6 +190,12 @@ public class CommentsFragment extends Fragment {
 
         @Override
         protected void onPostExecute(Void nothing) {
+
+            //if the user leaves the activity before comments load, return to prevent a crash
+            if (getContext() == null) {
+                return;
+            }
+
             if (mRoot.size() == 0) {
                 mNoComments.setVisibility(View.VISIBLE);
             }

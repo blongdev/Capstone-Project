@@ -42,17 +42,21 @@ public class PostListAdapter extends RecyclerView.Adapter<PostListAdapter.PostVi
 
     @Override
     public void onBindViewHolder(PostViewHolder postViewHolder, int i) {
+        //TODO just have postViewHolder with a reference to a PostInfo object rather than copying all of its fields
         PostInfo post = mPostList.get(i);
         postViewHolder.mUsername.setText(post.mUsername);
         postViewHolder.mSubreddit.setText(post.mSubreddit);
         postViewHolder.mTitle.setText(post.mTitle);
         postViewHolder.mPoints.setText(post.mPoints + " Points");
         postViewHolder.mComments.setText(post.mComments + " Comments");
-        postViewHolder.mUrl.setText(post.mUrl);
+        postViewHolder.mDomain.setText(post.mDomain);
         postViewHolder.mAge.setText(post.mAge + " Hours ago");
         postViewHolder.mImageUrl = post.mImageUrl;
         postViewHolder.mPostId = post.mId;
         postViewHolder.mPostServerId = post.mServerId;
+        postViewHolder.mUrl = post.mUrl;
+        postViewHolder.mBody = post.mBody;
+
 
         //picasso needs to be passed null to prevent listview from displaying incorrectly cached images
         //if(!TextUtils.isEmpty(post.mImageUrl)) {
@@ -102,13 +106,16 @@ public class PostListAdapter extends RecyclerView.Adapter<PostListAdapter.PostVi
         protected TextView mTitle;
         protected TextView mPoints;
         protected TextView mComments;
-        protected TextView mUrl;
+        protected TextView mDomain;
         protected TextView mAge;
         protected ImageView mImage;
 
         protected String mImageUrl;
         protected int mPostId;
         protected String mPostServerId;
+        protected String mBody;
+        protected String mUrl;
+
 
         public PostViewHolder(View v) {
             super(v);
@@ -117,7 +124,7 @@ public class PostListAdapter extends RecyclerView.Adapter<PostListAdapter.PostVi
             mTitle = (TextView)  v.findViewById(R.id.post_title);
             mPoints = (TextView) v.findViewById(R.id.post_points);
             mComments = (TextView)  v.findViewById(R.id.post_comments);
-            mUrl = (TextView)  v.findViewById(R.id.post_url);
+            mDomain = (TextView)  v.findViewById(R.id.post_url);
             mAge = (TextView) v.findViewById(R.id.post_age);
             mImage = (ImageView) v.findViewById(R.id.post_image);
 
@@ -151,8 +158,8 @@ public class PostListAdapter extends RecyclerView.Adapter<PostListAdapter.PostVi
                 String subreddit = mSubreddit.getText().toString();
                 String points = mPoints.getText().toString();
                 String comments = mComments.getText().toString();
-                String url = mUrl.getText().toString();
                 String age = mAge.getText().toString();
+                String domain = mDomain.getText().toString();
 
                 Intent intent = new Intent(v.getContext(), PostDetailActivity.class);
                 intent.putExtra(v.getContext().getString(R.string.title), title);
@@ -160,11 +167,13 @@ public class PostListAdapter extends RecyclerView.Adapter<PostListAdapter.PostVi
                 intent.putExtra(v.getContext().getString(R.string.subreddit), subreddit);
                 intent.putExtra(v.getContext().getString(R.string.points), points);
                 intent.putExtra(v.getContext().getString(R.string.comments), comments);
-                intent.putExtra(v.getContext().getString(R.string.url), url);
+                intent.putExtra(v.getContext().getString(R.string.url), mUrl);
                 intent.putExtra(v.getContext().getString(R.string.age), age);
                 intent.putExtra(v.getContext().getString(R.string.image_url), mImageUrl);
                 intent.putExtra(v.getContext().getString(R.string.post_id), mPostId);
                 intent.putExtra(v.getContext().getString(R.string.server_id), mPostServerId);
+                intent.putExtra(v.getContext().getString(R.string.body), mBody);
+                intent.putExtra(v.getContext().getString(R.string.domain), domain);
 
                 v.getContext().startActivity(intent);
             }

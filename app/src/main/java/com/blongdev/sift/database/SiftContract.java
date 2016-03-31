@@ -48,6 +48,9 @@ public final class SiftContract {
         public static final String COLUMN_NUM_COMMENTS = "numComments";
         public static final String COLUMN_FAVORITED = "favorited";
         public static final String COLUMN_SERVER_ID = "serverId";
+        public static final String COLUMN_BODY = "body";
+        public static final String COLUMN_DOMAIN = "domain";
+
 
         public static final int NOT_FAVORITED = 0;
         public static final int FAVORITED = 1;
@@ -68,6 +71,8 @@ public final class SiftContract {
                 COLUMN_NUM_COMMENTS + INTEGER_TYPE + COMMA_SEP +
                 COLUMN_FAVORITED + INTEGER_TYPE + COMMA_SEP +
                 COLUMN_SERVER_ID + TEXT_TYPE + COMMA_SEP +
+                COLUMN_BODY + TEXT_TYPE + COMMA_SEP +
+                COLUMN_DOMAIN + TEXT_TYPE + COMMA_SEP +
                 " FOREIGN KEY(" + COLUMN_SUBREDDIT_ID + ") REFERENCES " + Subreddits.TABLE_NAME + "(" + Subreddits._ID + ")" + COMMA_SEP +
                 " FOREIGN KEY(" + COLUMN_OWNER_ID + ") REFERENCES " + Users.TABLE_NAME + "(" + Users._ID + ")" + COMMA_SEP +
                 UNIQUE + "(" + COLUMN_SERVER_ID + ")" + ON_CONFLICT_REPLACE + " )";

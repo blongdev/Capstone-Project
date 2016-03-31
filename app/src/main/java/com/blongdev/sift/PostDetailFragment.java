@@ -48,7 +48,8 @@ public class PostDetailFragment extends Fragment {
     TextView mAge;
     ImageView mImage;
     WebView mWebView;
-    private ProgressBar mLoadingSpinner;
+    ProgressBar mLoadingSpinner;
+    TextView mBody;
 
     private int mPostId = 0;
     private String mPostServerId;
@@ -78,6 +79,8 @@ public class PostDetailFragment extends Fragment {
         String url = intent.getStringExtra(getString(R.string.url));
         String age = intent.getStringExtra(getString(R.string.age));
         String imageUrl = intent.getStringExtra(getString(R.string.image_url));
+        String body = intent.getStringExtra(getString(R.string.body));
+        String domain = intent.getStringExtra(getString(R.string.domain));
 //
 
         mPostDetailLayout = (LinearLayout) rootView.findViewById(R.id.post_detail_layout);
@@ -91,6 +94,7 @@ public class PostDetailFragment extends Fragment {
         mImage = (ImageView) rootView.findViewById(R.id.post_detail_image);
         mWebView = (WebView) rootView.findViewById(R.id.post_web_view);
         mLoadingSpinner = (ProgressBar) rootView.findViewById(R.id.progressSpinner);
+        mBody = (TextView) rootView.findViewById(R.id.post_body);
 
 
         mTitle.setText(title);
@@ -98,8 +102,9 @@ public class PostDetailFragment extends Fragment {
         mSubreddit.setText(subreddit);
         mPoints.setText(points);
         mComments.setText(comments);
-        mUrl.setText(url);
+        mUrl.setText(domain);
         mAge.setText(age);
+        mBody.setText(body);
 
 //        Picasso.with(getContext()).load(imageUrl).into(mImage);
 
@@ -165,7 +170,7 @@ public class PostDetailFragment extends Fragment {
 
 
 
-        if (!TextUtils.isEmpty(url)) {
+        if (TextUtils.isEmpty(body) && !TextUtils.isEmpty(url)) {
             String mimeType = Utilities.getMimeType(url);
             if (!TextUtils.isEmpty(mimeType) && mimeType.contains("image")) {
                 mWebView.setVisibility(View.GONE);
