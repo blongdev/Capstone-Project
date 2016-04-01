@@ -3,6 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/drawer_layout"
     android:layout_width="match_parent"
+    android:fitsSystemWindows="true"
     android:layout_height="match_parent">
 
     <android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
@@ -11,24 +12,26 @@
         android:id="@+id/main_content"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:fitsSystemWindows="true"
         tools:context="com.blongdev.sift.PostDetailActivity">
 
         <android.support.design.widget.AppBarLayout
             android:id="@+id/appbar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:fitsSystemWindows="true"
             android:theme="@style/AppTheme.AppBarOverlay">
 
-            <android.support.v7.widget.Toolbar
-                android:id="@+id/toolbar"
-                android:layout_width="match_parent"
-                android:layout_height="?attr/actionBarSize"
-                android:background="?attr/colorPrimary"
-                app:layout_scrollFlags="scroll|exitUntilCollapsed"
-                app:popupTheme="@style/AppTheme.PopupOverlay">
+                <!--<android.support.v7.widget.Toolbar-->
+                    <!--android:id="@+id/toolbar"-->
+                    <!--android:layout_width="match_parent"-->
+                    <!--android:layout_height="?attr/actionBarSize"-->
+                    <!--android:background="?attr/colorPrimary"-->
+                    <!--app:layout_scrollFlags="scroll|exitUntilCollapsed"-->
+                    <!--app:popupTheme="@style/AppTheme.PopupOverlay">-->
 
-            </android.support.v7.widget.Toolbar>
+                <!--</android.support.v7.widget.Toolbar>-->
+
+                <include layout="@layout/post_detail"/>
 
         </android.support.design.widget.AppBarLayout>
 
@@ -43,7 +46,6 @@
             android:orientation="vertical"
             android:clipToPadding="false"
             tools:context="com.blongdev.sift.PostDetailActivity"
-
             app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
             <FrameLayout
@@ -54,12 +56,14 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:layout_gravity="top"
+                    app:layout_behavior="@string/appbar_scrolling_view_behavior"
                     ></FrameLayout>
 
                 <FrameLayout android:id="@+id/comments_fragment"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:background="@android:color/white"
+                    app:layout_behavior="@string/appbar_scrolling_view_behavior"
                     ></FrameLayout>
 
             </FrameLayout>

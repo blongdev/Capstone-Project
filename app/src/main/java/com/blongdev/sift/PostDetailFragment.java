@@ -71,39 +71,39 @@ public class PostDetailFragment extends Fragment {
         View rootView =  inflater.inflate(R.layout.fragment_post_detail, container, false);
 
         Intent intent = getActivity().getIntent();
-        String title = intent.getStringExtra(getString(R.string.title));
-        String username = intent.getStringExtra(getString(R.string.username));
-        String subreddit = intent.getStringExtra(getString(R.string.subreddit));
-        String points = intent.getStringExtra(getString(R.string.points));
-        String comments = intent.getStringExtra(getString(R.string.comments));
+//        String title = intent.getStringExtra(getString(R.string.title));
+//        String username = intent.getStringExtra(getString(R.string.username));
+//        String subreddit = intent.getStringExtra(getString(R.string.subreddit));
+//        String points = intent.getStringExtra(getString(R.string.points));
+//        String comments = intent.getStringExtra(getString(R.string.comments));
         String url = intent.getStringExtra(getString(R.string.url));
-        String age = intent.getStringExtra(getString(R.string.age));
-        String imageUrl = intent.getStringExtra(getString(R.string.image_url));
+//        String age = intent.getStringExtra(getString(R.string.age));
+//        String imageUrl = intent.getStringExtra(getString(R.string.image_url));
         String body = intent.getStringExtra(getString(R.string.body));
-        String domain = intent.getStringExtra(getString(R.string.domain));
+//        String domain = intent.getStringExtra(getString(R.string.domain));
+////
 //
-
-        mPostDetailLayout = (LinearLayout) rootView.findViewById(R.id.post_detail_layout);
-        mTitle = (TextView) rootView.findViewById(R.id.post_title);
-        mUsername = (TextView) rootView.findViewById(R.id.post_username);
-        mSubreddit = (TextView) rootView.findViewById(R.id.post_subreddit);
-        mPoints = (TextView) rootView.findViewById(R.id.post_points);
-        mComments = (TextView) rootView.findViewById(R.id.post_comments);
-        mUrl = (TextView) rootView.findViewById(R.id.post_url);
-        mAge = (TextView) rootView.findViewById(R.id.post_age);
+//        mPostDetailLayout = (LinearLayout) rootView.findViewById(R.id.post_detail_layout);
+//        mTitle = (TextView) rootView.findViewById(R.id.post_title);
+//        mUsername = (TextView) rootView.findViewById(R.id.post_username);
+//        mSubreddit = (TextView) rootView.findViewById(R.id.post_subreddit);
+//        mPoints = (TextView) rootView.findViewById(R.id.post_points);
+//        mComments = (TextView) rootView.findViewById(R.id.post_comments);
+//        mUrl = (TextView) rootView.findViewById(R.id.post_url);
+//        mAge = (TextView) rootView.findViewById(R.id.post_age);
         mImage = (ImageView) rootView.findViewById(R.id.post_detail_image);
         mWebView = (WebView) rootView.findViewById(R.id.post_web_view);
         mLoadingSpinner = (ProgressBar) rootView.findViewById(R.id.progressSpinner);
         mBody = (TextView) rootView.findViewById(R.id.post_body);
 
-
-        mTitle.setText(title);
-        mUsername.setText(username);
-        mSubreddit.setText(subreddit);
-        mPoints.setText(points);
-        mComments.setText(comments);
-        mUrl.setText(domain);
-        mAge.setText(age);
+//
+//        mTitle.setText(title);
+//        mUsername.setText(username);
+//        mSubreddit.setText(subreddit);
+//        mPoints.setText(points);
+//        mComments.setText(comments);
+//        mUrl.setText(domain);
+//        mAge.setText(age);
         mBody.setText(body);
 
 //        Picasso.with(getContext()).load(imageUrl).into(mImage);
@@ -174,7 +174,7 @@ public class PostDetailFragment extends Fragment {
             String mimeType = Utilities.getMimeType(url);
             if (!TextUtils.isEmpty(mimeType) && mimeType.contains("image")) {
                 mWebView.setVisibility(View.GONE);
-                mPostDetailLayout.setVisibility(View.GONE);
+//                mPostDetailLayout.setVisibility(View.GONE);
                 mImage.setVisibility(View.VISIBLE);
                 Picasso.with(getContext()).load(url).into(mImage);
             } else {
@@ -191,7 +191,7 @@ public class PostDetailFragment extends Fragment {
                 mWebView.setWebViewClient(new WebViewClient() {
                     @Override
                     public void onPageStarted(WebView view, String url, Bitmap favicon) {
-                        mPostDetailLayout.setVisibility(View.GONE);
+//                        mPostDetailLayout.setVisibility(View.GONE);
                         mLoadingSpinner.setVisibility(View.VISIBLE);
 
 //                    if (url.contains("code=")) {

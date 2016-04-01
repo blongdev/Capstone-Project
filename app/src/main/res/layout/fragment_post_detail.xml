@@ -1,4 +1,5 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -7,10 +8,18 @@
     android:background="@android:color/white"
     android:elevation="4dp">
 
-    <WebView
-        android:id="@+id/post_web_view"
+    <android.support.v4.widget.NestedScrollView
         android:layout_width="match_parent"
-        android:layout_height="match_parent"></WebView>
+        android:layout_height="match_parent"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+        <WebView
+            android:id="@+id/post_web_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"></WebView>
+
+    </android.support.v4.widget.NestedScrollView>
+
 
     <ImageView
         android:id="@+id/post_detail_image"
@@ -19,7 +28,21 @@
         android:background="@android:color/black"
         android:visibility="gone"/>
 
-    <include layout="@layout/post_detail"/>
+    <android.support.v4.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+        <TextView
+            android:id="@+id/post_body"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="@dimen/content_spacer"
+            app:layout_behavior="@string/appbar_scrolling_view_behavior"/>
+
+    </android.support.v4.widget.NestedScrollView>
+
+    <!--<include layout="@layout/post_detail"/>-->
 
     <ProgressBar
         android:id="@+id/progressSpinner"

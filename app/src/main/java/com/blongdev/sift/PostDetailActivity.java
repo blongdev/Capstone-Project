@@ -13,7 +13,12 @@ import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.View;
+import android.webkit.WebView;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.fasterxml.jackson.databind.deser.Deserializers;
@@ -26,6 +31,19 @@ public class PostDetailActivity extends BaseActivity {
     FragmentManager mFragmentManager;
     boolean mPostShowing;
 
+    LinearLayout mPostDetailLayout;
+    TextView mTitle;
+    TextView mUsername;
+    TextView mSubreddit;
+    TextView mPoints;
+    TextView mComments;
+    TextView mUrl;
+    TextView mAge;
+    ImageView mImage;
+    WebView mWebView;
+    ProgressBar mLoadingSpinner;
+    TextView mBody;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -36,6 +54,41 @@ public class PostDetailActivity extends BaseActivity {
             mPostId = intent.getIntExtra(getString(R.string.post_id), 0);
             mPostServerId = intent.getStringExtra(getString(R.string.server_id));
         }
+
+        String title = intent.getStringExtra(getString(R.string.title));
+        String username = intent.getStringExtra(getString(R.string.username));
+        String subreddit = intent.getStringExtra(getString(R.string.subreddit));
+        String points = intent.getStringExtra(getString(R.string.points));
+        String comments = intent.getStringExtra(getString(R.string.comments));
+        String url = intent.getStringExtra(getString(R.string.url));
+        String age = intent.getStringExtra(getString(R.string.age));
+        String imageUrl = intent.getStringExtra(getString(R.string.image_url));
+        String body = intent.getStringExtra(getString(R.string.body));
+        String domain = intent.getStringExtra(getString(R.string.domain));
+//
+
+        mPostDetailLayout = (LinearLayout) findViewById(R.id.post_detail_layout);
+        mTitle = (TextView) findViewById(R.id.post_title);
+        mUsername = (TextView) findViewById(R.id.post_username);
+        mSubreddit = (TextView) findViewById(R.id.post_subreddit);
+        mPoints = (TextView) findViewById(R.id.post_points);
+        mComments = (TextView) findViewById(R.id.post_comments);
+        mUrl = (TextView) findViewById(R.id.post_url);
+        mAge = (TextView) findViewById(R.id.post_age);
+        mImage = (ImageView) findViewById(R.id.post_detail_image);
+        mWebView = (WebView) findViewById(R.id.post_web_view);
+        mLoadingSpinner = (ProgressBar) findViewById(R.id.progressSpinner);
+        mBody = (TextView) findViewById(R.id.post_body);
+
+
+        mTitle.setText(title);
+        mUsername.setText(username);
+        mSubreddit.setText(subreddit);
+        mPoints.setText(points);
+        mComments.setText(comments);
+        mUrl.setText(domain);
+        //mAge.setText(age);
+        //mBody.setText(body);
 
         //add post and comment fragments
         mFragmentManager = getSupportFragmentManager();
@@ -72,5 +125,10 @@ public class PostDetailActivity extends BaseActivity {
                 ft.commit();
             }
         });
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
     }
 }
