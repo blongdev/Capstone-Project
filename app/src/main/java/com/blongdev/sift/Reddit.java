@@ -10,6 +10,7 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.util.Log;
 
 import com.blongdev.sift.database.SiftContract;
@@ -22,6 +23,8 @@ import net.dean.jraw.http.oauth.OAuthData;
 import net.dean.jraw.http.oauth.OAuthException;
 import net.dean.jraw.http.oauth.OAuthHelper;
 import net.dean.jraw.models.LoggedInAccount;
+
+import java.util.UUID;
 
 /**
  * Created by Brian on 3/21/2016.
@@ -73,6 +76,10 @@ public class Reddit {
         return UserAgent.of("Android", "com.blongdev.sift", BuildConfig.VERSION_NAME, "blongdev");
     }
 
+    public static RedditClient getUserlessClient() {
+         return null;
+    }
+
     public static Credentials getCredentials() {
         return Credentials.installedApp(CLIENT_ID, REDIRECT_URL);
     }
@@ -83,14 +90,26 @@ public class Reddit {
 
     public void refreshKey(Context context, OnRefreshCompleted callback) {
         //TODO make work with multiple accounts
-        Cursor cursor = context.getContentResolver().query(SiftContract.Accounts.CONTENT_URI, null, null, null, null);
-        if(cursor != null && cursor.moveToFirst()) {
-            mRefreshToken = cursor.getString(cursor.getColumnIndex(SiftContract.Accounts.COLUMN_REFRESH_KEY));
-            if (mRefreshToken != null && !mRefreshToken.isEmpty()) {
-                new RefreshTokenTask(callback).execute();
-                return;
+        Cursor cursor = null;
+        try {
+            cursor = context.getContentResolver().query(SiftContract.Accounts.CONTENT_URI, null, null, null, null);
+            if (cursor != null) {
+                 if (cursor.moveToFirst()) {
+                    mRefreshToken = cursor.getString(cursor.getColumnIndex(SiftContract.Accounts.COLUMN_REFRESH_KEY));
+                    if (mRefreshToken != null && !mRefreshToken.isEmpty()) {
+                        new RefreshTokenTask(callback).execute();
+                        return;
+                    }
+                 } else {
+                    new GetUserlessTask(context).execute();
+                 }
+            }
+        } finally {
+            if (cursor != null) {
+                cursor.close();
             }
         }
+
     }
 
     private final class UserChallengeTask extends AsyncTask<String, Void, OAuthData> {
@@ -211,6 +230,44 @@ public class Reddit {
             mOnRefreshCompleted.onRefreshCompleted();
         }
     }
+
+
+
+    private final class GetUserlessTask extends AsyncTask<String, Void, Void> {
+
+        Context mContext;
+
+        public GetUserlessTask(Context context) {
+            mContext = context;
+        }
+
+        @Override
+        protected Void doInBackground(String... params) {
+            try {
+                //TODO use device id rather than random uuid
+                String android_id = Settings.Secure.getString(mContext.getContentResolver(),
+                        Settings.Secure.ANDROID_ID);
+                UUID uuid = UUID.randomUUID();
+                Credentials credentials = Credentials.userlessApp(CLIENT_ID, uuid);
+                OAuthData authData = mRedditClient.getOAuthHelper().easyAuth(credentials);
+                mRedditClient.authenticate(authData);
+                if (mRedditClient.isAuthenticated()) {
+                    Log.v(LOG_TAG, "Authenticated");
+                }
+            } catch (OAuthException e) {
+                e.printStackTrace();
+            }
+
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void nothing) {
+            Log.v(LOG_TAG, "onPostExecute()");
+        }
+    }
+
+
 
     /**
      * Create a new dummy account for the sync adapter

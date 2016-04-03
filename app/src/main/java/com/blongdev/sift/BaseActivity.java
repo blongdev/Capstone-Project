@@ -113,7 +113,7 @@ public class BaseActivity extends AppCompatActivity implements Reddit.OnRefreshC
         actionBarDrawerToggle.syncState();
 
         TextView navUser = (TextView) mNavHeader.findViewById(R.id.nav_username);
-        if (mReddit.mRedditClient.isAuthenticated()) {
+        if (mReddit.mRedditClient.isAuthenticated() && mReddit.mRedditClient.hasActiveUserContext()) {
             String username = mReddit.mRedditClient.getAuthenticatedUser();
             navUser.setText(username);
         } else {
