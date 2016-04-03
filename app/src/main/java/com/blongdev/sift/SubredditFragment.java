@@ -26,7 +26,9 @@ import net.dean.jraw.http.oauth.OAuthData;
 import net.dean.jraw.http.oauth.OAuthException;
 import net.dean.jraw.models.Listing;
 import net.dean.jraw.models.Submission;
+import net.dean.jraw.paginators.Sorting;
 import net.dean.jraw.paginators.SubredditPaginator;
+import net.dean.jraw.paginators.TimePeriod;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
@@ -134,7 +136,15 @@ public class SubredditFragment extends Fragment {
         @Override
         protected ArrayList<PostInfo> doInBackground(String... params) {
             ArrayList<PostInfo> postArray = new ArrayList<PostInfo>();
-            SubredditPaginator paginator = new SubredditPaginator(mReddit.mRedditClient, mSubredditName);
+            SubredditPaginator paginator;
+            if (mSubredditId > 0) {
+                paginator = new SubredditPaginator(mReddit.mRedditClient, mSubredditName);
+            } else {
+                paginator = new SubredditPaginator(mReddit.mRedditClient);
+            }
+
+            paginator.setTimePeriod(TimePeriod.MONTH);
+            paginator.setSorting(Sorting.HOT);         // Default is HOT (Paginator.DEFAULT_SORTING)
             if (paginator.hasNext()) {
                 Listing<Submission> firstPage = paginator.next();
                 for (Submission submission : firstPage) {
