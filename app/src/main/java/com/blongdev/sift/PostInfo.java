@@ -13,7 +13,7 @@ public class PostInfo {
     public int mPoints;
     public int mComments;
     public String mUrl;
-    public int mAge;
+    public long mAge;
     public String mImageUrl;
     public boolean mFavorited;
     public String mServerId;

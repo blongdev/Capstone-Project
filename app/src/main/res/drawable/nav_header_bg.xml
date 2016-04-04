@@ -7,6 +7,9 @@
     <!--<path android:fillColor="@color/indigoThree" android:pathData="M64,30L64,64L4,64Z"/>-->
 
 
-    <path android:fillColor="#5C6BC0" android:pathData="M64,16L64,64L0,64L0,42L32,29Z"/>
-    <path android:fillColor="#303F9F" android:pathData="M0,64L32,64L0,0Z"/>
+    <path android:fillColor="#607D8B" android:pathData="M64,16L64,64L0,64L0,42L32,29Z"/>
+    <path android:fillColor="#546E7A" android:pathData="M0,64L32,64L0,0Z"/>
+
+    <!--<path android:fillColor="#5C6BC0" android:pathData="M64,16L64,64L0,64L0,42L32,29Z"/>-->
+    <!--<path android:fillColor="#303F9F" android:pathData="M0,64L32,64L0,0Z"/>-->
 </vector>

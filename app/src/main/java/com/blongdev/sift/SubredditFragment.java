@@ -2,6 +2,7 @@ package com.blongdev.sift;
 
 import android.content.ContentResolver;
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.AsyncTask;
@@ -49,8 +50,12 @@ public class SubredditFragment extends Fragment {
     private RecyclerView mRecyclerView;
     private ContentResolver mContentResolver;
     private ProgressBar mLoadingSpinner;
+    private Context mContext;
 
     private Reddit mReddit;
+    private SubredditPaginator mPaginator;
+    private boolean mLoading;
+    private LinearLayoutManager mLayoutManager;
 
     public SubredditFragment() {
     }
@@ -60,7 +65,8 @@ public class SubredditFragment extends Fragment {
                              Bundle savedInstanceState) {
 
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
-        mContentResolver = getContext().getContentResolver();
+        mContext = getContext();
+        mContentResolver = mContext.getContentResolver();
 
         mLoadingSpinner = (ProgressBar) rootView.findViewById(R.id.progressSpinner);
 
@@ -81,8 +87,13 @@ public class SubredditFragment extends Fragment {
         //populatePosts();
         //RACE CONDITION WITH AUTHENTICATION IN MAIN ACTIVITY
         // resetting the viewpager adapter in main activity as workaround
-        if (Utilities.connectedToNetwork(getContext()) && mReddit.mRedditClient.isAuthenticated()) {
-            new GetPostsTask().execute();
+        if (Utilities.connectedToNetwork(mContext)) {
+            if (mReddit.mRedditClient.isAuthenticated()) {
+                new GetPostsTask().execute();
+            } else {
+                //Base Activity is authenticating. add spinner until authenticated
+                mLoadingSpinner.setVisibility(View.VISIBLE);
+            }
         } else {
             getPostsFromDb();
         }
@@ -90,13 +101,35 @@ public class SubredditFragment extends Fragment {
         mRecyclerView = (RecyclerView) rootView.findViewById(R.id.cardList);
         mRecyclerView.setHasFixedSize(true);
         mRecyclerView.setNestedScrollingEnabled(true);
-        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getActivity());
-        linearLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
-        mRecyclerView.setLayoutManager(linearLayoutManager);
+        mLayoutManager = new LinearLayoutManager(getActivity());
+        mLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
+        mRecyclerView.setLayoutManager(mLayoutManager);
 
         mPostListAdapter = new PostListAdapter(mPosts);
         mRecyclerView.setAdapter(mPostListAdapter);
 
+        if (mSubredditId > 0) {
+            mPaginator = new SubredditPaginator(mReddit.mRedditClient, mSubredditName);
+        } else {
+            mPaginator = new SubredditPaginator(mReddit.mRedditClient);
+        }
+        mPaginator.setSorting(Sorting.HOT);         // Default is HOT (Paginator.DEFAULT_SORTING)
+        //mPaginator.setLimit(50);
+
+        mRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+
+                if(dy > 0 && mLayoutManager.findLastVisibleItemPosition() > (mPosts.size() - 15) && !mLoading) {
+                    if (Utilities.connectedToNetwork(mContext)) {
+                        if (mReddit.mRedditClient.isAuthenticated()) {
+                            new GetPostsTask().execute();
+                        }
+                    }
+                }
+            }
+        });
         return rootView;
     }
 
@@ -136,18 +169,10 @@ public class SubredditFragment extends Fragment {
     private final class GetPostsTask extends AsyncTask<String, Void, ArrayList<PostInfo>> {
         @Override
         protected ArrayList<PostInfo> doInBackground(String... params) {
-            ArrayList<PostInfo> postArray = new ArrayList<PostInfo>();
-            SubredditPaginator paginator;
-            if (mSubredditId > 0) {
-                paginator = new SubredditPaginator(mReddit.mRedditClient, mSubredditName);
-            } else {
-                paginator = new SubredditPaginator(mReddit.mRedditClient);
-            }
-
-            paginator.setSorting(Sorting.HOT);         // Default is HOT (Paginator.DEFAULT_SORTING)
-            if (paginator.hasNext()) {
-                Listing<Submission> firstPage = paginator.next();
-                for (Submission submission : firstPage) {
+            ArrayList<PostInfo> newPostArray = new ArrayList<PostInfo>();
+            if (mPaginator.hasNext()) {
+                Listing<Submission> page = mPaginator.next();
+                for (Submission submission : page) {
                     PostInfo post = new PostInfo();
                     post.mServerId = submission.getId();
                     post.mTitle = submission.getTitle();
@@ -159,23 +184,29 @@ public class SubredditFragment extends Fragment {
                     post.mComments = submission.getCommentCount();
                     post.mBody = submission.getSelftext();
                     post.mDomain = submission.getDomain();
-                    postArray.add(post);
+                    post.mAge = submission.getCreatedUtc().getTime();
+                    newPostArray.add(post);
+                    mPosts.add(post);
                 }
             }
 
-            return postArray;
+            return newPostArray;
         }
 
         @Override
         protected void onPreExecute() {
-            mLoadingSpinner.setVisibility(View.VISIBLE);
+            mLoading = true;
+
+            if(mPosts.size() == 0) {
+                mLoadingSpinner.setVisibility(View.VISIBLE);
+            }
         }
 
         @Override
         protected void onPostExecute(ArrayList<PostInfo> posts) {
+            mLoading = false;
             mLoadingSpinner.setVisibility(View.GONE);
-            mPosts = posts;
-            mPostListAdapter.refreshWithList(posts);
+            mPostListAdapter.refreshWithList(mPosts);
 
             new AddPostsToDbTask().execute();
         }
@@ -229,6 +260,7 @@ public class SubredditFragment extends Fragment {
             cv.put(SiftContract.Posts.COLUMN_IMAGE_URL, post.mImageUrl);
             cv.put(SiftContract.Posts.COLUMN_TITLE, post.mTitle);
             cv.put(SiftContract.Posts.COLUMN_BODY, post.mBody);
+            cv.put(SiftContract.Posts.COLUMN_DATE_CREATED, post.mAge);
             cv.put(SiftContract.Posts.COLUMN_DOMAIN, post.mDomain);
             mContentResolver.insert(SiftContract.Posts.CONTENT_URI, cv);
         }

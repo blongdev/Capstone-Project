@@ -23,31 +23,58 @@
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+            <meta-data
+                android:name="android.app.default_searchable"
+                android:value=".SearchResultsActivity" />
         </activity>
         <activity
             android:name=".PostDetailActivity"
             android:label="@string/title_activity_post_detail"
-            android:theme="@style/AppTheme.NoActionBar" />
+            android:theme="@style/AppTheme.NoActionBar" >
+            <meta-data
+                android:name="android.app.default_searchable"
+                android:value=".SearchResultsActivity" />
+        </activity>
         <activity
             android:name=".UserInfoActivity"
             android:label="@string/title_activity_user_info"
-            android:theme="@style/AppTheme.NoActionBar" />
+            android:theme="@style/AppTheme.NoActionBar" >
+            <meta-data
+                android:name="android.app.default_searchable"
+                android:value=".SearchResultsActivity" />
+        </activity>
         <activity
             android:name=".FriendsListActivity"
             android:label="@string/title_activity_friends_list"
-            android:theme="@style/AppTheme.NoActionBar" />
+            android:theme="@style/AppTheme.NoActionBar" >
+            <meta-data
+                android:name="android.app.default_searchable"
+                android:value=".SearchResultsActivity" />
+        </activity>
         <activity
             android:name=".SettingsActivity"
             android:label="@string/title_activity_settings"
-            android:parentActivityName=".MainActivity" />
+            android:parentActivityName=".MainActivity" >
+            <meta-data
+                android:name="android.app.default_searchable"
+                android:value=".SearchResultsActivity" />
+        </activity>
         <activity
             android:name=".MessageActivity"
             android:label="@string/title_activity_message"
-            android:theme="@style/AppTheme.NoActionBar" />
+            android:theme="@style/AppTheme.NoActionBar" >
+            <meta-data
+                android:name="android.app.default_searchable"
+                android:value=".SearchResultsActivity" />
+        </activity>
         <activity
             android:name=".SubredditListActivity"
             android:label="@string/title_activity_subreddit_list"
-            android:theme="@style/AppTheme.NoActionBar" />
+            android:theme="@style/AppTheme.NoActionBar" >
+            <meta-data
+            android:name="android.app.default_searchable"
+            android:value=".SearchResultsActivity" />
+        </activity>
 
         <provider
             android:name=".database.SiftProvider"
@@ -58,15 +85,27 @@
         <activity
             android:name=".MessageDetailActivity"
             android:label="@string/title_activity_message_detail"
-            android:theme="@style/AppTheme.NoActionBar" />
+            android:theme="@style/AppTheme.NoActionBar" >
+            <meta-data
+                android:name="android.app.default_searchable"
+                android:value=".SearchResultsActivity" />
+        </activity>
         <activity
             android:name=".AuthenticationActivity"
             android:label="@string/title_activity_authentication"
-            android:theme="@style/AppTheme.NoActionBar" />
+            android:theme="@style/AppTheme.NoActionBar" >
+            <meta-data
+                android:name="android.app.default_searchable"
+                android:value=".SearchResultsActivity" />
+        </activity>
         <activity
             android:name=".BaseActivity"
             android:label="@string/title_activity_base"
-            android:theme="@style/AppTheme.NoActionBar" />
+            android:theme="@style/AppTheme.NoActionBar" >
+            <meta-data
+                android:name="android.app.default_searchable"
+                android:value=".SearchResultsActivity" />
+        </activity>
 
         <service
             android:name=".sync.SiftSyncService"
@@ -92,7 +131,24 @@
         <activity
             android:name=".SubredditActivity"
             android:label="@string/title_activity_subreddit"
-            android:theme="@style/AppTheme.NoActionBar"></activity>
+            android:theme="@style/AppTheme.NoActionBar" >
+            <meta-data
+                android:name="android.app.default_searchable"
+                android:value=".SearchResultsActivity" />
+        </activity>
+        <activity
+            android:name=".SearchResultsActivity"
+            android:label="@string/title_activity_search_results"
+            android:theme="@style/AppTheme.NoActionBar">
+            <intent-filter>
+                <action android:name="android.intent.action.SEARCH" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+
+            <meta-data
+                android:name="android.app.searchable"
+                android:resource="@xml/searchable" />
+        </activity>
     </application>
 
 </manifest>

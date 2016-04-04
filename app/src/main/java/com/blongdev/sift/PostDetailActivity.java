@@ -87,7 +87,7 @@ public class PostDetailActivity extends BaseActivity {
         mPoints.setText(points);
         mComments.setText(comments);
         mUrl.setText(domain);
-        //mAge.setText(age);
+        mAge.setText(age);
         //mBody.setText(body);
 
         //add post and comment fragments

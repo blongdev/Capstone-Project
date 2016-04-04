@@ -15,6 +15,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.squareup.okhttp.internal.Util;
 import com.squareup.picasso.Picasso;
 
 import java.util.List;
@@ -50,7 +51,7 @@ public class PostListAdapter extends RecyclerView.Adapter<PostListAdapter.PostVi
         postViewHolder.mPoints.setText(post.mPoints + " Points");
         postViewHolder.mComments.setText(post.mComments + " Comments");
         postViewHolder.mDomain.setText(post.mDomain);
-        postViewHolder.mAge.setText(post.mAge + " Hours ago");
+        postViewHolder.mAge.setText(Utilities.getAgeString(post.mAge));
         postViewHolder.mImageUrl = post.mImageUrl;
         postViewHolder.mPostId = post.mId;
         postViewHolder.mPostServerId = post.mServerId;
@@ -188,5 +189,4 @@ public class PostListAdapter extends RecyclerView.Adapter<PostListAdapter.PostVi
             }
         });
     }
-
 }

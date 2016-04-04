@@ -105,40 +105,18 @@ public class MainActivity extends BaseActivity {
             }
         });
     }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
-    }
-
-    @Override
-    public void onBackPressed() {
-        if (mPager.getCurrentItem() == 0) {
-            // If the user is currently looking at the first step, allow the system to handle the
-            // Back button. This calls finish() on this activity and pops the back stack.
-            super.onBackPressed();
-        } else {
-            // Otherwise, select the previous step.
-            mPager.setCurrentItem(mPager.getCurrentItem() - 1);
-        }
-    }
+//
+//    @Override
+//    public void onBackPressed() {
+//        if (mPager.getCurrentItem() == 0) {
+//            // If the user is currently looking at the first step, allow the system to handle the
+//            // Back button. This calls finish() on this activity and pops the back stack.
+//            super.onBackPressed();
+//        } else {
+//            // Otherwise, select the previous step.
+//            mPager.setCurrentItem(mPager.getCurrentItem() - 1);
+//        }
+//    }
 
     /**
      * A simple pager adapter that represents 5 ScreenSlidePageFragment objects, in
@@ -205,6 +183,4 @@ public class MainActivity extends BaseActivity {
             mPagerAdapter.notifyDataSetChanged();
         }
     }
-
-
 }

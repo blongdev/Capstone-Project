@@ -2,6 +2,7 @@ package com.blongdev.sift;
 
 import android.accounts.Account;
 import android.accounts.AccountManager;
+import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -13,7 +14,9 @@ import android.support.design.widget.Snackbar;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
@@ -27,6 +30,11 @@ public class BaseActivity extends AppCompatActivity implements Reddit.OnRefreshC
     private DrawerLayout mDrawerLayout;
     private NavigationView mNavigationView;
     View mNavHeader;
+    Menu mNavMenu;
+
+    MenuItem mNavProfile;
+    MenuItem mNavInbox;
+    MenuItem mNavFriends;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,50 +58,62 @@ public class BaseActivity extends AppCompatActivity implements Reddit.OnRefreshC
 
         mNavigationView = (NavigationView) findViewById(R.id.navigation_view);
         mNavHeader = mNavigationView.inflateHeaderView(R.layout.nav_header);
+        mNavMenu = mNavigationView.getMenu();
+
+        mNavFriends = mNavMenu.findItem(R.id.nav_friends);
+        mNavProfile = mNavMenu.findItem(R.id.nav_profile);
+        mNavInbox = mNavMenu.findItem(R.id.nav_inbox);
+
         mNavigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
 
             @Override
             public boolean onNavigationItemSelected(MenuItem menuItem) {
 
-                if (menuItem.isChecked()) menuItem.setChecked(false);
-                else menuItem.setChecked(true);
+            if (menuItem.isChecked()) menuItem.setChecked(false);
+            else menuItem.setChecked(true);
 
-                mDrawerLayout.closeDrawers();
+            mDrawerLayout.closeDrawers();
 
-                Intent intent;
+            Intent intent;
 
-                switch (menuItem.getItemId()) {
-                    case R.id.nav_home:
-                        intent = new Intent(getApplicationContext(), MainActivity.class);
-                        startActivity(intent);
-                        return true;
-                    case R.id.nav_profile:
-                        Reddit reddit = Reddit.getInstance();
-                        intent = new Intent(getApplicationContext(), UserInfoActivity.class);
-                        intent.putExtra(getString(R.string.username), "My Profile");
-                        startActivity(intent);
-                        return true;
-                    case R.id.nav_inbox:
-                        intent = new Intent(getApplicationContext(), MessageActivity.class);
-                        startActivity(intent);
-                        return true;
-                    case R.id.nav_friends:
-                        intent = new Intent(getApplicationContext(), FriendsListActivity.class);
-                        startActivity(intent);
-                        return true;
-                    case R.id.nav_subreddits:
-                        intent = new Intent(getApplicationContext(), SubredditListActivity.class);
-                        startActivity(intent);
-                        return true;
-                    case R.id.nav_settings:
-                        intent = new Intent(getApplicationContext(), SettingsActivity.class);
-                        startActivity(intent);
-                        return true;
-                    default:
-                        return true;
-                }
+            switch (menuItem.getItemId()) {
+                case R.id.nav_home:
+                    intent = new Intent(getApplicationContext(), MainActivity.class);
+                    startActivity(intent);
+                    return true;
+                case R.id.nav_profile:
+                    Reddit reddit = Reddit.getInstance();
+                    intent = new Intent(getApplicationContext(), UserInfoActivity.class);
+                    intent.putExtra(getString(R.string.username), "My Profile");
+                    startActivity(intent);
+                    return true;
+                case R.id.nav_inbox:
+                    intent = new Intent(getApplicationContext(), MessageActivity.class);
+                    startActivity(intent);
+                    return true;
+                case R.id.nav_friends:
+                    intent = new Intent(getApplicationContext(), FriendsListActivity.class);
+                    startActivity(intent);
+                    return true;
+                case R.id.nav_subreddits:
+                    intent = new Intent(getApplicationContext(), SubredditListActivity.class);
+                    startActivity(intent);
+                    return true;
+                case R.id.nav_settings:
+                    intent = new Intent(getApplicationContext(), SettingsActivity.class);
+                    startActivity(intent);
+                    return true;
+                default:
+                    return true;
+            }
             }
         });
+
+        if (!mReddit.mRedditClient.isAuthenticated() || !mReddit.mRedditClient.hasActiveUserContext()) {
+            mNavFriends.setVisible(false);
+            mNavProfile.setVisible(false);
+            mNavInbox.setVisible(false);
+        }
 
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle actionBarDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout, toolbar, R.string.drawer_open, R.string.drawer_close) {
@@ -130,9 +150,11 @@ public class BaseActivity extends AppCompatActivity implements Reddit.OnRefreshC
     @Override
     public void onRefreshCompleted() {
         if (mReddit.mRedditClient.isAuthenticated()) {
-            String username = mReddit.mRedditClient.getAuthenticatedUser();
-            TextView navUser = (TextView) mNavHeader.findViewById(R.id.nav_username);
-            navUser.setText(username);
+            if (mReddit.mRedditClient.hasActiveUserContext()) {
+                String username = mReddit.mRedditClient.getAuthenticatedUser();
+                TextView navUser = (TextView) mNavHeader.findViewById(R.id.nav_username);
+                navUser.setText(username);
+            }
         }
     }
 
@@ -140,6 +162,32 @@ public class BaseActivity extends AppCompatActivity implements Reddit.OnRefreshC
     public void setContentView(@LayoutRes int layoutResID) {
         super.setContentView(layoutResID);
         onCreateDrawer();
+    }
+
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+        // Associate searchable configuration with the SearchView
+        SearchManager searchManager =
+                (SearchManager) getSystemService(Context.SEARCH_SERVICE);
+        SearchView searchView =
+                (SearchView) menu.findItem(R.id.menu_search).getActionView();
+        searchView.setSearchableInfo(
+                searchManager.getSearchableInfo(getComponentName()));
+
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the Home/Up button, so long
+        // as you specify a parent activity in AndroidManifest.xml.
+        int id = item.getItemId();
+
+        return super.onOptionsItemSelected(item);
     }
 
 }

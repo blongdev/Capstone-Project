@@ -101,7 +101,7 @@ public class Reddit {
                         return;
                     }
                  } else {
-                    new GetUserlessTask(context).execute();
+                    new GetUserlessTask(context, callback).execute();
                  }
             }
         } finally {
@@ -175,28 +175,16 @@ public class Reddit {
         //account
         String refreshToken = mRedditClient.getOAuthData().getRefreshToken();
 
-
-
-
         cv.put(SiftContract.Accounts.COLUMN_REFRESH_KEY, refreshToken);
         cv.put(SiftContract.Accounts.COLUMN_USER_ID, userId);
         context.getContentResolver().insert(SiftContract.Accounts.CONTENT_URI, cv);
 
-
-
         cv.clear();
         //subreddits
 
-
         //add account for sync adapter
         mAccount = CreateSyncAccount(context, username);
-//        if (mAccount != null) {
-//            //request manual sync
-//            Bundle settingsBundle = new Bundle();
-//            settingsBundle.putBoolean(ContentResolver.SYNC_EXTRAS_MANUAL, true);
-//            settingsBundle.putBoolean(ContentResolver.SYNC_EXTRAS_EXPEDITED, true);
-//            ContentResolver.requestSync(mAccount, SiftContract.AUTHORITY, settingsBundle);
-//        }
+
     }
 
     private final class RefreshTokenTask extends AsyncTask<String, Void, OAuthData> {
@@ -236,9 +224,11 @@ public class Reddit {
     private final class GetUserlessTask extends AsyncTask<String, Void, Void> {
 
         Context mContext;
+        private OnRefreshCompleted mOnRefreshCompleted;
 
-        public GetUserlessTask(Context context) {
+        public GetUserlessTask(Context context, OnRefreshCompleted activity) {
             mContext = context;
+            mOnRefreshCompleted = activity;
         }
 
         @Override
@@ -264,6 +254,7 @@ public class Reddit {
         @Override
         protected void onPostExecute(Void nothing) {
             Log.v(LOG_TAG, "onPostExecute()");
+            mOnRefreshCompleted.onRefreshCompleted();
         }
     }
 
