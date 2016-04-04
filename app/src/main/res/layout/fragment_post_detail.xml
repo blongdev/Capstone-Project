@@ -20,7 +20,6 @@
 
     </android.support.v4.widget.NestedScrollView>
 
-
     <ImageView
         android:id="@+id/post_detail_image"
         android:layout_width="match_parent"

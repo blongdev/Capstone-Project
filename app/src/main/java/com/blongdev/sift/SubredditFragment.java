@@ -20,6 +20,7 @@ import android.view.ViewGroup;
 import android.widget.ProgressBar;
 
 import com.blongdev.sift.database.SiftContract;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.squareup.picasso.Picasso;
 
 import net.dean.jraw.http.oauth.OAuthData;
@@ -143,7 +144,6 @@ public class SubredditFragment extends Fragment {
                 paginator = new SubredditPaginator(mReddit.mRedditClient);
             }
 
-            paginator.setTimePeriod(TimePeriod.MONTH);
             paginator.setSorting(Sorting.HOT);         // Default is HOT (Paginator.DEFAULT_SORTING)
             if (paginator.hasNext()) {
                 Listing<Submission> firstPage = paginator.next();
@@ -155,7 +155,7 @@ public class SubredditFragment extends Fragment {
                     post.mSubreddit = submission.getSubredditName();
                     post.mPoints = submission.getScore();
                     post.mUrl = submission.getUrl();
-                    post.mImageUrl = submission.getThumbnail();
+                    post.mImageUrl = getImageUrl(submission);
                     post.mComments = submission.getCommentCount();
                     post.mBody = submission.getSelftext();
                     post.mDomain = submission.getDomain();
@@ -178,6 +178,27 @@ public class SubredditFragment extends Fragment {
             mPostListAdapter.refreshWithList(posts);
 
             new AddPostsToDbTask().execute();
+        }
+
+        public String getImageUrl(Submission sub) {
+            JsonNode data = sub.getDataNode();
+            if (data != null) {
+               JsonNode preview = data.findValue("preview");
+                if (preview != null) {
+                    JsonNode images = preview.findValue("images");
+                    if (images != null) {
+                        JsonNode source = images.findValue("source");
+                        if (source != null) {
+                            List<String> urls = source.findValuesAsText("url");
+                            if (urls != null && urls.size() > 0) {
+                                return urls.get(0);
+                            }
+                        }
+                    }
+                }
+            }
+
+            return null;
         }
     }
 
