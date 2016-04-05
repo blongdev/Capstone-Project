@@ -60,7 +60,7 @@ public class MainActivity extends BaseActivity {
         mSubreddits = new ArrayList<SubscriptionInfo>();
         SubscriptionInfo frontpage = new SubscriptionInfo();
         frontpage.mSubredditId = -1;
-        frontpage.mSubredditName = "Frontpage";
+        frontpage.mSubredditName = getString(R.string.frontPage);
         mSubreddits.add(frontpage);
 
         Cursor cursor = null;

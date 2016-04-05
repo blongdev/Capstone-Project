@@ -46,7 +46,6 @@ public class SearchResultsActivity extends BaseActivity {
         TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(mViewPager);
 
-
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -88,20 +87,16 @@ public class SearchResultsActivity extends BaseActivity {
                     subFrag.setArguments(args);
                     return subFrag;
                 case 1:
-                    SubredditFragment subFrag2 = new SubredditFragment();
-                    subFrag2.setArguments(args);
-                    return subFrag2;
-                case 2:
-                    SubredditFragment subFrag3 = new SubredditFragment();
-                    subFrag3.setArguments(args);
-                    return subFrag3;
+                    SubredditListActivityFragment subredditList = new SubredditListActivityFragment();
+                    subredditList.setArguments(args);
+                    return subredditList;
             }
             return null;
         }
 
         @Override
         public int getCount() {
-            return 3;
+            return 2;
         }
 
         @Override
@@ -111,8 +106,6 @@ public class SearchResultsActivity extends BaseActivity {
                     return getString(R.string.submissions);
                 case 1:
                     return getString(R.string.subreddits);
-                case 2:
-                    return getString(R.string.users);
             }
             return null;
         }

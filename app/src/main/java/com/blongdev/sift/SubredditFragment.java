@@ -93,7 +93,19 @@ public class SubredditFragment extends Fragment {
             mSubredditName = intent.getStringExtra(getString(R.string.subreddit_name));
             mSubredditId = intent.getIntExtra(getString(R.string.subreddit_id), -1);
 //            mPaginatorType = intent.getIntExtra(getString(R.string.paginator_type), SubredditInfo.SUBREDDIT_PAGINATOR);
-            mSearchTerm = arg.getString(getString(R.string.search_term));
+            mSearchTerm = intent.getStringExtra(getString(R.string.search_term));
+        }
+
+        if (!TextUtils.isEmpty(mSearchTerm)) {
+            mPaginator = new SubmissionSearchPaginator(mReddit.mRedditClient, mSearchTerm);
+        } else {
+            if (TextUtils.equals(mSubredditName, getString(R.string.frontPage))) {
+                mPaginator = new SubredditPaginator(mReddit.mRedditClient);
+            } else {
+                mPaginator = new SubredditPaginator(mReddit.mRedditClient, mSubredditName);
+            }
+            //have to use setSearchSorting for submissionSearchPaginator;
+            mPaginator.setSorting(Sorting.HOT); // Default is HOT (Paginator.DEFAULT_SORTING)
         }
 
         //populatePosts();
@@ -119,19 +131,6 @@ public class SubredditFragment extends Fragment {
 
         mPostListAdapter = new PostListAdapter(mPosts);
         mRecyclerView.setAdapter(mPostListAdapter);
-
-        if (!TextUtils.isEmpty(mSearchTerm)) {
-            mPaginator = new SubmissionSearchPaginator(mReddit.mRedditClient, mSearchTerm);
-        } else {
-            if (mSubredditId > 0) {
-                mPaginator = new SubredditPaginator(mReddit.mRedditClient, mSubredditName);
-            } else {
-                mPaginator = new SubredditPaginator(mReddit.mRedditClient);
-            }
-            //have to use setSearchSorting for submissionSearchPaginator;
-            mPaginator.setSorting(Sorting.HOT);         // Default is HOT (Paginator.DEFAULT_SORTING)
-        }
-        //mPaginator.setLimit(50);
 
         mRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override

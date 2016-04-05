@@ -8,6 +8,7 @@ public class SubredditInfo {
     public int mId;
     public int mPoints;
     public int mAge;
+    public String mServerId;
 
 
     public static final int SUBREDDIT_PAGINATOR = 0;

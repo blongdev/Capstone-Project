@@ -46,6 +46,8 @@
     <string name="subreddits">Subreddits</string>
     <string name="users">Users</string>
 
+    <string name="frontPage">FrontPage</string>
+
     <!-- Strings related to Settings -->
 
     <!-- Example General settings -->

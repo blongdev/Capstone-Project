@@ -38,10 +38,6 @@
 
         </android.support.design.widget.AppBarLayout>
 
-
-        <include layout="@layout/content_search_results" />
-
-
         <android.support.v4.view.ViewPager
             xmlns:android="http://schemas.android.com/apk/res/android"
             android:id="@+id/pager"
@@ -51,7 +47,6 @@
             app:layout_behavior="@string/appbar_scrolling_view_behavior">
         </android.support.v4.view.ViewPager>
 
-        <!-- -->
         <android.support.design.widget.FloatingActionButton
             android:id="@+id/fab"
             android:layout_width="wrap_content"
