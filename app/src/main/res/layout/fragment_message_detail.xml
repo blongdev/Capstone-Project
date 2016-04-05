@@ -8,7 +8,9 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     android:orientation="vertical"
     tools:context="com.blongdev.sift.MessageDetailActivityFragment"
-    tools:showIn="@layout/activity_message_detail">
+    tools:showIn="@layout/activity_message_detail"
+    android:background="@color/background"
+    >
 
     <TextView
         android:id="@+id/message_detail_title"

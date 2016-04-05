@@ -28,11 +28,14 @@ import net.dean.jraw.http.oauth.OAuthData;
 import net.dean.jraw.http.oauth.OAuthException;
 import net.dean.jraw.models.Listing;
 import net.dean.jraw.models.Submission;
+import net.dean.jraw.paginators.Paginator;
 import net.dean.jraw.paginators.Sorting;
+import net.dean.jraw.paginators.SubmissionSearchPaginator;
 import net.dean.jraw.paginators.SubredditPaginator;
 import net.dean.jraw.paginators.TimePeriod;
 
 import java.lang.reflect.Array;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -53,9 +56,14 @@ public class SubredditFragment extends Fragment {
     private Context mContext;
 
     private Reddit mReddit;
-    private SubredditPaginator mPaginator;
+    private Paginator mPaginator;
     private boolean mLoading;
     private LinearLayoutManager mLayoutManager;
+
+    private int mPaginatorType;
+    private String mSearchTerm;
+
+
 
     public SubredditFragment() {
     }
@@ -78,10 +86,14 @@ public class SubredditFragment extends Fragment {
         if (arg != null) {
             mSubredditId = arg.getInt(getString(R.string.subreddit_id));
             mSubredditName = arg.getString(getString(R.string.subreddit_name));
+//            mPaginatorType = arg.getInt(getString(R.string.paginator_type), SubredditInfo.SUBREDDIT_PAGINATOR);
+            mSearchTerm = arg.getString(getString(R.string.search_term));
         } else {
             Intent intent = getActivity().getIntent();
             mSubredditName = intent.getStringExtra(getString(R.string.subreddit_name));
             mSubredditId = intent.getIntExtra(getString(R.string.subreddit_id), -1);
+//            mPaginatorType = intent.getIntExtra(getString(R.string.paginator_type), SubredditInfo.SUBREDDIT_PAGINATOR);
+            mSearchTerm = arg.getString(getString(R.string.search_term));
         }
 
         //populatePosts();
@@ -108,12 +120,17 @@ public class SubredditFragment extends Fragment {
         mPostListAdapter = new PostListAdapter(mPosts);
         mRecyclerView.setAdapter(mPostListAdapter);
 
-        if (mSubredditId > 0) {
-            mPaginator = new SubredditPaginator(mReddit.mRedditClient, mSubredditName);
+        if (!TextUtils.isEmpty(mSearchTerm)) {
+            mPaginator = new SubmissionSearchPaginator(mReddit.mRedditClient, mSearchTerm);
         } else {
-            mPaginator = new SubredditPaginator(mReddit.mRedditClient);
+            if (mSubredditId > 0) {
+                mPaginator = new SubredditPaginator(mReddit.mRedditClient, mSubredditName);
+            } else {
+                mPaginator = new SubredditPaginator(mReddit.mRedditClient);
+            }
+            //have to use setSearchSorting for submissionSearchPaginator;
+            mPaginator.setSorting(Sorting.HOT);         // Default is HOT (Paginator.DEFAULT_SORTING)
         }
-        mPaginator.setSorting(Sorting.HOT);         // Default is HOT (Paginator.DEFAULT_SORTING)
         //mPaginator.setLimit(50);
 
         mRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
@@ -170,7 +187,7 @@ public class SubredditFragment extends Fragment {
         @Override
         protected ArrayList<PostInfo> doInBackground(String... params) {
             ArrayList<PostInfo> newPostArray = new ArrayList<PostInfo>();
-            if (mPaginator.hasNext()) {
+            if (mPaginator != null && mPaginator.hasNext()) {
                 Listing<Submission> page = mPaginator.next();
                 for (Submission submission : page) {
                     PostInfo post = new PostInfo();

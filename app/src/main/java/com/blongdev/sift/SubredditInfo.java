@@ -8,4 +8,8 @@ public class SubredditInfo {
     public int mId;
     public int mPoints;
     public int mAge;
+
+
+    public static final int SUBREDDIT_PAGINATOR = 0;
+    public static final int SUBMISSION_SEARCH_PAGINATOR = 1;
 }

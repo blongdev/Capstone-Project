@@ -5,11 +5,21 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.design.widget.TabLayout;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 
 public class SearchResultsActivity extends BaseActivity {
+
+    private SearchPagerAdapter mSearchPagerAdapter;
+    private ViewPager mViewPager;
+
+    private String mSearchTerm;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -17,6 +27,25 @@ public class SearchResultsActivity extends BaseActivity {
         setContentView(R.layout.activity_search_results);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+        Intent intent = getIntent();
+        if (intent != null && Intent.ACTION_SEARCH.equals(intent.getAction())) {
+            String query = intent.getStringExtra(SearchManager.QUERY);
+            //use the query to search
+            mSearchTerm = query;
+        }
+
+        // Create the adapter that will return a fragment for each of the three
+        // primary sections of the activity.
+        mSearchPagerAdapter = new SearchPagerAdapter(getSupportFragmentManager());
+
+        // Set up the ViewPager with the sections adapter.
+        mViewPager = (ViewPager) findViewById(R.id.pager);
+        mViewPager.setAdapter(mSearchPagerAdapter);
+
+        TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
+        tabLayout.setupWithViewPager(mViewPager);
+
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -33,6 +62,59 @@ public class SearchResultsActivity extends BaseActivity {
         if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
             String query = intent.getStringExtra(SearchManager.QUERY);
             //use the query to search
+            mSearchTerm = query;
+        }
+    }
+
+
+    public class SearchPagerAdapter extends FragmentPagerAdapter {
+
+        public SearchPagerAdapter(FragmentManager fm) {
+            super(fm);
+        }
+
+        @Override
+        public Fragment getItem(int position) {
+            // getItem is called to instantiate the fragment for the given page.
+            // Return a PlaceholderFragment (defined as a static inner class below).
+//            return UserInfoActivity.PlaceholderFragment.newInstance(position + 1);
+
+            Bundle args = new Bundle();
+            args.putString(getString(R.string.search_term), mSearchTerm);
+
+            switch (position) {
+                case 0:
+                    SubredditFragment subFrag = new SubredditFragment();
+                    subFrag.setArguments(args);
+                    return subFrag;
+                case 1:
+                    SubredditFragment subFrag2 = new SubredditFragment();
+                    subFrag2.setArguments(args);
+                    return subFrag2;
+                case 2:
+                    SubredditFragment subFrag3 = new SubredditFragment();
+                    subFrag3.setArguments(args);
+                    return subFrag3;
+            }
+            return null;
+        }
+
+        @Override
+        public int getCount() {
+            return 3;
+        }
+
+        @Override
+        public CharSequence getPageTitle(int position) {
+            switch (position) {
+                case 0:
+                    return getString(R.string.submissions);
+                case 1:
+                    return getString(R.string.subreddits);
+                case 2:
+                    return getString(R.string.users);
+            }
+            return null;
         }
     }
 

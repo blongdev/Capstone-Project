@@ -185,11 +185,11 @@ public class UserInfoActivity extends BaseActivity {
         public CharSequence getPageTitle(int position) {
             switch (position) {
                 case 0:
-                    return "Overview";
+                    return getString(R.string.overview);
                 case 1:
-                    return "Posts";
+                    return getString(R.string.submissions);
                 case 2:
-                    return "Comments";
+                    return getString(R.string.comments);
             }
             return null;
         }

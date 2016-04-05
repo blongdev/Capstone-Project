@@ -24,7 +24,7 @@
         android:id="@+id/post_detail_image"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@android:color/black"
+        android:background="@color/background"
         android:visibility="gone"/>
 
     <android.support.v4.widget.NestedScrollView

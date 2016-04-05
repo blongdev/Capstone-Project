@@ -5,6 +5,7 @@ import android.accounts.AccountManager;
 import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
 import android.os.Bundle;
 import android.os.Debug;
 import android.support.annotation.LayoutRes;
@@ -109,11 +110,20 @@ public class BaseActivity extends AppCompatActivity implements Reddit.OnRefreshC
             }
         });
 
-        if (!mReddit.mRedditClient.isAuthenticated() || !mReddit.mRedditClient.hasActiveUserContext()) {
-            mNavFriends.setVisible(false);
-            mNavProfile.setVisible(false);
-            mNavInbox.setVisible(false);
+        Cursor cursor = null;
+        try {
+            cursor = getContentResolver().query(SiftContract.Accounts.CONTENT_URI, null, null, null, null);
+            if (cursor != null && !cursor.moveToFirst()) {
+                mNavFriends.setVisible(false);
+                mNavProfile.setVisible(false);
+                mNavInbox.setVisible(false);
+            }
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
         }
+
 
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle actionBarDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout, toolbar, R.string.drawer_open, R.string.drawer_close) {
