@@ -9,6 +9,8 @@
     <color name="colorAccent">#40C4FF</color>
     <color name="background">#607D8B</color>
 
+    <color name="imageBg">#90A4AE</color>
+
     <color name="navHeaderBg">#78909C</color>
 
     <color name="indigoOne">#303F9F</color>

@@ -240,6 +240,9 @@ public class SubredditFragment extends Fragment {
                             if (urls != null && urls.size() > 0) {
                                 return urls.get(0);
                             }
+
+                            List<String> widths = source.findValuesAsText("width");
+                            List<String> heights = source.findValuesAsText("height");
                         }
                     }
                 }

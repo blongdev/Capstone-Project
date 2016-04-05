@@ -3,6 +3,9 @@ package com.blongdev.sift;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
@@ -17,6 +20,7 @@ import android.widget.TextView;
 
 import com.squareup.okhttp.internal.Util;
 import com.squareup.picasso.Picasso;
+import com.squareup.picasso.Target;
 
 import java.util.List;
 
@@ -42,7 +46,7 @@ public class PostListAdapter extends RecyclerView.Adapter<PostListAdapter.PostVi
     }
 
     @Override
-    public void onBindViewHolder(PostViewHolder postViewHolder, int i) {
+    public void onBindViewHolder(final PostViewHolder postViewHolder, int i) {
         //TODO just have postViewHolder with a reference to a PostInfo object rather than copying all of its fields
         PostInfo post = mPostList.get(i);
         postViewHolder.mUsername.setText(post.mUsername);
@@ -60,36 +64,32 @@ public class PostListAdapter extends RecyclerView.Adapter<PostListAdapter.PostVi
 
 
         //picasso needs to be passed null to prevent listview from displaying incorrectly cached images
-        //if(!TextUtils.isEmpty(post.mImageUrl)) {
+        if(!TextUtils.isEmpty(post.mImageUrl)) {
 
-        Picasso.with(postViewHolder.mImage.getContext())
-                .load(post.mImageUrl)
-                        //.placeholder(R.drawable.ic_image_24dp)
-                        //.error(R.drawable.drawer_icon)
-                .into(postViewHolder.mImage, new com.squareup.picasso.Callback() {
-                    @Override
-                    public void onSuccess() {
+            Picasso.with(postViewHolder.mImage.getContext())
+                    .load(post.mImageUrl)
+                    .placeholder(R.drawable.ic_photo_48dp)
+                            //.error(R.drawable.drawer_icon)
+                    .into(postViewHolder.mTarget);
 
-                    }
+//
+//                            postViewHolder.mImage, new com.squareup.picasso.Callback() {
+//                        @Override
+//                        public void onSuccess() {
+//                            postViewHolder.mImage.setScaleType(ImageView.ScaleType.CENTER_CROP);
+//                        }
+//
+//                        @Override
+//                        public void onError() {
+//
+//                        }
+//                    });
+        } else {
+            Picasso.with(postViewHolder.mImage.getContext())
+                    .load(post.mImageUrl)
+                    .into(postViewHolder.mImage);
+        }
 
-                    @Override
-                    public void onError() {
-
-                    }
-                });
-
-//            Picasso.Builder builder = new Picasso.Builder(postViewHolder.mImage.getContext());
-//            builder.listener(new Picasso.Listener()
-//            {
-//                @Override
-//                public void onImageLoadFailed(Picasso picasso, Uri uri, Exception exception)
-//                {
-//                    exception.printStackTrace();
-//                }
-//            });
-//            builder.build().load("http://i.imgur.com/DvpvklR.png").into(postViewHolder.mImage);
-
-        //}
     }
 
     @Override
@@ -110,6 +110,7 @@ public class PostListAdapter extends RecyclerView.Adapter<PostListAdapter.PostVi
         protected TextView mDomain;
         protected TextView mAge;
         protected ImageView mImage;
+        protected Target mTarget;
 
         protected String mImageUrl;
         protected int mPostId;
@@ -132,6 +133,28 @@ public class PostListAdapter extends RecyclerView.Adapter<PostListAdapter.PostVi
             mTitle.setOnClickListener(mOnClickListener);
             mUsername.setOnClickListener(mOnClickListener);
             mImage.setOnClickListener(mOnClickListener);
+
+            mTarget = new Target() {
+                @Override
+                public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
+                    //Drawable drawable = new BitmapDrawable(postViewHolder.mImage.getContext().getResources(), bitmap);
+                    mImage.setScaleType(ImageView.ScaleType.CENTER_CROP);
+                    mImage.setImageBitmap(bitmap);
+                    //postViewHolder.mImage.invalidate();
+                    //postViewHolder.mImage.setImageDrawable(drawable);
+                }
+
+                @Override
+                public void onBitmapFailed(Drawable errorDrawable) {
+
+                }
+
+                @Override
+                public void onPrepareLoad(Drawable placeHolderDrawable) {
+                    mImage.setScaleType(ImageView.ScaleType.CENTER);
+                    mImage.setImageDrawable(placeHolderDrawable);
+                }
+            };
         }
 
         //TODO create an interface to handle all clicks with abstract methods
