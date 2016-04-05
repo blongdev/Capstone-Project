@@ -60,20 +60,10 @@ public class SubredditListActivityFragment extends Fragment {
         mSubredditListView = (ListView) rootView.findViewById(R.id.subreddit_list);
         mLoadingSpinner = (ProgressBar) rootView.findViewById(R.id.progressSpinner);
 
+            populateSubreddits();
+
         mSubredditAdapter = new SubredditAdapter(getActivity(), mSubreddits);
         mSubredditListView.setAdapter(mSubredditAdapter);
-
-        Bundle args = getArguments();
-        if (args != null) {
-            mSearchTerm = args.getString(getString(R.string.search_term));
-            if (mSearchTerm != null) {
-                mPaginator = new SubredditSearchPaginator(mReddit.mRedditClient, mSearchTerm);
-                new GetSubredditsTask().execute();
-            }
-        } else {
-            populateSubreddits();
-        }
-
         mSubredditListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -94,6 +84,7 @@ public class SubredditListActivityFragment extends Fragment {
 
         public SubredditAdapter(Context context, ArrayList<SubredditInfo> subreddits) {
             super(context, 0, subreddits);
+            mSubreddits = subreddits;
         }
 
         @Override
