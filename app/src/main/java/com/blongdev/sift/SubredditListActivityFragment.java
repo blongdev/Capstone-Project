@@ -60,7 +60,16 @@ public class SubredditListActivityFragment extends Fragment {
         mSubredditListView = (ListView) rootView.findViewById(R.id.subreddit_list);
         mLoadingSpinner = (ProgressBar) rootView.findViewById(R.id.progressSpinner);
 
+        Bundle args = getArguments();
+        if (args != null) {
+            mSearchTerm = args.getString(getString(R.string.search_term));
+            if (mSearchTerm != null) {
+                mPaginator = new SubredditSearchPaginator(mReddit.mRedditClient, mSearchTerm);
+                new GetSubredditsTask().execute();
+            }
+        } else {
             populateSubreddits();
+        }
 
         mSubredditAdapter = new SubredditAdapter(getActivity(), mSubreddits);
         mSubredditListView.setAdapter(mSubredditAdapter);
