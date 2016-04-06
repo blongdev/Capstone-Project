@@ -23,10 +23,7 @@ public final class SiftContract {
     private static final String UNIQUE = " UNIQUE";
     private static final String ON_CONFLICT_IGNORE = " ON CONFLICT IGNORE";
     private static final String ON_CONFLICT_REPLACE = " ON CONFLICT REPLACE";
-
-
-
-
+    private static final String ON_DELETE_CASCADE = "ON DELETE CASCADE";
 
 
     private SiftContract() {
@@ -232,7 +229,7 @@ public final class SiftContract {
                 _ID + " INTEGER PRIMARY KEY," +
                 COLUMN_ACCOUNT_ID + INTEGER_TYPE + COMMA_SEP +
                 COLUMN_SUBREDDIT_ID + INTEGER_TYPE + COMMA_SEP +
-                " FOREIGN KEY(" + COLUMN_ACCOUNT_ID + ") REFERENCES " + Accounts.TABLE_NAME + "(" + Accounts._ID + ")" + COMMA_SEP +
+                " FOREIGN KEY(" + COLUMN_ACCOUNT_ID + ") REFERENCES " + Accounts.TABLE_NAME + "(" + Accounts._ID + ")" + ON_DELETE_CASCADE + COMMA_SEP +
                 " FOREIGN KEY(" + COLUMN_SUBREDDIT_ID + ") REFERENCES " + Subreddits.TABLE_NAME + "(" + Subreddits._ID + ")" + COMMA_SEP +
                 UNIQUE + "(" + COLUMN_ACCOUNT_ID + COMMA_SEP + COLUMN_SUBREDDIT_ID + ")" + ON_CONFLICT_IGNORE + " )";
 
@@ -265,7 +262,7 @@ public final class SiftContract {
                 _ID + " INTEGER PRIMARY KEY," +
                 COLUMN_ACCOUNT_ID + INTEGER_TYPE + COMMA_SEP +
                 COLUMN_POST_ID + INTEGER_TYPE + COMMA_SEP +
-                " FOREIGN KEY(" + COLUMN_ACCOUNT_ID + ") REFERENCES " + Accounts.TABLE_NAME + "(" + Accounts._ID + ")" + COMMA_SEP +
+                " FOREIGN KEY(" + COLUMN_ACCOUNT_ID + ") REFERENCES " + Accounts.TABLE_NAME + "(" + Accounts._ID + ")" + ON_DELETE_CASCADE + COMMA_SEP +
                 " FOREIGN KEY(" + COLUMN_POST_ID + ") REFERENCES " + Users.TABLE_NAME + "(" + Posts._ID + ")" + " )";
 
 
@@ -301,7 +298,7 @@ public final class SiftContract {
                 COLUMN_POST_ID + INTEGER_TYPE + COMMA_SEP +
                 COLUMN_COMMENT_ID + INTEGER_TYPE + COMMA_SEP +
                 COLUMN_VOTE + INTEGER_TYPE + COMMA_SEP +
-                " FOREIGN KEY(" + COLUMN_ACCOUNT_ID + ") REFERENCES " + Accounts.TABLE_NAME + "(" + Accounts._ID + ")" + COMMA_SEP +
+                " FOREIGN KEY(" + COLUMN_ACCOUNT_ID + ") REFERENCES " + Accounts.TABLE_NAME + "(" + Accounts._ID + ")" + ON_DELETE_CASCADE + COMMA_SEP +
                 " FOREIGN KEY(" + COLUMN_POST_ID + ") REFERENCES " + Posts.TABLE_NAME + "(" + Posts._ID + ")" + COMMA_SEP +
                 " FOREIGN KEY(" + COLUMN_COMMENT_ID + ") REFERENCES " + Comments.TABLE_NAME + "(" + Comments._ID + ")" + " )";
 
@@ -323,7 +320,7 @@ public final class SiftContract {
                 _ID + " INTEGER PRIMARY KEY," +
                 COLUMN_ACCOUNT_ID + INTEGER_TYPE + COMMA_SEP +
                 COLUMN_FRIEND_USER_ID + INTEGER_TYPE + COMMA_SEP +
-                " FOREIGN KEY(" + COLUMN_ACCOUNT_ID + ") REFERENCES " + Accounts.TABLE_NAME + "(" + Accounts._ID + ")" + COMMA_SEP +
+                " FOREIGN KEY(" + COLUMN_ACCOUNT_ID + ") REFERENCES " + Accounts.TABLE_NAME + "(" + Accounts._ID + ")" + ON_DELETE_CASCADE + COMMA_SEP +
                 " FOREIGN KEY(" + COLUMN_FRIEND_USER_ID + ") REFERENCES " + Users.TABLE_NAME + "(" + Users._ID + ")" + COMMA_SEP +
                 UNIQUE + "(" + COLUMN_ACCOUNT_ID + COMMA_SEP + COLUMN_FRIEND_USER_ID + ")" + ON_CONFLICT_IGNORE + " )";
 

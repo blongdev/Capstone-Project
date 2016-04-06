@@ -43,10 +43,14 @@ public class SiftDbHelper extends SQLiteOpenHelper {
     }
 
     @Override
-    public void onCreate(SQLiteDatabase db) {
-
+    public void onConfigure(SQLiteDatabase db) {
+        super.onConfigure(db);
         db.execSQL("PRAGMA foreign_keys=ON;");
+        db.setForeignKeyConstraintsEnabled(true);
+    }
 
+    @Override
+    public void onCreate(SQLiteDatabase db) {
         db.execSQL(SiftContract.Posts.CREATE_TABLE);
         db.execSQL(SiftContract.Accounts.CREATE_TABLE);
         db.execSQL(SiftContract.Comments.CREATE_TABLE);

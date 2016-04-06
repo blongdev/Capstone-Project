@@ -80,6 +80,12 @@ public class SiftProvider extends ContentProvider {
                             selectionArgs);
                 }
                 break;
+
+            case ACCOUNTS:
+                rowsDeleted = db.delete(SiftContract.Accounts.TABLE_NAME,
+                        selection,
+                        selectionArgs);
+                break;
             default:
                 throw new IllegalArgumentException("Unknown URI: " + uri);
         }

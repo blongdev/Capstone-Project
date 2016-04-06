@@ -65,6 +65,8 @@ public class MainActivity extends BaseActivity {
 
         Cursor cursor = null;
         try {
+//            String selection = SiftContract.Subscriptions.COLUMN_ACCOUNT_ID + " =?";
+//            String[] selectionArgs =
             cursor = getContentResolver().query(SiftContract.Subscriptions.VIEW_URI, null, null, null, SiftContract.Subreddits.COLUMN_NAME + " COLLATE NOCASE");
             if (cursor != null) {
                 if (cursor.getCount() <= 0) {

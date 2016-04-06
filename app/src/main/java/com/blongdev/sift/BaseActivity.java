@@ -2,9 +2,13 @@ package com.blongdev.sift;
 
 import android.accounts.Account;
 import android.accounts.AccountManager;
+import android.app.Activity;
+import android.app.Dialog;
 import android.app.SearchManager;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.res.Resources;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.os.Debug;
@@ -14,9 +18,11 @@ import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
+import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -36,6 +42,12 @@ public class BaseActivity extends AppCompatActivity implements Reddit.OnRefreshC
     MenuItem mNavProfile;
     MenuItem mNavInbox;
     MenuItem mNavFriends;
+
+    boolean mHasUser;
+
+    View mRemoveAccount;
+
+    Reddit.OnRefreshCompleted mOnRefreshCompleted;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,6 +69,8 @@ public class BaseActivity extends AppCompatActivity implements Reddit.OnRefreshC
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        mOnRefreshCompleted = this;
+
         mNavigationView = (NavigationView) findViewById(R.id.navigation_view);
         mNavHeader = mNavigationView.inflateHeaderView(R.layout.nav_header);
         mNavMenu = mNavigationView.getMenu();
@@ -64,6 +78,8 @@ public class BaseActivity extends AppCompatActivity implements Reddit.OnRefreshC
         mNavFriends = mNavMenu.findItem(R.id.nav_friends);
         mNavProfile = mNavMenu.findItem(R.id.nav_profile);
         mNavInbox = mNavMenu.findItem(R.id.nav_inbox);
+
+        mRemoveAccount = mNavHeader.findViewById(R.id.remove_account);
 
         mNavigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
 
@@ -110,19 +126,62 @@ public class BaseActivity extends AppCompatActivity implements Reddit.OnRefreshC
             }
         });
 
+        TextView navUser = (TextView) mNavHeader.findViewById(R.id.nav_username);
+
         Cursor cursor = null;
         try {
             cursor = getContentResolver().query(SiftContract.Accounts.CONTENT_URI, null, null, null, null);
-            if (cursor != null && !cursor.moveToFirst()) {
-                mNavFriends.setVisible(false);
-                mNavProfile.setVisible(false);
-                mNavInbox.setVisible(false);
+            if (cursor != null) {
+                if (cursor.moveToFirst()) {
+                    String username = cursor.getString(cursor.getColumnIndex(SiftContract.Accounts.COLUMN_USERNAME));
+                    if (!TextUtils.isEmpty(username)) {
+                        navUser.setText(username);
+                        mHasUser = true;
+                    }
+                } else {
+                    mNavFriends.setVisible(false);
+                    mNavProfile.setVisible(false);
+                    mNavInbox.setVisible(false);
+                }
             }
         } finally {
             if (cursor != null) {
                 cursor.close();
             }
         }
+        if (mHasUser) {
+            mRemoveAccount.setVisibility(View.VISIBLE);
+            mRemoveAccount.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    AlertDialog.Builder builder = new AlertDialog.Builder(BaseActivity.this)
+                    .setMessage(getString(R.string.remove_account))
+                    .setPositiveButton(R.string.remove, new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int id) {
+                            mReddit.removeAccounts(getApplicationContext(), mOnRefreshCompleted);
+                            //BaseActivity.this.recreate();
+                        }
+                    })
+                    .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int id) {
+
+                        }
+                    });
+                    AlertDialog dialog = builder.create();
+                    dialog.show();
+                }
+            });
+        } else {
+            navUser.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent authIntent = new Intent(getApplicationContext(), AuthenticationActivity.class);
+                    startActivity(authIntent);
+                }
+            });
+        }
+
+
 
 
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -141,31 +200,24 @@ public class BaseActivity extends AppCompatActivity implements Reddit.OnRefreshC
 
         mDrawerLayout.setDrawerListener(actionBarDrawerToggle);
         actionBarDrawerToggle.syncState();
-
-        TextView navUser = (TextView) mNavHeader.findViewById(R.id.nav_username);
-        if (mReddit.mRedditClient.isAuthenticated() && mReddit.mRedditClient.hasActiveUserContext()) {
-            String username = mReddit.mRedditClient.getAuthenticatedUser();
-            navUser.setText(username);
-        } else {
-            navUser.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    Intent authIntent = new Intent(getApplicationContext(), AuthenticationActivity.class);
-                    startActivity(authIntent);
-                }
-            });
-        }
     }
 
     @Override
     public void onRefreshCompleted() {
+        TextView navUser = (TextView) mNavHeader.findViewById(R.id.nav_username);
         if (mReddit.mRedditClient.isAuthenticated()) {
             if (mReddit.mRedditClient.hasActiveUserContext()) {
                 String username = mReddit.mRedditClient.getAuthenticatedUser();
-                TextView navUser = (TextView) mNavHeader.findViewById(R.id.nav_username);
                 navUser.setText(username);
             }
+        } else {
+            navUser.setText(getString(R.string.nav_header_add_account));
         }
+    }
+
+    @Override
+    public void restartActivity() {
+        this.recreate();
     }
 
     @Override

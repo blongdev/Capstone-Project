@@ -10,14 +10,25 @@
         android:src="@drawable/nav_header_bg"
         />
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceLarge"
-        android:text="@string/nav_header_add_account"
-        android:textColor="@android:color/white"
-        android:id="@+id/nav_username"
-        android:padding="16dp"
-        android:layout_gravity="bottom"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:text="@string/nav_header_add_account"
+            android:textSize="24sp"
+            android:textColor="@android:color/white"
+            android:id="@+id/nav_username"
+            android:padding="16dp"
+            android:layout_gravity="bottom"/>
+
+        <ImageView
+            android:id="@+id/remove_account"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|right"
+            android:padding="16dp"
+            android:visibility="gone"
+            android:src="@drawable/ic_remove_circle_outline_24dp"/>
 
 </FrameLayout>

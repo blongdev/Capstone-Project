@@ -28,7 +28,7 @@ import net.dean.jraw.http.oauth.OAuthHelper;
 import java.net.URISyntaxException;
 import java.net.URL;
 
-public class AuthenticationActivity extends AppCompatActivity {
+public class AuthenticationActivity extends BaseActivity {
 
     WebView mWebView;
     Reddit mReddit;

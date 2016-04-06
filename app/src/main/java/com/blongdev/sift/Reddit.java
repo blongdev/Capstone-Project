@@ -11,6 +11,7 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.Settings;
+import android.text.TextUtils;
 import android.util.Log;
 
 import com.blongdev.sift.database.SiftContract;
@@ -74,10 +75,6 @@ public class Reddit {
 
     public static UserAgent getUserAgent () {
         return UserAgent.of("Android", "com.blongdev.sift", BuildConfig.VERSION_NAME, "blongdev");
-    }
-
-    public static RedditClient getUserlessClient() {
-         return null;
     }
 
     public static Credentials getCredentials() {
@@ -177,6 +174,7 @@ public class Reddit {
 
         cv.put(SiftContract.Accounts.COLUMN_REFRESH_KEY, refreshToken);
         cv.put(SiftContract.Accounts.COLUMN_USER_ID, userId);
+        cv.put(SiftContract.Accounts.COLUMN_USERNAME, username);
         context.getContentResolver().insert(SiftContract.Accounts.CONTENT_URI, cv);
 
         cv.clear();
@@ -306,5 +304,61 @@ public class Reddit {
 
     public interface OnRefreshCompleted{
         void onRefreshCompleted();
+        void restartActivity();
+    }
+
+    //TODO implement for multiple accounts
+    public void removeAccounts (Context context, OnRefreshCompleted onRefreshCompleted) {
+        //revoke access token
+        if (mRedditClient.isAuthenticated() && mRedditClient.hasActiveUserContext()) {
+            new RevokeTokenTask(context, onRefreshCompleted).execute();
+        }
+    }
+
+    private final class RevokeTokenTask extends AsyncTask<String, Void, Void> {
+
+        Context mContext;
+        private OnRefreshCompleted mOnRefreshCompleted;
+
+        public RevokeTokenTask(Context context, OnRefreshCompleted activity) {
+            mContext = context;
+            mOnRefreshCompleted = activity;
+        }
+
+        @Override
+        protected Void doInBackground(String... params) {
+
+            Cursor cursor = null;
+            try {
+                cursor = mContext.getContentResolver().query(SiftContract.Accounts.CONTENT_URI, null, null, null, null);
+                if (cursor != null) {
+                    if (cursor.moveToFirst()) {
+                        String accountId = cursor.getString(cursor.getColumnIndex(SiftContract.Accounts._ID));
+                        mRefreshToken = cursor.getString(cursor.getColumnIndex(SiftContract.Accounts.COLUMN_REFRESH_KEY));
+                        if (mRefreshToken != null && !mRefreshToken.isEmpty()) {
+                            //revoking tokens causing crash
+                            //mOAuthHelper.revokeAccessToken(mCredentials);
+                            //mRedditClient.deauthenticate();
+                            String selection = SiftContract.Accounts._ID + " =?";
+                            String[] selectionArgs = new String[]{accountId};
+                            mContext.getContentResolver().delete(SiftContract.Accounts.CONTENT_URI, selection, selectionArgs);
+                            ourInstance = new Reddit();
+                        }
+                    }
+                }
+            } finally {
+                if (cursor != null) {
+                    cursor.close();
+                }
+            }
+
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void nothing) {
+            Log.v(LOG_TAG, "onPostExecute()");
+            mOnRefreshCompleted.restartActivity();
+        }
     }
 }
