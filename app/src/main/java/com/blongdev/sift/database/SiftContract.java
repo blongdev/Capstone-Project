@@ -47,6 +47,7 @@ public final class SiftContract {
         public static final String COLUMN_SERVER_ID = "serverId";
         public static final String COLUMN_BODY = "body";
         public static final String COLUMN_DOMAIN = "domain";
+        public static final String COLUMN_POSITION = "position";
 
 
         public static final int NOT_FAVORITED = 0;
@@ -70,9 +71,12 @@ public final class SiftContract {
                 COLUMN_SERVER_ID + TEXT_TYPE + COMMA_SEP +
                 COLUMN_BODY + TEXT_TYPE + COMMA_SEP +
                 COLUMN_DOMAIN + TEXT_TYPE + COMMA_SEP +
-                " FOREIGN KEY(" + COLUMN_SUBREDDIT_ID + ") REFERENCES " + Subreddits.TABLE_NAME + "(" + Subreddits._ID + ")" + COMMA_SEP +
-                " FOREIGN KEY(" + COLUMN_OWNER_ID + ") REFERENCES " + Users.TABLE_NAME + "(" + Users._ID + ")" + COMMA_SEP +
-                UNIQUE + "(" + COLUMN_SERVER_ID + ")" + ON_CONFLICT_REPLACE + " )";
+                COLUMN_POSITION + INTEGER_TYPE + COMMA_SEP +
+//                remove foreign keys that could be null
+//                " FOREIGN KEY(" + COLUMN_SUBREDDIT_ID + ") REFERENCES " + Subreddits.TABLE_NAME + "(" + Subreddits._ID + ")" + COMMA_SEP +
+//                " FOREIGN KEY(" + COLUMN_OWNER_ID + ") REFERENCES " + Users.TABLE_NAME + "(" + Users._ID + ")" + COMMA_SEP +
+                UNIQUE + "(" + COLUMN_SERVER_ID + COMMA_SEP + COLUMN_SUBREDDIT_ID + ")" + ON_CONFLICT_REPLACE + COMMA_SEP +
+                UNIQUE + "(" + COLUMN_POSITION + COMMA_SEP + COLUMN_SUBREDDIT_ID + ")" + ON_CONFLICT_REPLACE + " )";
 
 
         public static final String DELETE_TABLE = "DROP TABLE IF EXISTS " + TABLE_NAME;
@@ -123,9 +127,9 @@ public final class SiftContract {
                 COLUMN_DATE_CREATED + INTEGER_TYPE + COMMA_SEP +
                 COLUMN_POINTS + INTEGER_TYPE + COMMA_SEP +
                 COLUMN_PARENT_ID + INTEGER_TYPE + COMMA_SEP +
-                COLUMN_POST_ID + INTEGER_TYPE + COMMA_SEP +
-                " FOREIGN KEY(" + COLUMN_OWNER_ID + ") REFERENCES " + Users.TABLE_NAME + "(" + Users._ID + ")" + COMMA_SEP +
-                " FOREIGN KEY(" + COLUMN_POST_ID + ") REFERENCES " + Posts.TABLE_NAME + "(" + Posts._ID + ")" +" )";
+                COLUMN_POST_ID + INTEGER_TYPE + " )";
+//                " FOREIGN KEY(" + COLUMN_OWNER_ID + ") REFERENCES " + Users.TABLE_NAME + "(" + Users._ID + ")" + COMMA_SEP +
+//                " FOREIGN KEY(" + COLUMN_POST_ID + ") REFERENCES " + Posts.TABLE_NAME + "(" + Posts._ID + ")" +" )";
 
 
         public static final String DELETE_TABLE = "DROP TABLE IF EXISTS " + TABLE_NAME;
@@ -207,8 +211,8 @@ public final class SiftContract {
                 COLUMN_ACCOUNT_ID + INTEGER_TYPE + COMMA_SEP +
                 COLUMN_SERVER_ID + TEXT_TYPE + COMMA_SEP +
                 " FOREIGN KEY(" + COLUMN_ACCOUNT_ID + ") REFERENCES " + Accounts.TABLE_NAME + "(" + Accounts._ID + ")" + COMMA_SEP +
-                " FOREIGN KEY(" + COLUMN_USER_TO + ") REFERENCES " + Users.TABLE_NAME + "(" + Users._ID + ")" + COMMA_SEP +
-                " FOREIGN KEY(" + COLUMN_USER_FROM + ") REFERENCES " + Users.TABLE_NAME + "(" + Users._ID + ")" +  COMMA_SEP +
+//                " FOREIGN KEY(" + COLUMN_USER_TO + ") REFERENCES " + Users.TABLE_NAME + "(" + Users._ID + ")" + COMMA_SEP +
+//                " FOREIGN KEY(" + COLUMN_USER_FROM + ") REFERENCES " + Users.TABLE_NAME + "(" + Users._ID + ")" +  COMMA_SEP +
                 UNIQUE + "(" + COLUMN_SERVER_ID + ")" + ON_CONFLICT_REPLACE + " )";
 
         public static final String DELETE_TABLE = "DROP TABLE IF EXISTS " + TABLE_NAME;
@@ -263,7 +267,7 @@ public final class SiftContract {
                 COLUMN_ACCOUNT_ID + INTEGER_TYPE + COMMA_SEP +
                 COLUMN_POST_ID + INTEGER_TYPE + COMMA_SEP +
                 " FOREIGN KEY(" + COLUMN_ACCOUNT_ID + ") REFERENCES " + Accounts.TABLE_NAME + "(" + Accounts._ID + ")" + ON_DELETE_CASCADE + COMMA_SEP +
-                " FOREIGN KEY(" + COLUMN_POST_ID + ") REFERENCES " + Users.TABLE_NAME + "(" + Posts._ID + ")" + " )";
+                " FOREIGN KEY(" + COLUMN_POST_ID + ") REFERENCES " + Posts.TABLE_NAME + "(" + Posts._ID + ")" + " )";
 
 
         public static final String CREATE_VIEW = "CREATE VIEW " + VIEW_NAME + " AS SELECT " + Favorites.COLUMN_ACCOUNT_ID + COMMA_SEP +
@@ -298,9 +302,11 @@ public final class SiftContract {
                 COLUMN_POST_ID + INTEGER_TYPE + COMMA_SEP +
                 COLUMN_COMMENT_ID + INTEGER_TYPE + COMMA_SEP +
                 COLUMN_VOTE + INTEGER_TYPE + COMMA_SEP +
-                " FOREIGN KEY(" + COLUMN_ACCOUNT_ID + ") REFERENCES " + Accounts.TABLE_NAME + "(" + Accounts._ID + ")" + ON_DELETE_CASCADE + COMMA_SEP +
-                " FOREIGN KEY(" + COLUMN_POST_ID + ") REFERENCES " + Posts.TABLE_NAME + "(" + Posts._ID + ")" + COMMA_SEP +
-                " FOREIGN KEY(" + COLUMN_COMMENT_ID + ") REFERENCES " + Comments.TABLE_NAME + "(" + Comments._ID + ")" + " )";
+                " FOREIGN KEY(" + COLUMN_ACCOUNT_ID + ") REFERENCES " + Accounts.TABLE_NAME + "(" + Accounts._ID + ")" + ON_DELETE_CASCADE
+//                + COMMA_SEP +
+//                " FOREIGN KEY(" + COLUMN_POST_ID + ") REFERENCES " + Posts.TABLE_NAME + "(" + Posts._ID + ")" + COMMA_SEP +
+//                " FOREIGN KEY(" + COLUMN_COMMENT_ID + ") REFERENCES " + Comments.TABLE_NAME + "(" + Comments._ID + ")"
+                + " )";
 
         public static final String DELETE_TABLE = "DROP TABLE IF EXISTS " + TABLE_NAME;
     }

@@ -13,6 +13,9 @@ import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.FragmentStatePagerAdapter;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.CursorLoader;
+import android.support.v4.content.Loader;
 import android.support.v4.view.PagerTabStrip;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
@@ -45,7 +48,7 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 
-public class MainActivity extends BaseActivity {
+public class MainActivity extends BaseActivity implements LoaderManager.LoaderCallbacks<Cursor>{
 
     ViewPager mPager;
     SubredditPagerAdapter mPagerAdapter;
@@ -63,30 +66,32 @@ public class MainActivity extends BaseActivity {
         frontpage.mSubredditName = getString(R.string.frontPage);
         mSubreddits.add(frontpage);
 
-        Cursor cursor = null;
-        try {
-//            String selection = SiftContract.Subscriptions.COLUMN_ACCOUNT_ID + " =?";
-//            String[] selectionArgs =
-            cursor = getContentResolver().query(SiftContract.Subscriptions.VIEW_URI, null, null, null, SiftContract.Subreddits.COLUMN_NAME + " COLLATE NOCASE");
-            if (cursor != null) {
-                if (cursor.getCount() <= 0) {
-                    //TODO replace dummy data with initial sync
-//                SiftDbHelper dbHelper = new SiftDbHelper(this);
-//                dbHelper.insertDummyData();
-                } else {
-                    while (cursor.moveToNext()) {
-                        SubscriptionInfo sub = new SubscriptionInfo();
-                        sub.mSubredditId = cursor.getInt(cursor.getColumnIndex(SiftContract.Subscriptions.COLUMN_SUBREDDIT_ID));
-                        sub.mSubredditName = cursor.getString(cursor.getColumnIndex(SiftContract.Subreddits.COLUMN_NAME));
-                        mSubreddits.add(sub);
-                    }
-                }
-            }
-        } finally {
-            if (cursor != null) {
-                cursor.close();
-            }
-        }
+//        Cursor cursor = null;
+//        try {
+////            String selection = SiftContract.Subscriptions.COLUMN_ACCOUNT_ID + " =?";
+////            String[] selectionArgs =
+//            cursor = getContentResolver().query(SiftContract.Subscriptions.VIEW_URI, null, null, null, SiftContract.Subreddits.COLUMN_NAME + " COLLATE NOCASE");
+//            if (cursor != null) {
+//                if (cursor.getCount() <= 0) {
+//                    //TODO replace dummy data with initial sync
+////                SiftDbHelper dbHelper = new SiftDbHelper(this);
+////                dbHelper.insertDummyData();
+//                } else {
+//                    while (cursor.moveToNext()) {
+//                        SubscriptionInfo sub = new SubscriptionInfo();
+//                        sub.mSubredditId = cursor.getInt(cursor.getColumnIndex(SiftContract.Subscriptions.COLUMN_SUBREDDIT_ID));
+//                        sub.mSubredditName = cursor.getString(cursor.getColumnIndex(SiftContract.Subreddits.COLUMN_NAME));
+//                        mSubreddits.add(sub);
+//                    }
+//                }
+//            }
+//        } finally {
+//            if (cursor != null) {
+//                cursor.close();
+//            }
+//        }
+
+        getSupportLoaderManager().initLoader(0, null, this);
 
         // Instantiate a ViewPager and a PagerAdapter.
         mPager = (ViewPager) findViewById(R.id.pager);
@@ -107,6 +112,33 @@ public class MainActivity extends BaseActivity {
             }
         });
     }
+
+    @Override
+    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+        return new CursorLoader(this, SiftContract.Subscriptions.VIEW_URI,
+                null, null, null, SiftContract.Subreddits.COLUMN_NAME + " COLLATE NOCASE");
+    }
+
+    @Override
+    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+        if (data != null) {
+            while (data.moveToNext()) {
+                    SubscriptionInfo sub = new SubscriptionInfo();
+                    sub.mSubredditId = data.getInt(data.getColumnIndex(SiftContract.Subscriptions.COLUMN_SUBREDDIT_ID));
+                    sub.mSubredditName = data.getString(data.getColumnIndex(SiftContract.Subreddits.COLUMN_NAME));
+                    mSubreddits.add(sub);
+                }
+            }
+        mPagerAdapter.swapData(mSubreddits);
+    }
+
+    @Override
+    public void onLoaderReset(Loader<Cursor> loader) {
+
+        mPagerAdapter.swapData(null);
+    }
+
+
 //
 //    @Override
 //    public void onBackPressed() {
@@ -125,8 +157,16 @@ public class MainActivity extends BaseActivity {
      * sequence.
      */
     private class SubredditPagerAdapter extends FragmentStatePagerAdapter {
+
+        private ArrayList<SubscriptionInfo> mSubreddits;
+
         public SubredditPagerAdapter(FragmentManager fm) {
             super(fm);
+        }
+
+        public void swapData(ArrayList<SubscriptionInfo> subreddits) {
+            this.mSubreddits = subreddits;
+            notifyDataSetChanged();
         }
 
         @Override
@@ -142,6 +182,10 @@ public class MainActivity extends BaseActivity {
 
         @Override
         public int getCount() {
+            if (mSubreddits == null) {
+                return 0;
+            }
+
             return mSubreddits.size();
         }
 
@@ -185,4 +229,5 @@ public class MainActivity extends BaseActivity {
             mPagerAdapter.notifyDataSetChanged();
         }
     }
+
 }

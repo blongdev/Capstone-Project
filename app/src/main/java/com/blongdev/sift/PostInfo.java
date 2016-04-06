@@ -19,4 +19,5 @@ public class PostInfo {
     public String mServerId;
     public String mBody;
     public String mDomain;
+    public int mPosition;
 }

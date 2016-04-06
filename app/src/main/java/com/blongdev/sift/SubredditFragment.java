@@ -9,8 +9,12 @@ import android.os.AsyncTask;
 import android.os.Debug;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.CursorLoader;
+import android.support.v4.content.Loader;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.support.v4.widget.SimpleCursorAdapter;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
@@ -21,6 +25,7 @@ import android.view.ViewGroup;
 import android.widget.ProgressBar;
 
 import com.blongdev.sift.database.SiftContract;
+import com.blongdev.sift.database.SiftDbHelper;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.squareup.picasso.Picasso;
 
@@ -37,18 +42,20 @@ import net.dean.jraw.paginators.TimePeriod;
 import java.lang.reflect.Array;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 /**
  * A placeholder fragment containing a simple view.
  */
-public class SubredditFragment extends Fragment {
+public class SubredditFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>{
 
     ViewPager mPager;
     PagerAdapter mPagerAdapter;
     private int mSubredditId;
     private String mSubredditName;
-    private ArrayList<PostInfo> mPosts;
+    private List<PostInfo> mPosts;
     private PostListAdapter mPostListAdapter;
     private RecyclerView mRecyclerView;
     private ContentResolver mContentResolver;
@@ -63,7 +70,8 @@ public class SubredditFragment extends Fragment {
     private int mPaginatorType;
     private String mSearchTerm;
 
-
+    private static final int PAGE_SIZE = 25;
+    private boolean savePosts;
 
     public SubredditFragment() {
     }
@@ -77,7 +85,6 @@ public class SubredditFragment extends Fragment {
         mContentResolver = mContext.getContentResolver();
 
         mLoadingSpinner = (ProgressBar) rootView.findViewById(R.id.progressSpinner);
-
 
         mReddit = Reddit.getInstance();
         mPosts = new ArrayList<PostInfo>();
@@ -98,15 +105,20 @@ public class SubredditFragment extends Fragment {
 
         if (!TextUtils.isEmpty(mSearchTerm)) {
             mPaginator = new SubmissionSearchPaginator(mReddit.mRedditClient, mSearchTerm);
+            savePosts = false;
         } else {
             if (TextUtils.equals(mSubredditName, getString(R.string.frontPage))) {
                 mPaginator = new SubredditPaginator(mReddit.mRedditClient);
             } else {
                 mPaginator = new SubredditPaginator(mReddit.mRedditClient, mSubredditName);
             }
+            savePosts = true;
             //have to use setSearchSorting for submissionSearchPaginator;
             mPaginator.setSorting(Sorting.HOT); // Default is HOT (Paginator.DEFAULT_SORTING)
         }
+        mPaginator.setLimit(PAGE_SIZE);
+
+        getLoaderManager().initLoader(0, null, this);
 
         //populatePosts();
         //RACE CONDITION WITH AUTHENTICATION IN MAIN ACTIVITY
@@ -118,9 +130,10 @@ public class SubredditFragment extends Fragment {
                 //Base Activity is authenticating. add spinner until authenticated
                 mLoadingSpinner.setVisibility(View.VISIBLE);
             }
-        } else {
-            getPostsFromDb();
         }
+//          else {
+            //getPostsFromDb();
+//        }
 
         mRecyclerView = (RecyclerView) rootView.findViewById(R.id.cardList);
         mRecyclerView.setHasFixedSize(true);
@@ -137,7 +150,7 @@ public class SubredditFragment extends Fragment {
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
                 super.onScrolled(recyclerView, dx, dy);
 
-                if(dy > 0 && mLayoutManager.findLastVisibleItemPosition() > (mPosts.size() - 15) && !mLoading) {
+                if (dy > 0 && mLayoutManager.findLastVisibleItemPosition() > (mPosts.size() - 15) && !mLoading) {
                     if (Utilities.connectedToNetwork(mContext)) {
                         if (mReddit.mRedditClient.isAuthenticated()) {
                             new GetPostsTask().execute();
@@ -146,6 +159,9 @@ public class SubredditFragment extends Fragment {
                 }
             }
         });
+
+
+
         return rootView;
     }
 
@@ -188,6 +204,7 @@ public class SubredditFragment extends Fragment {
             ArrayList<PostInfo> newPostArray = new ArrayList<PostInfo>();
             if (mPaginator != null && mPaginator.hasNext()) {
                 Listing<Submission> page = mPaginator.next();
+                int i = 0;
                 for (Submission submission : page) {
                     PostInfo post = new PostInfo();
                     post.mServerId = submission.getId();
@@ -201,8 +218,10 @@ public class SubredditFragment extends Fragment {
                     post.mBody = submission.getSelftext();
                     post.mDomain = submission.getDomain();
                     post.mAge = submission.getCreatedUtc().getTime();
+                    post.mPosition = ((mPaginator.getPageIndex() -1) * PAGE_SIZE) + i;
                     newPostArray.add(post);
                     mPosts.add(post);
+                    i++;
                 }
             }
 
@@ -222,9 +241,13 @@ public class SubredditFragment extends Fragment {
         protected void onPostExecute(ArrayList<PostInfo> posts) {
             mLoading = false;
             mLoadingSpinner.setVisibility(View.GONE);
-            mPostListAdapter.refreshWithList(mPosts);
+            //mPostListAdapter.refreshWithList(mPosts);
 
-            new AddPostsToDbTask().execute();
+            if(savePosts) {
+                new AddPostsToDbTask(posts).execute();
+            } else {
+                mPostListAdapter.refreshWithList(mPosts);
+            }
         }
 
         public String getImageUrl(Submission sub) {
@@ -241,8 +264,8 @@ public class SubredditFragment extends Fragment {
                                 return urls.get(0);
                             }
 
-                            List<String> widths = source.findValuesAsText("width");
-                            List<String> heights = source.findValuesAsText("height");
+                            //List<String> widths = source.findValuesAsText("width");
+                            //List<String> heights = source.findValuesAsText("height");
                         }
                     }
                 }
@@ -253,10 +276,17 @@ public class SubredditFragment extends Fragment {
     }
 
     private final class AddPostsToDbTask extends AsyncTask<String, Void, Void> {
+
+        private ArrayList<PostInfo> mNewPosts;
+
+        public AddPostsToDbTask(ArrayList<PostInfo> posts) {
+            mNewPosts = posts;
+        }
+
         @Override
         protected Void doInBackground(String... params) {
             //add to db
-            for (PostInfo post : mPosts) {
+            for (PostInfo post : mNewPosts) {
                 addPostToDb(post);
             }
             return null;
@@ -267,6 +297,7 @@ public class SubredditFragment extends Fragment {
 
         }
 
+        //TODO batch insert
         private void addPostToDb(PostInfo post) {
             ContentValues cv = new ContentValues();
             cv.put(SiftContract.Posts.COLUMN_OWNER_USERNAME, post.mUsername);
@@ -274,14 +305,61 @@ public class SubredditFragment extends Fragment {
             cv.put(SiftContract.Posts.COLUMN_NUM_COMMENTS, post.mComments);
             cv.put(SiftContract.Posts.COLUMN_POINTS, post.mPoints);
             cv.put(SiftContract.Posts.COLUMN_SUBREDDIT_ID, mSubredditId);
-            cv.put(SiftContract.Posts.COLUMN_SUBREDDIT_NAME, mSubredditName);
+            cv.put(SiftContract.Posts.COLUMN_SUBREDDIT_NAME, post.mSubreddit);
             cv.put(SiftContract.Posts.COLUMN_URL, post.mUrl);
             cv.put(SiftContract.Posts.COLUMN_IMAGE_URL, post.mImageUrl);
             cv.put(SiftContract.Posts.COLUMN_TITLE, post.mTitle);
             cv.put(SiftContract.Posts.COLUMN_BODY, post.mBody);
             cv.put(SiftContract.Posts.COLUMN_DATE_CREATED, post.mAge);
             cv.put(SiftContract.Posts.COLUMN_DOMAIN, post.mDomain);
+            cv.put(SiftContract.Posts.COLUMN_POSITION, post.mPosition);
+            cv.put(SiftContract.Posts.COLUMN_SERVER_ID, post.mServerId);
             mContentResolver.insert(SiftContract.Posts.CONTENT_URI, cv);
         }
     }
+
+    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+        String selection = SiftContract.Posts.COLUMN_SUBREDDIT_ID + " = ?";
+        String[] selectionArgs = new String[]{String.valueOf(mSubredditId)};
+        return new CursorLoader(getActivity(), SiftContract.Posts.CONTENT_URI,
+                null, selection, selectionArgs,
+                SiftContract.Posts.COLUMN_POSITION);
+    }
+
+    @Override
+    public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
+        if (cursor != null) {
+            mPosts.clear();
+            while (cursor.moveToNext()) {
+                PostInfo post = new PostInfo();
+                post.mId = cursor.getInt(cursor.getColumnIndex(SiftContract.Posts._ID));
+                post.mTitle = cursor.getString(cursor.getColumnIndex(SiftContract.Posts.COLUMN_TITLE));
+                post.mUsername = cursor.getString(cursor.getColumnIndex(SiftContract.Posts.COLUMN_OWNER_USERNAME));
+                post.mUserId = cursor.getInt(cursor.getColumnIndex(SiftContract.Posts.COLUMN_OWNER_ID));
+                post.mSubreddit = cursor.getString(cursor.getColumnIndex(SiftContract.Posts.COLUMN_SUBREDDIT_NAME));
+                post.mSubredditId = cursor.getInt(cursor.getColumnIndex(SiftContract.Posts.COLUMN_SUBREDDIT_ID));
+                post.mPoints = cursor.getInt(cursor.getColumnIndex(SiftContract.Posts.COLUMN_POINTS));
+                post.mImageUrl = cursor.getString(cursor.getColumnIndex(SiftContract.Posts.COLUMN_IMAGE_URL));
+                post.mUrl = cursor.getString(cursor.getColumnIndex(SiftContract.Posts.COLUMN_URL));
+                post.mComments = cursor.getInt(cursor.getColumnIndex(SiftContract.Posts.COLUMN_NUM_COMMENTS));
+                post.mAge = cursor.getInt(cursor.getColumnIndex(SiftContract.Posts.COLUMN_DATE_CREATED));
+                post.mFavorited = cursor.getInt(cursor.getColumnIndex(SiftContract.Posts.COLUMN_FAVORITED)) == 1 ? true : false;
+                post.mBody = cursor.getString(cursor.getColumnIndex(SiftContract.Posts.COLUMN_BODY));
+                post.mServerId =cursor.getString(cursor.getColumnIndex(SiftContract.Posts.COLUMN_SERVER_ID));
+                post.mDomain = cursor.getString(cursor.getColumnIndex(SiftContract.Posts.COLUMN_DOMAIN));
+                mPosts.add(post);
+            }
+        }
+
+        mPostListAdapter.refreshWithList(mPosts);
+    }
+
+    public void onLoaderReset(Loader<Cursor> loader) {
+        // This is called when the last Cursor provided to onLoadFinished()
+        // above is about to be closed.  We need to make sure we are no
+        // longer using it.
+        mPostListAdapter.refreshWithList(null);
+    }
+
+
 }
