@@ -1,8 +1,11 @@
 package com.blongdev.sift;
 
+import android.content.ContentUris;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
@@ -77,6 +80,18 @@ public class SubredditListActivityFragment extends Fragment {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 SubredditInfo sub = mSubreddits.get(position);
+                if (sub.mId == 0) {
+                    //check for subreddit in database, and if not found insert.
+                    sub.mId = Utilities.getSubredditId(getContext(), sub.mServerId);
+                    if (sub.mId == -1) {
+                        ContentValues cv = new ContentValues();
+                        cv.put(SiftContract.Subreddits.COLUMN_NAME, sub.mName);
+                        cv.put(SiftContract.Subreddits.COLUMN_SERVER_ID, sub.mServerId);
+                        Uri uri = getContext().getContentResolver().insert(SiftContract.Subreddits.CONTENT_URI, cv);
+                        sub.mId = ContentUris.parseId(uri);
+                    }
+                }
+
                 Intent intent = new Intent(getContext(), SubredditActivity.class);
                 intent.putExtra(getString(R.string.subreddit_id), sub.mId);
                 intent.putExtra(getString(R.string.subreddit_name), sub.mName);
