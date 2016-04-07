@@ -2,10 +2,13 @@ package com.blongdev.sift;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.database.Cursor;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.webkit.MimeTypeMap;
+
+import com.blongdev.sift.database.SiftContract;
 
 /**
  * Created by Brian on 3/29/2016.
@@ -60,5 +63,21 @@ public class Utilities {
         } else {
             return age/SECONDS_IN_YEAR_ISH + "Y";
         }
+    }
+
+    public static boolean loggedIn (Context context) {
+        Cursor cursor = null;
+        try {
+            cursor = context.getContentResolver().query(SiftContract.Accounts.CONTENT_URI, null, null,null, null);
+            if (cursor != null && cursor.moveToFirst()) {
+                return true;
+            }
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
+        }
+
+        return false;
     }
 }

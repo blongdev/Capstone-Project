@@ -40,7 +40,9 @@ import net.dean.jraw.http.oauth.Credentials;
 import net.dean.jraw.http.oauth.OAuthHelper;
 import net.dean.jraw.models.Listing;
 import net.dean.jraw.models.Submission;
+import net.dean.jraw.models.Subreddit;
 import net.dean.jraw.paginators.SubredditPaginator;
+import net.dean.jraw.paginators.SubredditStream;
 
 import java.lang.reflect.Array;
 import java.net.MalformedURLException;
@@ -66,34 +68,12 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
         frontpage.mSubredditName = getString(R.string.frontPage);
         mSubreddits.add(frontpage);
 
-//        Cursor cursor = null;
-//        try {
-////            String selection = SiftContract.Subscriptions.COLUMN_ACCOUNT_ID + " =?";
-////            String[] selectionArgs =
-//            cursor = getContentResolver().query(SiftContract.Subscriptions.VIEW_URI, null, null, null, SiftContract.Subreddits.COLUMN_NAME + " COLLATE NOCASE");
-//            if (cursor != null) {
-//                if (cursor.getCount() <= 0) {
-//                    //TODO replace dummy data with initial sync
-////                SiftDbHelper dbHelper = new SiftDbHelper(this);
-////                dbHelper.insertDummyData();
-//                } else {
-//                    while (cursor.moveToNext()) {
-//                        SubscriptionInfo sub = new SubscriptionInfo();
-//                        sub.mSubredditId = cursor.getInt(cursor.getColumnIndex(SiftContract.Subscriptions.COLUMN_SUBREDDIT_ID));
-//                        sub.mSubredditName = cursor.getString(cursor.getColumnIndex(SiftContract.Subreddits.COLUMN_NAME));
-//                        mSubreddits.add(sub);
-//                    }
-//                }
-//            }
-//        } finally {
-//            if (cursor != null) {
-//                cursor.close();
-//            }
-//        }
+        if (Utilities.loggedIn(getApplicationContext())) {
+            getSupportLoaderManager().initLoader(0, null, this);
+        } else if (mReddit.mRedditClient.isAuthenticated()){
+            new GetSubredditsTask().execute();
+        }
 
-        getSupportLoaderManager().initLoader(0, null, this);
-
-        // Instantiate a ViewPager and a PagerAdapter.
         mPager = (ViewPager) findViewById(R.id.pager);
         mPagerAdapter = new SubredditPagerAdapter(getSupportFragmentManager());
         mPager.setAdapter(mPagerAdapter);
@@ -101,7 +81,7 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
         TabLayout tabLayout = (TabLayout) findViewById(R.id.subreddit_tabs);
         tabLayout.setupWithViewPager(mPager);
 
-        //new GetSubredditsTask().execute();
+
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -139,23 +119,19 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
     }
 
 
-//
-//    @Override
-//    public void onBackPressed() {
-//        if (mPager.getCurrentItem() == 0) {
-//            // If the user is currently looking at the first step, allow the system to handle the
-//            // Back button. This calls finish() on this activity and pops the back stack.
-//            super.onBackPressed();
-//        } else {
-//            // Otherwise, select the previous step.
-//            mPager.setCurrentItem(mPager.getCurrentItem() - 1);
-//        }
-//    }
+    @Override
+    public void onBackPressed() {
+        if (mPager.getCurrentItem() == 0) {
+            // If the user is currently looking at the first step, allow the system to handle the
+            // Back button. This calls finish() on this activity and pops the back stack.
+            super.onBackPressed();
+        } else {
+            // Otherwise, select the previous step.
+            mPager.setCurrentItem(mPager.getCurrentItem() - 1);
+        }
+    }
 
-    /**
-     * A simple pager adapter that represents 5 ScreenSlidePageFragment objects, in
-     * sequence.
-     */
+
     private class SubredditPagerAdapter extends FragmentStatePagerAdapter {
 
         private ArrayList<SubscriptionInfo> mSubreddits;
@@ -206,18 +182,20 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
             mPager.setAdapter(mPagerAdapter);
         }
     }
-
+//
     private final class GetSubredditsTask extends AsyncTask<String, Void, ArrayList<SubscriptionInfo>> {
         @Override
         protected ArrayList<SubscriptionInfo> doInBackground(String... params) {
             ArrayList<SubscriptionInfo> subredditArray = new ArrayList<SubscriptionInfo>();
-            SubredditPaginator paginator = new SubredditPaginator(mReddit.mRedditClient);
-            while (paginator.hasNext()) {
-                paginator.next();
-                SubscriptionInfo sub = new SubscriptionInfo();
-                //post.mId =
-                sub.mSubredditName = paginator.getSubreddit();
-                subredditArray.add(sub);
+            SubredditStream paginator = new SubredditStream(mReddit.mRedditClient, "popular");
+            if (paginator.hasNext()) {
+                Listing<Subreddit> subs = paginator.next();
+                for (Subreddit subreddit : subs) {
+                    SubscriptionInfo sub = new SubscriptionInfo();
+                    sub.mSubredditName = subreddit.getDisplayName();
+                    subredditArray.add(sub);
+                    mSubreddits.add(sub);
+                }
             }
 
             return subredditArray;
@@ -225,8 +203,7 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
 
         @Override
         protected void onPostExecute(ArrayList<SubscriptionInfo> subs) {
-            mSubreddits = subs;
-            mPagerAdapter.notifyDataSetChanged();
+            mPagerAdapter.swapData(mSubreddits);
         }
     }
 
