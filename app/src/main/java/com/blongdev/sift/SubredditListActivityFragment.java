@@ -132,7 +132,7 @@ public class SubredditListActivityFragment extends Fragment {
         if (cursor != null) {
                 while (cursor.moveToNext()) {
                     SubredditInfo sub = new SubredditInfo();
-                    sub.mId = cursor.getInt(cursor.getColumnIndex(SiftContract.Subscriptions.COLUMN_SUBREDDIT_ID));
+                    sub.mId = cursor.getLong(cursor.getColumnIndex(SiftContract.Subscriptions.COLUMN_SUBREDDIT_ID));
                     sub.mName = cursor.getString(cursor.getColumnIndex(SiftContract.Subreddits.COLUMN_NAME));
                     mSubreddits.add(sub);
                 }

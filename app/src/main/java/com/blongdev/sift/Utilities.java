@@ -1,5 +1,6 @@
 package com.blongdev.sift;
 
+import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
@@ -28,11 +29,33 @@ public class Utilities {
         return netInfo != null && netInfo.isConnected();
     }
 
-    public static void insertOrUpdate(Context context, Uri uri, ContentValues cv, String where, String[] selectionArgs) {
+
+    //returns _ID or -1 if updated
+    public static long insertOrUpdate(Context context, Uri uri, ContentValues cv, String where, String[] selectionArgs) {
         int count = context.getContentResolver().update(uri, cv, where, selectionArgs);
         if (count <= 0) {
-            context.getContentResolver().insert(uri, cv);
+            Uri newUri = context.getContentResolver().insert(uri, cv);
+            return ContentUris.parseId(newUri);
         }
+        return -1;
+    }
+
+    public static int getSubredditId(Context context, String serverId) {
+        String[] projection = new String[]{SiftContract.Subreddits._ID};
+        String selection = SiftContract.Subreddits.COLUMN_SERVER_ID + " =?";
+        String[] selectionArgs = new String[]{serverId};
+        Cursor cursor = null;
+        try {
+            cursor = context.getContentResolver().query(SiftContract.Subreddits.CONTENT_URI, projection, selection, selectionArgs, null);
+            if (cursor != null && cursor.moveToFirst()) {
+                return cursor.getInt(0);
+            }
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
+        }
+        return -1;
     }
 
     public static String getMimeType(String url) {

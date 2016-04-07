@@ -53,7 +53,7 @@ public class SubredditFragment extends Fragment implements LoaderManager.LoaderC
 
     ViewPager mPager;
     PagerAdapter mPagerAdapter;
-    private int mSubredditId;
+    private long mSubredditId;
     private String mSubredditName;
     private List<PostInfo> mPosts;
     private PostListAdapter mPostListAdapter;
@@ -73,6 +73,8 @@ public class SubredditFragment extends Fragment implements LoaderManager.LoaderC
     private static final int PAGE_SIZE = 25;
     private boolean savePosts;
 
+    private int mRefreshPoint = 0;
+
     public SubredditFragment() {
     }
 
@@ -91,14 +93,14 @@ public class SubredditFragment extends Fragment implements LoaderManager.LoaderC
 
         Bundle arg = getArguments();
         if (arg != null) {
-            mSubredditId = arg.getInt(getString(R.string.subreddit_id));
+            mSubredditId = arg.getLong(getString(R.string.subreddit_id));
             mSubredditName = arg.getString(getString(R.string.subreddit_name));
 //            mPaginatorType = arg.getInt(getString(R.string.paginator_type), SubredditInfo.SUBREDDIT_PAGINATOR);
             mSearchTerm = arg.getString(getString(R.string.search_term));
         } else {
             Intent intent = getActivity().getIntent();
             mSubredditName = intent.getStringExtra(getString(R.string.subreddit_name));
-            mSubredditId = intent.getIntExtra(getString(R.string.subreddit_id), -1);
+            mSubredditId = intent.getLongExtra(getString(R.string.subreddit_id), -1);
 //            mPaginatorType = intent.getIntExtra(getString(R.string.paginator_type), SubredditInfo.SUBREDDIT_PAGINATOR);
             mSearchTerm = intent.getStringExtra(getString(R.string.search_term));
         }
@@ -150,7 +152,7 @@ public class SubredditFragment extends Fragment implements LoaderManager.LoaderC
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
                 super.onScrolled(recyclerView, dx, dy);
 
-                if (dy > 0 && mLayoutManager.findLastVisibleItemPosition() > (mPosts.size() - 15) && !mLoading) {
+                if (dy > 0 && mLayoutManager.findLastVisibleItemPosition() >= mRefreshPoint && !mLoading) {
                     if (Utilities.connectedToNetwork(mContext)) {
                         if (mReddit.mRedditClient.isAuthenticated()) {
                             new GetPostsTask().execute();
@@ -223,6 +225,7 @@ public class SubredditFragment extends Fragment implements LoaderManager.LoaderC
                     mPosts.add(post);
                     i++;
                 }
+                mRefreshPoint = ((mPaginator.getPageIndex() -1) * PAGE_SIZE);
             }
 
             return newPostArray;
@@ -330,6 +333,8 @@ public class SubredditFragment extends Fragment implements LoaderManager.LoaderC
     public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
         if (cursor != null) {
             mPosts.clear();
+            //limit added so paginator refresh point happens at the right time to keep data fresh
+            //int limit = (mPaginator.getPageIndex()+1) * PAGE_SIZE;
             while (cursor.moveToNext()) {
                 PostInfo post = new PostInfo();
                 post.mId = cursor.getInt(cursor.getColumnIndex(SiftContract.Posts._ID));
@@ -347,6 +352,7 @@ public class SubredditFragment extends Fragment implements LoaderManager.LoaderC
                 post.mBody = cursor.getString(cursor.getColumnIndex(SiftContract.Posts.COLUMN_BODY));
                 post.mServerId =cursor.getString(cursor.getColumnIndex(SiftContract.Posts.COLUMN_SERVER_ID));
                 post.mDomain = cursor.getString(cursor.getColumnIndex(SiftContract.Posts.COLUMN_DOMAIN));
+                post.mPosition = cursor.getInt(cursor.getColumnIndex(SiftContract.Posts.COLUMN_POSITION));
                 mPosts.add(post);
             }
         }

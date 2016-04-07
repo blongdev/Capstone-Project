@@ -5,7 +5,7 @@ package com.blongdev.sift;
  */
 public class SubscriptionInfo {
     public int mAccountId;
-    public int mSubredditId;
+    public long mSubredditId;
     public String mServerId;
 
     public String mSubredditName;
