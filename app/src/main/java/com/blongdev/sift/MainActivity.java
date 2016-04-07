@@ -33,6 +33,7 @@ import android.widget.Toast;
 
 import com.blongdev.sift.database.SiftContract;
 import com.blongdev.sift.database.SiftDbHelper;
+import com.squareup.okhttp.internal.Util;
 
 import net.dean.jraw.RedditClient;
 import net.dean.jraw.http.UserAgent;
@@ -87,7 +88,7 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
+                Snackbar.make(view, "Not yet implemented", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
             }
         });
@@ -179,6 +180,9 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
     public void onRefreshCompleted() {
         super.onRefreshCompleted();
         if (mReddit.mRedditClient.isAuthenticated()) {
+            if (!Utilities.loggedIn(getApplicationContext())) {
+                new GetSubredditsTask().execute();
+            }
             mPager.setAdapter(mPagerAdapter);
         }
     }

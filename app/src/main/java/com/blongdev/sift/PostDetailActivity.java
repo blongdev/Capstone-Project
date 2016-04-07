@@ -44,6 +44,8 @@ public class PostDetailActivity extends BaseActivity {
     ProgressBar mLoadingSpinner;
     TextView mBody;
 
+    FloatingActionButton mFab;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -110,17 +112,19 @@ public class PostDetailActivity extends BaseActivity {
         mPostShowing = true;
         commentsView.setVisibility(View.GONE);
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
+        mFab = (FloatingActionButton) findViewById(R.id.fab);
+        mFab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 android.support.v4.app.FragmentTransaction ft = mFragmentManager.beginTransaction();
                 if (mPostShowing) {
                     mPostShowing = false;
                     commentsView.setVisibility(View.VISIBLE);
+                    mFab.setImageResource(R.drawable.ic_attachment_24dp);
                 } else {
                     mPostShowing = true;
                     commentsView.setVisibility(View.GONE);
+                    mFab.setImageResource(R.drawable.ic_forum_24dp);
                 }
                 ft.commit();
             }
