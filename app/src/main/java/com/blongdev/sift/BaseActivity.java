@@ -30,6 +30,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.blongdev.sift.database.SiftContract;
+import com.google.android.gms.analytics.Tracker;
 
 public class BaseActivity extends AppCompatActivity implements Reddit.OnRefreshCompleted {
 
@@ -48,10 +49,15 @@ public class BaseActivity extends AppCompatActivity implements Reddit.OnRefreshC
     View mRemoveAccount;
 
     Reddit.OnRefreshCompleted mOnRefreshCompleted;
+    Tracker mTracker;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        SiftApplication application = (SiftApplication) getApplication();
+        mTracker = application.getDefaultTracker();
+        mTracker.enableExceptionReporting(true);
 
         mReddit = Reddit.getInstance();
         //mReddit.addGeneralAccount(this);

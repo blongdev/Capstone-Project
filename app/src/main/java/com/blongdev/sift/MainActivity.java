@@ -38,7 +38,6 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
 
     ViewPager mPager;
     SubredditPagerAdapter mPagerAdapter;
-    Tracker mTracker;
 
     private ArrayList<SubscriptionInfo> mSubreddits;
     ProgressBar mLoadingSpinner;
@@ -48,8 +47,6 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        SiftApplication application = (SiftApplication) getApplication();
-        mTracker = application.getDefaultTracker();
         mLoadingSpinner = (ProgressBar) findViewById(R.id.progressSpinnerMain);
 
         mSubreddits = new ArrayList<SubscriptionInfo>();
