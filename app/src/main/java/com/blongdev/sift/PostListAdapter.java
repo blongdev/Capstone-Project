@@ -22,20 +22,23 @@ import com.squareup.okhttp.internal.Util;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
 
+import net.dean.jraw.models.Comment;
+
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * Created by Brian on 2/24/2016.
  */
 public class PostListAdapter extends RecyclerView.Adapter<PostListAdapter.PostViewHolder> {
 
-    private List<PostInfo> mPostList;
+    private List<ContributionInfo> mPostList;
 
-    public PostListAdapter(List<PostInfo> postList) {
+    public PostListAdapter(List<ContributionInfo> postList) {
         this.mPostList = postList;
     }
 
-    public void refreshWithList(List<PostInfo> postList) {
+    public void refreshWithList(List<ContributionInfo> postList) {
         this.mPostList = postList;
         notifyDataSetChanged();
     }
@@ -46,31 +49,53 @@ public class PostListAdapter extends RecyclerView.Adapter<PostListAdapter.PostVi
     }
 
     @Override
+    public int getItemViewType(int position) {
+        if (mPostList.get(position) instanceof CommentInfo) {
+            return ContributionInfo.CONTRIBUTION_COMMENT;
+        } else  {
+            return ContributionInfo.CONTRIBUTION_POST;
+        }
+    }
+
+    @Override
     public void onBindViewHolder(final PostViewHolder postViewHolder, int i) {
-        //TODO just have postViewHolder with a reference to a PostInfo object rather than copying all of its fields
-        PostInfo post = mPostList.get(i);
-        postViewHolder.mUsername.setText(post.mUsername);
-        postViewHolder.mSubreddit.setText(post.mSubreddit);
-        postViewHolder.mTitle.setText(post.mTitle);
-        postViewHolder.mPoints.setText(post.mPoints + " Points");
-        postViewHolder.mComments.setText(post.mComments + " Comments");
-        postViewHolder.mDomain.setText(post.mDomain);
-        postViewHolder.mAge.setText(Utilities.getAgeString(post.mAge));
-        postViewHolder.mImageUrl = post.mImageUrl;
-        postViewHolder.mPostId = post.mId;
-        postViewHolder.mPostServerId = post.mServerId;
-        postViewHolder.mUrl = post.mUrl;
-        postViewHolder.mBody = post.mBody;
+        int type = mPostList.get(i).mContributionType;
 
+        if (type == ContributionInfo.CONTRIBUTION_COMMENT) {
+            CommentInfo comment = (CommentInfo) mPostList.get(i);
+            postViewHolder.mUsername.setText(comment.mUsername);
+            postViewHolder.mPoints.setText(comment.mPoints + " Points");
+//            postViewHolder.mComments.setText(comment.mComments + " Replies");
+            postViewHolder.mAge.setText(Utilities.getAgeString(comment.mAge));
+            postViewHolder.mPostId = comment.mPost;
+            postViewHolder.mServerId = comment.mServerId;
+            postViewHolder.mTitle.setText(comment.mBody);
+            postViewHolder.mContributionType = comment.mContributionType;
+        } else {
+            //TODO just have postViewHolder with a reference to a PostInfo object rather than copying all of its fields
+            PostInfo post = (PostInfo) mPostList.get(i);
+            postViewHolder.mUsername.setText(post.mUsername);
+            postViewHolder.mSubreddit.setText(post.mSubreddit);
+            postViewHolder.mTitle.setText(post.mTitle);
+            postViewHolder.mPoints.setText(post.mPoints + " Points");
+            postViewHolder.mComments.setText(post.mComments + " Comments");
+            postViewHolder.mDomain.setText(post.mDomain);
+            postViewHolder.mAge.setText(Utilities.getAgeString(post.mAge));
+            postViewHolder.mImageUrl = post.mImageUrl;
+            postViewHolder.mPostId = post.mId;
+            postViewHolder.mServerId = post.mServerId;
+            postViewHolder.mUrl = post.mUrl;
+            postViewHolder.mBody = post.mBody;
+            postViewHolder.mContributionType = post.mContributionType;
 
-        //picasso needs to be passed null to prevent listview from displaying incorrectly cached images
-        if(!TextUtils.isEmpty(post.mImageUrl)) {
+            //picasso needs to be passed null to prevent listview from displaying incorrectly cached images
+            if(!TextUtils.isEmpty(post.mImageUrl)) {
 
-            Picasso.with(postViewHolder.mImage.getContext())
-                    .load(post.mImageUrl)
-                    .placeholder(R.drawable.ic_photo_48dp)
-                            //.error(R.drawable.drawer_icon)
-                    .into(postViewHolder.mTarget);
+                Picasso.with(postViewHolder.mImage.getContext())
+                        .load(post.mImageUrl)
+                        .placeholder(R.drawable.ic_photo_48dp)
+                                //.error(R.drawable.drawer_icon)
+                        .into(postViewHolder.mTarget);
 
 //
 //                            postViewHolder.mImage, new com.squareup.picasso.Callback() {
@@ -84,23 +109,33 @@ public class PostListAdapter extends RecyclerView.Adapter<PostListAdapter.PostVi
 //
 //                        }
 //                    });
-        } else {
-            Picasso.with(postViewHolder.mImage.getContext())
-                    .load(post.mImageUrl)
-                    .into(postViewHolder.mImage);
+            } else {
+                Picasso.with(postViewHolder.mImage.getContext())
+                        .load(post.mImageUrl)
+                        .into(postViewHolder.mImage);
+            }
         }
 
     }
 
     @Override
-    public PostViewHolder onCreateViewHolder(ViewGroup viewGroup, int i) {
-        View itemView = LayoutInflater.
-                from(viewGroup.getContext()).
-                inflate(R.layout.post, viewGroup, false);
+    public PostViewHolder onCreateViewHolder(ViewGroup viewGroup, int type) {
+        View itemView;
+        if (type == ContributionInfo.CONTRIBUTION_COMMENT) {
+            itemView = LayoutInflater.
+                    from(viewGroup.getContext()).
+                    inflate(R.layout.comment_card, viewGroup, false);
+        } else {
+            itemView = LayoutInflater.
+                    from(viewGroup.getContext()).
+                    inflate(R.layout.post, viewGroup, false);
+        }
 
-        return new PostViewHolder(itemView);
+
+        return new PostViewHolder(itemView, type);
     }
 
+    //TODO Separate into 2 viewholders, post and comment
     public static class PostViewHolder extends RecyclerView.ViewHolder  {
         protected TextView mUsername;
         protected TextView mSubreddit;
@@ -114,47 +149,61 @@ public class PostListAdapter extends RecyclerView.Adapter<PostListAdapter.PostVi
 
         protected String mImageUrl;
         protected int mPostId;
-        protected String mPostServerId;
+        protected String mServerId;
         protected String mBody;
         protected String mUrl;
+        protected int mContributionType;
 
 
-        public PostViewHolder(View v) {
+        public PostViewHolder(View v, int contributionType) {
             super(v);
-            mUsername =  (TextView) v.findViewById(R.id.post_username);
-            mSubreddit = (TextView)  v.findViewById(R.id.post_subreddit);
-            mTitle = (TextView)  v.findViewById(R.id.post_title);
-            mPoints = (TextView) v.findViewById(R.id.post_points);
-            mComments = (TextView)  v.findViewById(R.id.post_comments);
-            mDomain = (TextView)  v.findViewById(R.id.post_url);
-            mAge = (TextView) v.findViewById(R.id.post_age);
-            mImage = (ImageView) v.findViewById(R.id.post_image);
 
-            mTitle.setOnClickListener(mOnClickListener);
-            mUsername.setOnClickListener(mOnClickListener);
-            mImage.setOnClickListener(mOnClickListener);
+            if (contributionType == ContributionInfo.CONTRIBUTION_COMMENT) {
+                mUsername =  (TextView) v.findViewById(R.id.comment_username);
+                mTitle = (TextView)  v.findViewById(R.id.comment_body);
+                mPoints = (TextView) v.findViewById(R.id.comment_points);
+//                mComments = (TextView)  v.findViewById(R.id.comment_replies);
+                mAge = (TextView) v.findViewById(R.id.comment_age);
 
-            mTarget = new Target() {
-                @Override
-                public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
-                    //Drawable drawable = new BitmapDrawable(postViewHolder.mImage.getContext().getResources(), bitmap);
-                    mImage.setScaleType(ImageView.ScaleType.CENTER_CROP);
-                    mImage.setImageBitmap(bitmap);
-                    //postViewHolder.mImage.invalidate();
-                    //postViewHolder.mImage.setImageDrawable(drawable);
-                }
+                mTitle.setOnClickListener(mOnClickListener);
+                mUsername.setOnClickListener(mOnClickListener);
+            } else {
+                mUsername =  (TextView) v.findViewById(R.id.post_username);
+                mSubreddit = (TextView) v.findViewById(R.id.post_subreddit);
+                mTitle = (TextView) v.findViewById(R.id.post_title);
+                mPoints = (TextView) v.findViewById(R.id.post_points);
+                mComments = (TextView)  v.findViewById(R.id.post_comments);
+                mDomain = (TextView)  v.findViewById(R.id.post_url);
+                mAge = (TextView) v.findViewById(R.id.post_age);
+                mImage = (ImageView) v.findViewById(R.id.post_image);
 
-                @Override
-                public void onBitmapFailed(Drawable errorDrawable) {
+                mTitle.setOnClickListener(mOnClickListener);
+                mUsername.setOnClickListener(mOnClickListener);
+                mImage.setOnClickListener(mOnClickListener);
 
-                }
+                mTarget = new Target() {
+                    @Override
+                    public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
+                        //Drawable drawable = new BitmapDrawable(postViewHolder.mImage.getContext().getResources(), bitmap);
+                        mImage.setScaleType(ImageView.ScaleType.CENTER_CROP);
+                        mImage.setImageBitmap(bitmap);
+                        //postViewHolder.mImage.invalidate();
+                        //postViewHolder.mImage.setImageDrawable(drawable);
+                    }
 
-                @Override
-                public void onPrepareLoad(Drawable placeHolderDrawable) {
-                    mImage.setScaleType(ImageView.ScaleType.CENTER);
-                    mImage.setImageDrawable(placeHolderDrawable);
-                }
-            };
+                    @Override
+                    public void onBitmapFailed(Drawable errorDrawable) {
+
+                    }
+
+                    @Override
+                    public void onPrepareLoad(Drawable placeHolderDrawable) {
+                        mImage.setScaleType(ImageView.ScaleType.CENTER);
+                        mImage.setImageDrawable(placeHolderDrawable);
+                    }
+                };
+            }
+
         }
 
         //TODO create an interface to handle all clicks with abstract methods
@@ -177,29 +226,33 @@ public class PostListAdapter extends RecyclerView.Adapter<PostListAdapter.PostVi
             }
 
             private void goToPostDetail(View v) {
-                String title = mTitle.getText().toString();
-                String username = mUsername.getText().toString();
-                String subreddit = mSubreddit.getText().toString();
-                String points = mPoints.getText().toString();
-                String comments = mComments.getText().toString();
-                String age = mAge.getText().toString();
-                String domain = mDomain.getText().toString();
+                if (mContributionType == ContributionInfo.CONTRIBUTION_COMMENT) {
 
-                Intent intent = new Intent(v.getContext(), PostDetailActivity.class);
-                intent.putExtra(v.getContext().getString(R.string.title), title);
-                intent.putExtra(v.getContext().getString(R.string.username), username);
-                intent.putExtra(v.getContext().getString(R.string.subreddit), subreddit);
-                intent.putExtra(v.getContext().getString(R.string.points), points);
-                intent.putExtra(v.getContext().getString(R.string.comments), comments);
-                intent.putExtra(v.getContext().getString(R.string.url), mUrl);
-                intent.putExtra(v.getContext().getString(R.string.age), age);
-                intent.putExtra(v.getContext().getString(R.string.image_url), mImageUrl);
-                intent.putExtra(v.getContext().getString(R.string.post_id), mPostId);
-                intent.putExtra(v.getContext().getString(R.string.server_id), mPostServerId);
-                intent.putExtra(v.getContext().getString(R.string.body), mBody);
-                intent.putExtra(v.getContext().getString(R.string.domain), domain);
+                } else {
+                    String title = mTitle.getText().toString();
+                    String username = mUsername.getText().toString();
+                    String subreddit = mSubreddit.getText().toString();
+                    String points = mPoints.getText().toString();
+                    String comments = mComments.getText().toString();
+                    String age = mAge.getText().toString();
+                    String domain = mDomain.getText().toString();
 
-                v.getContext().startActivity(intent);
+                    Intent intent = new Intent(v.getContext(), PostDetailActivity.class);
+                    intent.putExtra(v.getContext().getString(R.string.title), title);
+                    intent.putExtra(v.getContext().getString(R.string.username), username);
+                    intent.putExtra(v.getContext().getString(R.string.subreddit), subreddit);
+                    intent.putExtra(v.getContext().getString(R.string.points), points);
+                    intent.putExtra(v.getContext().getString(R.string.comments), comments);
+                    intent.putExtra(v.getContext().getString(R.string.url), mUrl);
+                    intent.putExtra(v.getContext().getString(R.string.age), age);
+                    intent.putExtra(v.getContext().getString(R.string.image_url), mImageUrl);
+                    intent.putExtra(v.getContext().getString(R.string.post_id), mPostId);
+                    intent.putExtra(v.getContext().getString(R.string.server_id), mServerId);
+                    intent.putExtra(v.getContext().getString(R.string.body), mBody);
+                    intent.putExtra(v.getContext().getString(R.string.domain), domain);
+
+                    v.getContext().startActivity(intent);
+                }
             }
 
             private void goToUserInfo(View v) {

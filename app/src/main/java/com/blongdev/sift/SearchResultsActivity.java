@@ -80,6 +80,7 @@ public class SearchResultsActivity extends BaseActivity {
 
             Bundle args = new Bundle();
             args.putString(getString(R.string.search_term), mSearchTerm);
+            args.putInt(getString(R.string.paginator_type), SubredditInfo.SUBMISSION_SEARCH_PAGINATOR);
 
             switch (position) {
                 case 0:

@@ -1,6 +1,7 @@
 package com.blongdev.sift;
 
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.TabLayout;
@@ -29,6 +30,9 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import net.dean.jraw.models.Listing;
+import net.dean.jraw.models.Subreddit;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -48,6 +52,7 @@ public class UserInfoActivity extends BaseActivity {
      * The {@link ViewPager} that will host the section contents.
      */
     private ViewPager mViewPager;
+    private String mUsername;
 
 
     @Override
@@ -57,11 +62,11 @@ public class UserInfoActivity extends BaseActivity {
 
         //Change toolbar title to username
         Intent intent = getIntent();
-        String username = intent.getStringExtra(getString(R.string.username));
-        if (!TextUtils.isEmpty(username)) {
+        mUsername = intent.getStringExtra(getString(R.string.username));
+        if (!TextUtils.isEmpty(mUsername)) {
             ActionBar toolbar = getSupportActionBar();
             if (toolbar != null) {
-                toolbar.setTitle(username);
+                toolbar.setTitle(mUsername);
             }
         }
 
@@ -91,74 +96,6 @@ public class UserInfoActivity extends BaseActivity {
 
 
     /**
-     * A placeholder fragment containing a simple view.
-     */
-    public static class PlaceholderFragment extends Fragment {
-        /**
-         * The fragment argument representing the section number for this
-         * fragment.
-         */
-        private static final String ARG_SECTION_NUMBER = "section_number";
-
-        public PlaceholderFragment() {
-        }
-
-        /**
-         * Returns a new instance of this fragment for the given section
-         * number.
-         */
-        public static PlaceholderFragment newInstance(int sectionNumber) {
-            PlaceholderFragment fragment = new PlaceholderFragment();
-            Bundle args = new Bundle();
-            args.putInt(ARG_SECTION_NUMBER, sectionNumber);
-            fragment.setArguments(args);
-            return fragment;
-        }
-
-        @Override
-        public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                                 Bundle savedInstanceState) {
-            View rootView = inflater.inflate(R.layout.fragment_user_info, container, false);
-
-            RecyclerView recyclerView = (RecyclerView) rootView.findViewById(R.id.user_cardList);
-            recyclerView.setHasFixedSize(true);
-            recyclerView.setNestedScrollingEnabled(true);
-            LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getActivity());
-            linearLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
-            recyclerView.setLayoutManager(linearLayoutManager);
-
-            PostListAdapter ca = new PostListAdapter(createPostList(30));
-            recyclerView.setAdapter(ca);
-
-
-            return rootView;
-        }
-
-        private List<PostInfo> createPostList(int size) {
-            List<PostInfo> result = new ArrayList<PostInfo>();
-            for (int i=1; i <= size; i++) {
-                PostInfo post = new PostInfo();
-                post.mUsername = "Username" + i;
-                post.mSubreddit = "Subreddit" + i;
-
-                if(i%3 == 0) {
-                    post.mTitle = "This is an extended title to test larger cards in this layout. " +
-                            "How far can I stretch this card before it breaks?";
-                } else {
-                    post.mTitle = "Title" + i;
-                }
-
-                post.mPoints = 12;
-                post.mComments = 5;
-                post.mUrl = "Url" + i;
-                post.mAge = 4;
-                result.add(post);
-            }
-            return result;
-        }
-    }
-
-    /**
      * A {@link FragmentPagerAdapter} that returns a fragment corresponding to
      * one of the sections/tabs/pages.
      */
@@ -170,9 +107,33 @@ public class UserInfoActivity extends BaseActivity {
 
         @Override
         public Fragment getItem(int position) {
-            // getItem is called to instantiate the fragment for the given page.
-            // Return a PlaceholderFragment (defined as a static inner class below).
-            return PlaceholderFragment.newInstance(position + 1);
+            Bundle args = new Bundle();
+            args.putString(getString(R.string.username), mUsername);
+            args.putInt(getString(R.string.paginator_type), SubredditInfo.USER_CONTRIBUTION_PAGINATOR);
+
+            switch (position) {
+                case 0:
+                    args.putString(getString(R.string.category), SubredditInfo.CATEGORY_OVERVIEW);
+                    SubredditFragment overviewFrag = new SubredditFragment();
+                    overviewFrag.setArguments(args);
+                    return overviewFrag;
+//                    args.putString(getString(R.string.category), SubredditInfo.CATEGORY_SUBMITTED);
+//                    SubredditFragment subFrag = new SubredditFragment();
+//                    subFrag.setArguments(args);
+//                    return subFrag;
+                case 1:
+                    args.putString(getString(R.string.category), SubredditInfo.CATEGORY_SUBMITTED);
+                    SubredditFragment subFrag2 = new SubredditFragment();
+                    subFrag2.setArguments(args);
+                    return subFrag2;
+                case 2:
+                    args.putString(getString(R.string.category), SubredditInfo.CATEGORY_COMMENTS);
+                    SubredditFragment commentsFrag = new SubredditFragment();
+                    commentsFrag.setArguments(args);
+                    return commentsFrag;
+
+            }
+            return null;
         }
 
         @Override
@@ -194,4 +155,39 @@ public class UserInfoActivity extends BaseActivity {
             return null;
         }
     }
+
+
+
+
+//
+//
+//    private final class GetSubredditsTask extends AsyncTask<String, Void, ArrayList<SubredditInfo>> {
+//        @Override
+//        protected ArrayList<SubredditInfo> doInBackground(String... params) {
+//            if (mPaginator != null && mPaginator.hasNext()) {
+//                Listing<Subreddit> page = mPaginator.next();
+//                for (Subreddit subreddit : page) {
+//                    SubredditInfo sub = new SubredditInfo();
+//                    sub.mName = subreddit.getDisplayName();
+//                    sub.mServerId = subreddit.getId();
+//                    mSubreddits.add(sub);
+//                }
+//            }
+//
+//            return mSubreddits;
+//        }
+//
+//        @Override
+//        protected void onPreExecute() {
+//            if(mSubreddits.size() == 0) {
+//                mLoadingSpinner.setVisibility(View.VISIBLE);
+//            }
+//        }
+//
+//        @Override
+//        protected void onPostExecute(ArrayList<SubredditInfo> subs) {
+//            mLoadingSpinner.setVisibility(View.GONE);
+//            mSubredditAdapter.refreshWithList(subs);
+//        }
+//    }
 }

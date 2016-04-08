@@ -34,6 +34,7 @@ import net.dean.jraw.paginators.ImportantUserPaginator;
 import net.dean.jraw.paginators.InboxPaginator;
 import net.dean.jraw.paginators.SubredditPaginator;
 import net.dean.jraw.paginators.TimePeriod;
+import net.dean.jraw.paginators.UserContributionPaginator;
 import net.dean.jraw.paginators.UserSubredditsPaginator;
 
 import java.util.ArrayList;
@@ -186,6 +187,8 @@ public class SiftSyncAdapter extends AbstractThreadedSyncAdapter {
             Listing<UserRecord> friend = friends.next();
             for (UserRecord u : friend) {
 
+                //GET USER INFO
+                //UserContributionPaginator userPaginator = new UserContributionPaginator();
                 cv.put(SiftContract.Users.COLUMN_SERVER_ID, u.getId());
                 Uri userUri = mContentResolver.insert(SiftContract.Users.CONTENT_URI, cv);
                 long userId = ContentUris.parseId(userUri);
@@ -215,4 +218,6 @@ public class SiftSyncAdapter extends AbstractThreadedSyncAdapter {
             }
         }
     }
+
+
 }

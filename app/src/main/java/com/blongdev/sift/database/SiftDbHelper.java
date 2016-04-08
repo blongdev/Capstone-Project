@@ -238,14 +238,14 @@ public class SiftDbHelper extends SQLiteOpenHelper {
             comment.mUsername = "Username " + i;
             comment.mUserId = (int) (Math.random() * NUM_DUMMY_USERS) + 1;
             comment.mBody = "Comment " + i;
-            comment.mDate = (int) (Math.random() * 36);
+            comment.mAge = (int) (Math.random() * 36);
             comment.mPoints = (int) (Math.random() * 300);
             comment.mPost = (int) (Math.random() * NUM_DUMMY_POSTS) + 1;
             comment.mParentId = (int) (Math.random() * NUM_DUMMY_COMMENTS);
 
             ContentValues cv = new ContentValues();
             cv.put(SiftContract.Comments.COLUMN_OWNER_USERNAME, comment.mUsername);
-            cv.put(SiftContract.Comments.COLUMN_DATE_CREATED, comment.mDate);
+            cv.put(SiftContract.Comments.COLUMN_DATE_CREATED, comment.mAge);
             cv.put(SiftContract.Comments.COLUMN_BODY, comment.mBody);
             cv.put(SiftContract.Comments.COLUMN_OWNER_ID, comment.mUserId);
             cv.put(SiftContract.Comments.COLUMN_POINTS, comment.mPoints);

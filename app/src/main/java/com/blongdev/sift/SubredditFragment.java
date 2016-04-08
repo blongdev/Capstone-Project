@@ -31,6 +31,8 @@ import com.squareup.picasso.Picasso;
 
 import net.dean.jraw.http.oauth.OAuthData;
 import net.dean.jraw.http.oauth.OAuthException;
+import net.dean.jraw.models.Comment;
+import net.dean.jraw.models.Contribution;
 import net.dean.jraw.models.Listing;
 import net.dean.jraw.models.Submission;
 import net.dean.jraw.paginators.Paginator;
@@ -38,6 +40,7 @@ import net.dean.jraw.paginators.Sorting;
 import net.dean.jraw.paginators.SubmissionSearchPaginator;
 import net.dean.jraw.paginators.SubredditPaginator;
 import net.dean.jraw.paginators.TimePeriod;
+import net.dean.jraw.paginators.UserContributionPaginator;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Type;
@@ -55,7 +58,7 @@ public class SubredditFragment extends Fragment implements LoaderManager.LoaderC
     PagerAdapter mPagerAdapter;
     private long mSubredditId;
     private String mSubredditName;
-    private List<PostInfo> mPosts;
+    private List<ContributionInfo> mPosts;
     private PostListAdapter mPostListAdapter;
     private RecyclerView mRecyclerView;
     private ContentResolver mContentResolver;
@@ -69,6 +72,8 @@ public class SubredditFragment extends Fragment implements LoaderManager.LoaderC
 
     private int mPaginatorType;
     private String mSearchTerm;
+    private String mUsername;
+    private String mCategory;
 
     private static final int PAGE_SIZE = 25;
     private boolean savePosts;
@@ -89,24 +94,31 @@ public class SubredditFragment extends Fragment implements LoaderManager.LoaderC
         mLoadingSpinner = (ProgressBar) rootView.findViewById(R.id.progressSpinner);
 
         mReddit = Reddit.getInstance();
-        mPosts = new ArrayList<PostInfo>();
+        mPosts = new ArrayList<ContributionInfo>();
 
         Bundle arg = getArguments();
         if (arg != null) {
             mSubredditId = arg.getLong(getString(R.string.subreddit_id));
             mSubredditName = arg.getString(getString(R.string.subreddit_name));
-//            mPaginatorType = arg.getInt(getString(R.string.paginator_type), SubredditInfo.SUBREDDIT_PAGINATOR);
+            mPaginatorType = arg.getInt(getString(R.string.paginator_type), SubredditInfo.SUBREDDIT_PAGINATOR);
             mSearchTerm = arg.getString(getString(R.string.search_term));
+            mUsername = arg.getString(getString(R.string.username));
+            mCategory = arg.getString(getString(R.string.category));
         } else {
             Intent intent = getActivity().getIntent();
             mSubredditName = intent.getStringExtra(getString(R.string.subreddit_name));
             mSubredditId = intent.getLongExtra(getString(R.string.subreddit_id), -1);
-//            mPaginatorType = intent.getIntExtra(getString(R.string.paginator_type), SubredditInfo.SUBREDDIT_PAGINATOR);
+            mPaginatorType = intent.getIntExtra(getString(R.string.paginator_type), SubredditInfo.SUBREDDIT_PAGINATOR);
             mSearchTerm = intent.getStringExtra(getString(R.string.search_term));
+            mUsername = intent.getStringExtra(getString(R.string.username));
+            mCategory = intent.getStringExtra(getString(R.string.category));
         }
 
-        if (!TextUtils.isEmpty(mSearchTerm)) {
+        if (mPaginatorType == SubredditInfo.SUBMISSION_SEARCH_PAGINATOR && !TextUtils.isEmpty(mSearchTerm)) {
             mPaginator = new SubmissionSearchPaginator(mReddit.mRedditClient, mSearchTerm);
+            savePosts = false;
+        } else if (mPaginatorType == SubredditInfo.USER_CONTRIBUTION_PAGINATOR && !TextUtils.isEmpty(mUsername) && !TextUtils.isEmpty(mCategory)) {
+            mPaginator = new UserContributionPaginator(mReddit.mRedditClient, mCategory, mUsername);
             savePosts = false;
         } else {
             if (TextUtils.equals(mSubredditName, getString(R.string.frontPage))) {
@@ -162,8 +174,6 @@ public class SubredditFragment extends Fragment implements LoaderManager.LoaderC
             }
         });
 
-
-
         return rootView;
     }
 
@@ -200,29 +210,44 @@ public class SubredditFragment extends Fragment implements LoaderManager.LoaderC
         }
     }
 
-    private final class GetPostsTask extends AsyncTask<String, Void, ArrayList<PostInfo>> {
+    private final class GetPostsTask extends AsyncTask<String, Void, ArrayList<ContributionInfo>> {
         @Override
-        protected ArrayList<PostInfo> doInBackground(String... params) {
-            ArrayList<PostInfo> newPostArray = new ArrayList<PostInfo>();
+        protected ArrayList<ContributionInfo> doInBackground(String... params) {
+            ArrayList<ContributionInfo> newPostArray = new ArrayList<ContributionInfo>();
             if (mPaginator != null && mPaginator.hasNext()) {
-                Listing<Submission> page = mPaginator.next();
+                Listing<Contribution> page = mPaginator.next();
                 int i = 0;
-                for (Submission submission : page) {
-                    PostInfo post = new PostInfo();
-                    post.mServerId = submission.getId();
-                    post.mTitle = submission.getTitle();
-                    post.mUsername = submission.getAuthor();
-                    post.mSubreddit = submission.getSubredditName();
-                    post.mPoints = submission.getScore();
-                    post.mUrl = submission.getUrl();
-                    post.mImageUrl = getImageUrl(submission);
-                    post.mComments = submission.getCommentCount();
-                    post.mBody = submission.getSelftext();
-                    post.mDomain = submission.getDomain();
-                    post.mAge = submission.getCreatedUtc().getTime();
-                    post.mPosition = ((mPaginator.getPageIndex() -1) * PAGE_SIZE) + i;
-                    newPostArray.add(post);
-                    mPosts.add(post);
+                for (Contribution contribution : page) {
+                    if (TextUtils.equals(contribution.getClass().getName(), Comment.class.getName())) {
+                        Comment comment = (Comment) contribution;
+                        CommentInfo commentInfo = new CommentInfo();
+                        commentInfo.mUsername = comment.getAuthor();
+                        commentInfo.mPoints = comment.getScore();
+//                        commentInfo.mComments = comment.getReplies();
+                        commentInfo.mBody = comment.getBody();
+                        commentInfo.mAge = comment.getCreatedUtc().getTime();
+                        commentInfo.mContributionType = ContributionInfo.CONTRIBUTION_COMMENT;
+                        newPostArray.add(commentInfo);
+                        mPosts.add(commentInfo);
+                    } else {
+                        Submission submission = (Submission) contribution;
+                        PostInfo post = new PostInfo();
+                        post.mServerId = submission.getId();
+                        post.mTitle = submission.getTitle();
+                        post.mUsername = submission.getAuthor();
+                        post.mSubreddit = submission.getSubredditName();
+                        post.mPoints = submission.getScore();
+                        post.mUrl = submission.getUrl();
+                        post.mImageUrl = getImageUrl(submission);
+                        post.mComments = submission.getCommentCount();
+                        post.mBody = submission.getSelftext();
+                        post.mDomain = submission.getDomain();
+                        post.mAge = submission.getCreatedUtc().getTime();
+                        post.mPosition = ((mPaginator.getPageIndex() - 1) * PAGE_SIZE) + i;
+                        post.mContributionType = ContributionInfo.CONTRIBUTION_POST;
+                        newPostArray.add(post);
+                        mPosts.add(post);
+                    }
                     i++;
                 }
                 mRefreshPoint = ((mPaginator.getPageIndex() -1) * PAGE_SIZE);
@@ -241,7 +266,7 @@ public class SubredditFragment extends Fragment implements LoaderManager.LoaderC
         }
 
         @Override
-        protected void onPostExecute(ArrayList<PostInfo> posts) {
+        protected void onPostExecute(ArrayList<ContributionInfo> posts) {
             mLoading = false;
             mLoadingSpinner.setVisibility(View.GONE);
             //mPostListAdapter.refreshWithList(mPosts);
@@ -280,17 +305,19 @@ public class SubredditFragment extends Fragment implements LoaderManager.LoaderC
 
     private final class AddPostsToDbTask extends AsyncTask<String, Void, Void> {
 
-        private ArrayList<PostInfo> mNewPosts;
+        private ArrayList<ContributionInfo> mNewPosts;
 
-        public AddPostsToDbTask(ArrayList<PostInfo> posts) {
+        public AddPostsToDbTask(ArrayList<ContributionInfo> posts) {
             mNewPosts = posts;
         }
 
         @Override
         protected Void doInBackground(String... params) {
             //add to db
-            for (PostInfo post : mNewPosts) {
-                addPostToDb(post);
+            for (ContributionInfo post : mNewPosts) {
+                if (post.mContributionType != ContributionInfo.CONTRIBUTION_COMMENT) {
+                    addPostToDb((PostInfo) post);
+                }
             }
             return null;
         }

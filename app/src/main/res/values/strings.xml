@@ -26,6 +26,8 @@
     <string name="title_activity_post_detail">PostDetailActivity</string>
     <string name="section_format">Hello World from section: %1$d</string>
 
+    <string name="category">category</string>
+
     <string name="body">body</string>
     <string name="domain">domain</string>
     <string name="drawer_open">drawer open</string>

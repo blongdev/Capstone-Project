@@ -171,13 +171,13 @@ public class PostDetailFragment extends Fragment {
 
 
         if (TextUtils.isEmpty(body) && !TextUtils.isEmpty(url)) {
-            String mimeType = Utilities.getMimeType(url);
-            if (!TextUtils.isEmpty(mimeType) && mimeType.contains("image")) {
-                mWebView.setVisibility(View.GONE);
-//                mPostDetailLayout.setVisibility(View.GONE);
-                mImage.setVisibility(View.VISIBLE);
-                Picasso.with(getContext()).load(url).into(mImage);
-            } else {
+//            String mimeType = Utilities.getMimeType(url);
+//            if (!TextUtils.isEmpty(mimeType) && mimeType.contains("image")) {
+//                mWebView.setVisibility(View.GONE);
+////                mPostDetailLayout.setVisibility(View.GONE);
+//                mImage.setVisibility(View.VISIBLE);
+//                Picasso.with(getContext()).load(url).into(mImage);
+//            } else {
                 mWebView.loadUrl(url);
 
                 mWebView.setWebChromeClient(new WebChromeClient() {
@@ -211,7 +211,7 @@ public class PostDetailFragment extends Fragment {
                 mWebView.getSettings().setJavaScriptEnabled(true);
                 mWebView.getSettings().setJavaScriptCanOpenWindowsAutomatically(true);
 
-            }
+//            }
         }
 
         return rootView;
