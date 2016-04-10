@@ -23,6 +23,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 
 import com.blongdev.sift.database.SiftContract;
 import com.blongdev.sift.database.SiftDbHelper;
@@ -78,6 +79,8 @@ public class SubredditFragment extends Fragment implements LoaderManager.LoaderC
     private static final int PAGE_SIZE = 25;
     private boolean savePosts;
 
+    private TextView mEmptyText;
+
     private int mRefreshPoint = 0;
 
     public SubredditFragment() {
@@ -92,6 +95,7 @@ public class SubredditFragment extends Fragment implements LoaderManager.LoaderC
         mContentResolver = mContext.getContentResolver();
 
         mLoadingSpinner = (ProgressBar) rootView.findViewById(R.id.progressSpinner);
+        mEmptyText = (TextView) rootView.findViewById(R.id.empty);
 
         mReddit = Reddit.getInstance();
         mPosts = new ArrayList<ContributionInfo>();
@@ -382,6 +386,11 @@ public class SubredditFragment extends Fragment implements LoaderManager.LoaderC
                 post.mPosition = cursor.getInt(cursor.getColumnIndex(SiftContract.Posts.COLUMN_POSITION));
                 mPosts.add(post);
             }
+        }
+
+
+        if (mPosts.size() == 0) {
+            mEmptyText.setVisibility(View.VISIBLE);
         }
 
         mPostListAdapter.refreshWithList(mPosts);

@@ -187,14 +187,15 @@ public class SiftSyncAdapter extends AbstractThreadedSyncAdapter {
             Listing<UserRecord> friend = friends.next();
             for (UserRecord u : friend) {
 
+                //TODO make sure a new sync wont cause insert conflicts
                 //GET USER INFO
-                //UserContributionPaginator userPaginator = new UserContributionPaginator();
                 cv.put(SiftContract.Users.COLUMN_SERVER_ID, u.getId());
+                cv.put(SiftContract.Users.COLUMN_USERNAME, u.getFullName());
                 Uri userUri = mContentResolver.insert(SiftContract.Users.CONTENT_URI, cv);
                 long userId = ContentUris.parseId(userUri);
                 cv.clear();
 
-                //add subscription
+                //add friend
                 cv.put(SiftContract.Friends.COLUMN_ACCOUNT_ID, accountId);
                 cv.put(SiftContract.Friends.COLUMN_FRIEND_USER_ID, userId);
                 mContentResolver.insert(SiftContract.Friends.CONTENT_URI, cv);
