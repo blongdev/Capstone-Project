@@ -91,7 +91,7 @@ public class PostDetailFragment extends Fragment {
 //        mComments = (TextView) rootView.findViewById(R.id.post_comments);
 //        mUrl = (TextView) rootView.findViewById(R.id.post_url);
 //        mAge = (TextView) rootView.findViewById(R.id.post_age);
-        mImage = (ImageView) rootView.findViewById(R.id.post_detail_image);
+//        mImage = (ImageView) rootView.findViewById(R.id.post_detail_image);
         mWebView = (WebView) rootView.findViewById(R.id.post_web_view);
         mLoadingSpinner = (ProgressBar) rootView.findViewById(R.id.progressSpinner);
         mBody = (TextView) rootView.findViewById(R.id.post_body);

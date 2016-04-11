@@ -197,6 +197,11 @@ public final class SiftContract {
         public static final String COLUMN_DATE = "date";
         public static final String COLUMN_ACCOUNT_ID = "accountId";
         public static final String COLUMN_SERVER_ID = "serverId";
+        public static final String COLUMN_MAILBOX_TYPE = "mailboxType";
+
+        public static int MAILBOX_TYPE_INBOX = 0;
+        public static int MAILBOX_TYPE_SENT = 1;
+        public static int MAILBOX_TYPE_MENTIONS = 2;
 
 
         public static final String CREATE_TABLE = "CREATE TABLE " +
@@ -210,6 +215,7 @@ public final class SiftContract {
                 COLUMN_READ + INTEGER_TYPE + COMMA_SEP +
                 COLUMN_ACCOUNT_ID + INTEGER_TYPE + COMMA_SEP +
                 COLUMN_SERVER_ID + TEXT_TYPE + COMMA_SEP +
+                COLUMN_MAILBOX_TYPE + INTEGER_TYPE + COMMA_SEP +
                 " FOREIGN KEY(" + COLUMN_ACCOUNT_ID + ") REFERENCES " + Accounts.TABLE_NAME + "(" + Accounts._ID + ")" + COMMA_SEP +
 //                " FOREIGN KEY(" + COLUMN_USER_TO + ") REFERENCES " + Users.TABLE_NAME + "(" + Users._ID + ")" + COMMA_SEP +
 //                " FOREIGN KEY(" + COLUMN_USER_FROM + ") REFERENCES " + Users.TABLE_NAME + "(" + Users._ID + ")" +  COMMA_SEP +

@@ -92,7 +92,6 @@ public class MessageActivityFragment extends Fragment {
 
             return view;
         }
-
     }
 
     public void populateMessages() {

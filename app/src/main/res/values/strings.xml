@@ -106,6 +106,15 @@
 
     <string name="empty">Empty</string>
 
+    <string name="friends">friends</string>
+    <string name="subscriber">subscriber</string>
+
+    <string name="inbox">inbox</string>
+    <string name="unread">unread</string>
+    <string name="sent">sent</string>
+    <string name="mentions">mentions</string>
+
+
     <!-- Example settings for Notifications -->
     <string name="pref_header_notifications">Notifications</string>
 

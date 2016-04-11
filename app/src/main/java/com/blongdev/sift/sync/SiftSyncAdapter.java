@@ -15,6 +15,7 @@ import android.os.RemoteException;
 import android.util.Log;
 
 import com.blongdev.sift.AccountInfo;
+import com.blongdev.sift.R;
 import com.blongdev.sift.Reddit;
 import com.blongdev.sift.SubscriptionInfo;
 import com.blongdev.sift.UserInfo;
@@ -123,7 +124,7 @@ public class SiftSyncAdapter extends AbstractThreadedSyncAdapter {
     private void getData(RedditClient redditClient, int accountId, ContentProviderClient provider) {
         ContentValues cv = new ContentValues();
         //Subscribed
-        UserSubredditsPaginator subscribed = new UserSubredditsPaginator(redditClient, "subscriber");
+        UserSubredditsPaginator subscribed = new UserSubredditsPaginator(redditClient, getContext().getString(R.string.subscriber));
         subscribed.setLimit(Integer.MAX_VALUE);
         if (subscribed.hasNext()) {
             Listing<Subreddit> subreddits = subscribed.next();
@@ -181,7 +182,7 @@ public class SiftSyncAdapter extends AbstractThreadedSyncAdapter {
 //        }
 
 
-        ImportantUserPaginator friends = new ImportantUserPaginator(redditClient, "friends");
+        ImportantUserPaginator friends = new ImportantUserPaginator(redditClient, getContext().getString(R.string.friends));
         friends.setLimit(Integer.MAX_VALUE);
         if (friends.hasNext()) {
             Listing<UserRecord> friend = friends.next();
@@ -203,7 +204,8 @@ public class SiftSyncAdapter extends AbstractThreadedSyncAdapter {
             }
         }
 
-        InboxPaginator inbox = new InboxPaginator(redditClient, "inbox");
+        //messages
+        InboxPaginator inbox = new InboxPaginator(redditClient, getContext().getString(R.string.inbox));
         inbox.setLimit(Integer.MAX_VALUE);
         inbox.setTimePeriod(TimePeriod.MONTH);
         if (inbox.hasNext()) {
@@ -214,10 +216,47 @@ public class SiftSyncAdapter extends AbstractThreadedSyncAdapter {
                 cv.put(SiftContract.Messages.COLUMN_BODY, m.getBody());
                 cv.put(SiftContract.Messages.COLUMN_SERVER_ID, m.getId());
                 cv.put(SiftContract.Messages.COLUMN_ACCOUNT_ID, accountId);
+                cv.put(SiftContract.Messages.COLUMN_READ, m.isRead());
+                cv.put(SiftContract.Messages.COLUMN_MAILBOX_TYPE, SiftContract.Messages.MAILBOX_TYPE_INBOX);
                 mContentResolver.insert(SiftContract.Messages.CONTENT_URI, cv);
                 cv.clear();
             }
         }
+
+        InboxPaginator sent = new InboxPaginator(redditClient, getContext().getString(R.string.sent));
+        sent.setLimit(Integer.MAX_VALUE);
+        sent.setTimePeriod(TimePeriod.MONTH);
+        if (sent.hasNext()) {
+            Listing<Message> message = sent.next();
+            for (Message m : message) {
+                cv.put(SiftContract.Messages.COLUMN_USER_FROM, m.getAuthor());
+                cv.put(SiftContract.Messages.COLUMN_TITLE, m.getSubject());
+                cv.put(SiftContract.Messages.COLUMN_BODY, m.getBody());
+                cv.put(SiftContract.Messages.COLUMN_SERVER_ID, m.getId());
+                cv.put(SiftContract.Messages.COLUMN_ACCOUNT_ID, accountId);
+                cv.put(SiftContract.Messages.COLUMN_MAILBOX_TYPE, SiftContract.Messages.MAILBOX_TYPE_SENT);
+                mContentResolver.insert(SiftContract.Messages.CONTENT_URI, cv);
+                cv.clear();
+            }
+        }
+
+        InboxPaginator mentions = new InboxPaginator(redditClient, getContext().getString(R.string.mentions));
+        mentions.setLimit(Integer.MAX_VALUE);
+        mentions.setTimePeriod(TimePeriod.MONTH);
+        if (mentions.hasNext()) {
+            Listing<Message> message = mentions.next();
+            for (Message m : message) {
+                cv.put(SiftContract.Messages.COLUMN_USER_FROM, m.getAuthor());
+                cv.put(SiftContract.Messages.COLUMN_TITLE, m.getSubject());
+                cv.put(SiftContract.Messages.COLUMN_BODY, m.getBody());
+                cv.put(SiftContract.Messages.COLUMN_SERVER_ID, m.getId());
+                cv.put(SiftContract.Messages.COLUMN_ACCOUNT_ID, accountId);
+                cv.put(SiftContract.Messages.COLUMN_MAILBOX_TYPE, SiftContract.Messages.MAILBOX_TYPE_MENTIONS);
+                mContentResolver.insert(SiftContract.Messages.CONTENT_URI, cv);
+                cv.clear();
+            }
+        }
+
     }
 
 

@@ -77,7 +77,7 @@ public class PostDetailActivity extends BaseActivity {
         mComments = (TextView) findViewById(R.id.post_comments);
         mUrl = (TextView) findViewById(R.id.post_url);
         mAge = (TextView) findViewById(R.id.post_age);
-        mImage = (ImageView) findViewById(R.id.post_detail_image);
+//        mImage = (ImageView) findViewById(R.id.post_detail_image);
         mWebView = (WebView) findViewById(R.id.post_web_view);
         mLoadingSpinner = (ProgressBar) findViewById(R.id.progressSpinner);
         mBody = (TextView) findViewById(R.id.post_body);

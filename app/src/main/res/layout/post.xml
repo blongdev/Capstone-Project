@@ -102,14 +102,16 @@
                 <android.support.v7.widget.AppCompatImageButton
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:padding="8dp"
                     android:background="@android:color/transparent"
-                    android:src="@drawable/ic_expand_less_24dp" />
+                    android:src="@drawable/ic_up_arrow_24dp" />
 
                 <android.support.v7.widget.AppCompatImageButton
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:padding="8dp"
                     android:background="@android:color/transparent"
-                    android:src="@drawable/ic_expand_more_24dp" />
+                    android:src="@drawable/ic_down_arrow_24dp" />
 
             </LinearLayout>
 

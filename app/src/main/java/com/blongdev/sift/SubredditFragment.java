@@ -218,7 +218,7 @@ public class SubredditFragment extends Fragment implements LoaderManager.LoaderC
         @Override
         protected ArrayList<ContributionInfo> doInBackground(String... params) {
             ArrayList<ContributionInfo> newPostArray = new ArrayList<ContributionInfo>();
-            if (mPaginator != null && mPaginator.hasNext()) {
+            if (mReddit.mRedditClient.isAuthenticated() && mPaginator != null && mPaginator.hasNext()) {
                 Listing<Contribution> page = mPaginator.next();
                 int i = 0;
                 for (Contribution contribution : page) {
@@ -274,6 +274,10 @@ public class SubredditFragment extends Fragment implements LoaderManager.LoaderC
             mLoading = false;
             mLoadingSpinner.setVisibility(View.GONE);
             //mPostListAdapter.refreshWithList(mPosts);
+
+            if (mPosts.size() == 0) {
+                mEmptyText.setVisibility(View.VISIBLE);
+            }
 
             if(savePosts) {
                 new AddPostsToDbTask(posts).execute();
@@ -386,11 +390,6 @@ public class SubredditFragment extends Fragment implements LoaderManager.LoaderC
                 post.mPosition = cursor.getInt(cursor.getColumnIndex(SiftContract.Posts.COLUMN_POSITION));
                 mPosts.add(post);
             }
-        }
-
-
-        if (mPosts.size() == 0) {
-            mEmptyText.setVisibility(View.VISIBLE);
         }
 
         mPostListAdapter.refreshWithList(mPosts);
