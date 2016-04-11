@@ -7,6 +7,9 @@ import android.support.v4.app.Fragment;
 import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.CursorLoader;
+import android.support.v4.content.Loader;
 import android.support.v4.view.ViewPager;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
@@ -21,18 +24,23 @@ import android.widget.TextView;
 import com.blongdev.sift.database.SiftContract;
 import com.squareup.picasso.Picasso;
 
+import net.dean.jraw.models.Message;
+
 import org.w3c.dom.Text;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * A placeholder fragment containing a simple view.
  */
-public class MessageActivityFragment extends Fragment {
+public class MessageActivityFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
 
     ArrayList<MessageInfo> mMessages;
     ListView mMessagesListView;
     MessagesAdapter mMessagesAdapter;
+    int mMailbox;
+    boolean mUnread;
 
     public MessageActivityFragment() {
     }
@@ -42,12 +50,25 @@ public class MessageActivityFragment extends Fragment {
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_message_list, container, false);
 
+        Bundle args = getArguments();
+        if (args != null) {
+            mMailbox = args.getInt(getString(R.string.mailbox));
+            mUnread = args.getBoolean(getString(R.string.unread));
+        } else {
+            Intent intent = getActivity().getIntent();
+            mMailbox  = intent.getIntExtra(getString(R.string.mailbox),0);
+            mUnread = intent.getBooleanExtra(getString(R.string.unread), false);
+        }
+
         mMessages = new ArrayList<MessageInfo>();
-        populateMessages();
+        //populateMessages();
 
         mMessagesListView = (ListView) rootView.findViewById(R.id.messages_list);
         mMessagesAdapter = new MessagesAdapter(getActivity(), mMessages);
         mMessagesListView.setAdapter(mMessagesAdapter);
+
+        getLoaderManager().initLoader(0, null, this);
+
 
         mMessagesListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -65,8 +86,17 @@ public class MessageActivityFragment extends Fragment {
     }
 
     public class MessagesAdapter extends ArrayAdapter<MessageInfo> {
+
+        private ArrayList<MessageInfo> mMessages;
+
         public MessagesAdapter(Context context, ArrayList<MessageInfo> messages) {
             super(context, 0, messages);
+            mMessages = messages;
+        }
+
+        public void swapData(ArrayList<MessageInfo> messageList) {
+            this.mMessages = messageList;
+            notifyDataSetChanged();
         }
 
         @Override
@@ -128,14 +158,52 @@ public class MessageActivityFragment extends Fragment {
         protected TextView mDate;
     }
 
-    private static final String ARG_SECTION_NUMBER = "section_number";
+//    private static final String ARG_SECTION_NUMBER = "section_number";
+//
+//    public static MessageActivityFragment newInstance(int sectionNumber) {
+//        MessageActivityFragment fragment = new MessageActivityFragment();
+//        Bundle args = new Bundle();
+//        args.putInt(ARG_SECTION_NUMBER, sectionNumber);
+//        fragment.setArguments(args);
+//        return fragment;
+//    }
 
-    public static MessageActivityFragment newInstance(int sectionNumber) {
-        MessageActivityFragment fragment = new MessageActivityFragment();
-        Bundle args = new Bundle();
-        args.putInt(ARG_SECTION_NUMBER, sectionNumber);
-        fragment.setArguments(args);
-        return fragment;
+    @Override
+    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+        String selection;
+        String[] selectionArgs;
+        if(mUnread) {
+            selection = SiftContract.Messages.COLUMN_MAILBOX_TYPE + " = ? AND " + SiftContract.Messages.COLUMN_READ + " = ?";
+            selectionArgs = new String[]{String.valueOf(mMailbox), "0"};
+        } else {
+            selection = SiftContract.Messages.COLUMN_MAILBOX_TYPE + " = ?";
+            selectionArgs = new String[]{String.valueOf(mMailbox)};
+        }
+
+        return new CursorLoader(getContext(), SiftContract.Messages.CONTENT_URI, null, selection, selectionArgs, null);
+    }
+
+    @Override
+    public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
+        if (cursor != null) {
+            mMessages.clear();
+            while (cursor.moveToNext()) {
+                MessageInfo msg = new MessageInfo();
+                msg.mFrom = cursor.getString(cursor.getColumnIndex(SiftContract.Messages.COLUMN_USER_FROM));
+                msg.mTo = cursor.getString(cursor.getColumnIndex(SiftContract.Messages.COLUMN_USER_TO));
+                msg.mTitle = cursor.getString(cursor.getColumnIndex(SiftContract.Messages.COLUMN_TITLE));
+                msg.mBody = cursor.getString(cursor.getColumnIndex(SiftContract.Messages.COLUMN_BODY));
+                msg.mDate = cursor.getInt(cursor.getColumnIndex(SiftContract.Messages.COLUMN_DATE));
+                mMessages.add(msg);
+            }
+        }
+        mMessagesAdapter.swapData(mMessages);
+    }
+
+    @Override
+    public void onLoaderReset(Loader<Cursor> loader) {
+
+        mMessagesAdapter.swapData(null);
     }
 
 }

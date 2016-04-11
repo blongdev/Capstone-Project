@@ -17,6 +17,7 @@ import android.util.Log;
 import com.blongdev.sift.AccountInfo;
 import com.blongdev.sift.R;
 import com.blongdev.sift.Reddit;
+import com.blongdev.sift.SiftApplication;
 import com.blongdev.sift.SubscriptionInfo;
 import com.blongdev.sift.UserInfo;
 import com.blongdev.sift.database.SiftContract;
@@ -124,7 +125,7 @@ public class SiftSyncAdapter extends AbstractThreadedSyncAdapter {
     private void getData(RedditClient redditClient, int accountId, ContentProviderClient provider) {
         ContentValues cv = new ContentValues();
         //Subscribed
-        UserSubredditsPaginator subscribed = new UserSubredditsPaginator(redditClient, getContext().getString(R.string.subscriber));
+        UserSubredditsPaginator subscribed = new UserSubredditsPaginator(redditClient, SiftApplication.getContext().getString(R.string.subscriber));
         subscribed.setLimit(Integer.MAX_VALUE);
         if (subscribed.hasNext()) {
             Listing<Subreddit> subreddits = subscribed.next();
@@ -182,7 +183,7 @@ public class SiftSyncAdapter extends AbstractThreadedSyncAdapter {
 //        }
 
 
-        ImportantUserPaginator friends = new ImportantUserPaginator(redditClient, getContext().getString(R.string.friends));
+        ImportantUserPaginator friends = new ImportantUserPaginator(redditClient, SiftApplication.getContext().getString(R.string.friends));
         friends.setLimit(Integer.MAX_VALUE);
         if (friends.hasNext()) {
             Listing<UserRecord> friend = friends.next();
@@ -205,7 +206,7 @@ public class SiftSyncAdapter extends AbstractThreadedSyncAdapter {
         }
 
         //messages
-        InboxPaginator inbox = new InboxPaginator(redditClient, getContext().getString(R.string.inbox));
+        InboxPaginator inbox = new InboxPaginator(redditClient, SiftApplication.getContext().getString(R.string.inbox));
         inbox.setLimit(Integer.MAX_VALUE);
         inbox.setTimePeriod(TimePeriod.MONTH);
         if (inbox.hasNext()) {
@@ -223,7 +224,8 @@ public class SiftSyncAdapter extends AbstractThreadedSyncAdapter {
             }
         }
 
-        InboxPaginator sent = new InboxPaginator(redditClient, getContext().getString(R.string.sent));
+        //TODO SENT PAGES SHOWING YOUR USERNAME FOR ALL
+        InboxPaginator sent = new InboxPaginator(redditClient, SiftApplication.getContext().getString(R.string.sent));
         sent.setLimit(Integer.MAX_VALUE);
         sent.setTimePeriod(TimePeriod.MONTH);
         if (sent.hasNext()) {
@@ -240,7 +242,7 @@ public class SiftSyncAdapter extends AbstractThreadedSyncAdapter {
             }
         }
 
-        InboxPaginator mentions = new InboxPaginator(redditClient, getContext().getString(R.string.mentions));
+        InboxPaginator mentions = new InboxPaginator(redditClient, SiftApplication.getContext().getString(R.string.mentions));
         mentions.setLimit(Integer.MAX_VALUE);
         mentions.setTimePeriod(TimePeriod.MONTH);
         if (mentions.hasNext()) {

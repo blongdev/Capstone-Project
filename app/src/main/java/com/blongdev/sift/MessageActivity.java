@@ -18,6 +18,8 @@ import android.text.TextUtils;
 import android.view.MenuItem;
 import android.view.View;
 
+import com.blongdev.sift.database.SiftContract;
+
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 
@@ -61,26 +63,47 @@ public class MessageActivity extends BaseActivity {
 
         @Override
         public Fragment getItem(int position) {
-            // getItem is called to instantiate the fragment for the given page.
-            // Return a PlaceholderFragment (defined as a static inner class below).
-            return MessageActivityFragment.newInstance(position + 1);
+            Bundle args = new Bundle();
+
+            MessageActivityFragment messageFrag = new MessageActivityFragment();
+
+            switch (position) {
+                case 0:
+                    args.putInt(getString(R.string.mailbox), SiftContract.Messages.MAILBOX_TYPE_INBOX);
+                    break;
+                case 1:
+                    args.putInt(getString(R.string.mailbox), SiftContract.Messages.MAILBOX_TYPE_INBOX);
+                    args.putBoolean(getString(R.string.unread), true);
+                    break;
+                case 2:
+                    args.putInt(getString(R.string.mailbox), SiftContract.Messages.MAILBOX_TYPE_SENT);
+                    break;
+                case 3:
+                    args.putInt(getString(R.string.mailbox), SiftContract.Messages.MAILBOX_TYPE_MENTIONS);
+                    break;
+            }
+
+            messageFrag.setArguments(args);
+            return messageFrag;
+
         }
 
         @Override
         public int getCount() {
-            // Show 3 total pages.
-            return 3;
+            return 4;
         }
 
         @Override
         public CharSequence getPageTitle(int position) {
             switch (position) {
                 case 0:
-                    return "Inbox";
+                    return getString(R.string.inbox);
                 case 1:
-                    return "Unread";
+                    return getString(R.string.unread);
                 case 2:
-                    return "Sent";
+                    return getString(R.string.sent);
+                case 3:
+                    return getString(R.string.mentions);
             }
             return null;
         }

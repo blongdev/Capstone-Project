@@ -117,10 +117,6 @@ public class UserInfoActivity extends BaseActivity {
                     SubredditFragment overviewFrag = new SubredditFragment();
                     overviewFrag.setArguments(args);
                     return overviewFrag;
-//                    args.putString(getString(R.string.category), SubredditInfo.CATEGORY_SUBMITTED);
-//                    SubredditFragment subFrag = new SubredditFragment();
-//                    subFrag.setArguments(args);
-//                    return subFrag;
                 case 1:
                     args.putString(getString(R.string.category), SubredditInfo.CATEGORY_SUBMITTED);
                     SubredditFragment subFrag2 = new SubredditFragment();

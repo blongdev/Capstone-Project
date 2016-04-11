@@ -114,6 +114,7 @@
     <string name="sent">sent</string>
     <string name="mentions">mentions</string>
 
+    <string name="mailbox">mailbox</string>
 
     <!-- Example settings for Notifications -->
     <string name="pref_header_notifications">Notifications</string>

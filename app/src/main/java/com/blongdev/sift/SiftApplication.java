@@ -2,6 +2,7 @@ package com.blongdev.sift;
 
 
 import android.app.Application;
+import android.content.Context;
 import android.content.Intent;
 
 import com.google.android.gms.analytics.GoogleAnalytics;
@@ -15,6 +16,14 @@ import com.google.android.gms.analytics.Tracker;
 public class SiftApplication extends Application {
     private Tracker mTracker;
 
+    private static SiftApplication instance;
+    public SiftApplication() {
+        instance = this;
+    }
+
+    public static Context getContext() {
+        return instance;
+    }
 
     //PREVENT CRASHING AND INSTEAD RESTART APPLICATION ON UNHANDLED EXCEPTION
 //    public void onCreate ()
