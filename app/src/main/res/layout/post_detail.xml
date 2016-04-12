@@ -8,24 +8,16 @@
     android:id="@+id/post_detail_layout"
     app:layout_scrollFlags="scroll|exitUntilCollapsed|snap">
 
-
-<!--<ImageView-->
-    <!--android:id="@+id/post_detail_image"-->
-    <!--android:layout_width="match_parent"-->
-    <!--android:layout_height="wrap_content"-->
-    <!--android:scaleType="centerCrop"/>-->
-
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:padding="@dimen/content_spacer"
         android:layout_marginBottom="0dp"
-        android:orientation="horizontal">
+        android:orientation="vertical">
 
         <LinearLayout
             android:id="@+id/post_content"
-            android:layout_width="0dp"
-            android:layout_weight="1"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
@@ -85,28 +77,31 @@
         </LinearLayout>
 
         <!--<LinearLayout-->
-            <!--android:orientation="vertical"-->
+            <!--android:orientation="horizontal"-->
             <!--android:layout_width="wrap_content"-->
-            <!--android:layout_height="match_parent"-->
-            <!--android:gravity="center_vertical"-->
-            <!--android:layout_alignParentEnd="true"-->
-            <!--android:layout_alignParentRight="true">-->
+            <!--android:layout_height="?attr/actionBarSize"-->
+            <!--app:layout_scrollFlags="scroll"-->
+            <!--app:layout_collapseMode="pin"-->
+            <!--android:gravity="center_vertical">-->
 
             <!--<android.support.v7.widget.AppCompatImageButton-->
                 <!--android:layout_width="wrap_content"-->
                 <!--android:layout_height="wrap_content"-->
+                <!--android:padding="8dp"-->
                 <!--android:background="@android:color/transparent"-->
-                <!--android:src="@drawable/ic_expand_less_24dp" />-->
+                <!--android:src="@drawable/ic_up_arrow_24dp"-->
+                <!--/>-->
 
             <!--<android.support.v7.widget.AppCompatImageButton-->
                 <!--android:layout_width="wrap_content"-->
                 <!--android:layout_height="wrap_content"-->
+                <!--android:padding="8dp"-->
                 <!--android:background="@android:color/transparent"-->
-                <!--android:src="@drawable/ic_expand_more_24dp" />-->
+                <!--android:src="@drawable/ic_down_arrow_24dp"-->
+                <!--/>-->
 
         <!--</LinearLayout>-->
 
     </LinearLayout>
-
 
 </LinearLayout>

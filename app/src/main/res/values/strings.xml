@@ -27,7 +27,9 @@
     <string name="section_format">Hello World from section: %1$d</string>
 
     <string name="category">category</string>
+    <string name="must_log_in">You must be logged in to perform this action</string>
 
+    <string name="vote">vote</string>
     <string name="body">body</string>
     <string name="domain">domain</string>
     <string name="drawer_open">drawer open</string>

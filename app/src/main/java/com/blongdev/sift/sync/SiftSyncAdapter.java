@@ -125,7 +125,7 @@ public class SiftSyncAdapter extends AbstractThreadedSyncAdapter {
     private void getData(RedditClient redditClient, int accountId, ContentProviderClient provider) {
         ContentValues cv = new ContentValues();
         //Subscribed
-        UserSubredditsPaginator subscribed = new UserSubredditsPaginator(redditClient, SiftApplication.getContext().getString(R.string.subscriber));
+        UserSubredditsPaginator subscribed = new UserSubredditsPaginator(redditClient, "subscriber");
         subscribed.setLimit(Integer.MAX_VALUE);
         if (subscribed.hasNext()) {
             Listing<Subreddit> subreddits = subscribed.next();

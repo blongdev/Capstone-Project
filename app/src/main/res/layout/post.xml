@@ -44,7 +44,13 @@
                     android:layout_height="wrap_content">
 
                     <TextView
+                        android:id="@+id/post_points"
+                        style="@style/PostPoints"
+                        android:text="Points"/>
+
+                    <TextView
                         android:id="@+id/post_username"
+                        android:layout_toRightOf="@id/post_points"
                         style="@style/PostUsername"
                         android:text="Username"/>
 
@@ -67,14 +73,8 @@
                     android:layout_height="wrap_content">
 
                     <TextView
-                        android:id="@+id/post_points"
-                        style="@style/PostPoints"
-                        android:text="Points"/>
-
-                    <TextView
                         android:id="@+id/post_comments"
                         style="@style/PostComments"
-                        android:layout_toRightOf="@id/post_points"
                         android:text="Comments"/>
 
                     <TextView
@@ -99,14 +99,16 @@
                 android:orientation="vertical"
                 android:gravity="center_vertical">
 
-                <android.support.v7.widget.AppCompatImageButton
+                <ImageView
+                    android:id="@+id/upvote"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:padding="8dp"
                     android:background="@android:color/transparent"
                     android:src="@drawable/ic_up_arrow_24dp" />
 
-                <android.support.v7.widget.AppCompatImageButton
+                <ImageView
+                    android:id="@+id/downvote"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:padding="8dp"

@@ -1,28 +1,40 @@
 package com.blongdev.sift;
 
 import android.app.Activity;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.blongdev.sift.database.SiftContract;
 import com.squareup.okhttp.internal.Util;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
 
+import net.dean.jraw.ApiException;
+import net.dean.jraw.managers.AccountManager;
 import net.dean.jraw.models.Comment;
+import net.dean.jraw.models.Contribution;
+import net.dean.jraw.models.Submission;
+import net.dean.jraw.models.VoteDirection;
 
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -64,20 +76,21 @@ public class PostListAdapter extends RecyclerView.Adapter<PostListAdapter.PostVi
         if (type == ContributionInfo.CONTRIBUTION_COMMENT) {
             CommentInfo comment = (CommentInfo) mPostList.get(i);
             postViewHolder.mUsername.setText(comment.mUsername);
-            postViewHolder.mPoints.setText(comment.mPoints + " Points");
+            postViewHolder.mPoints.setText(String.valueOf(comment.mPoints));
 //            postViewHolder.mComments.setText(comment.mComments + " Replies");
             postViewHolder.mAge.setText(Utilities.getAgeString(comment.mAge));
             postViewHolder.mPostId = comment.mPost;
             postViewHolder.mServerId = comment.mServerId;
             postViewHolder.mTitle.setText(comment.mBody);
             postViewHolder.mContributionType = comment.mContributionType;
+            postViewHolder.mVote = comment.mVote;
         } else {
             //TODO just have postViewHolder with a reference to a PostInfo object rather than copying all of its fields
             PostInfo post = (PostInfo) mPostList.get(i);
             postViewHolder.mUsername.setText(post.mUsername);
             postViewHolder.mSubreddit.setText(post.mSubreddit);
             postViewHolder.mTitle.setText(post.mTitle);
-            postViewHolder.mPoints.setText(post.mPoints + " Points");
+            postViewHolder.mPoints.setText(String.valueOf(post.mPoints));
             postViewHolder.mComments.setText(post.mComments + " Comments");
             postViewHolder.mDomain.setText(post.mDomain);
             postViewHolder.mAge.setText(Utilities.getAgeString(post.mAge));
@@ -87,6 +100,21 @@ public class PostListAdapter extends RecyclerView.Adapter<PostListAdapter.PostVi
             postViewHolder.mUrl = post.mUrl;
             postViewHolder.mBody = post.mBody;
             postViewHolder.mContributionType = post.mContributionType;
+            postViewHolder.mVote = post.mVote;
+
+            if (post.mVote == SiftContract.Posts.UPVOTE) {
+                postViewHolder.mUpvote.setImageDrawable(SiftApplication.getContext().getResources().getDrawable(R.drawable.ic_up_arrow_filled_24dp));
+                postViewHolder.mDownvote.setImageDrawable(SiftApplication.getContext().getResources().getDrawable(R.drawable.ic_down_arrow_24dp));
+                postViewHolder.mPoints.setTextColor(SiftApplication.getContext().getResources().getColor(R.color.upvote));
+            } else if (post.mVote == SiftContract.Posts.DOWNVOTE) {
+                postViewHolder.mDownvote.setImageDrawable(SiftApplication.getContext().getResources().getDrawable(R.drawable.ic_down_arrow_filled_24dp));
+                postViewHolder.mUpvote.setImageDrawable(SiftApplication.getContext().getResources().getDrawable(R.drawable.ic_up_arrow_24dp));
+                postViewHolder.mPoints.setTextColor(SiftApplication.getContext().getResources().getColor(R.color.downvote));
+            } else {
+                postViewHolder.mUpvote.setImageDrawable(SiftApplication.getContext().getResources().getDrawable(R.drawable.ic_up_arrow_24dp));
+                postViewHolder.mDownvote.setImageDrawable(SiftApplication.getContext().getResources().getDrawable(R.drawable.ic_down_arrow_24dp));
+                postViewHolder.mPoints.setTextColor(Color.BLACK);
+            }
 
             //picasso needs to be passed null to prevent listview from displaying incorrectly cached images
             if(!TextUtils.isEmpty(post.mImageUrl)) {
@@ -146,6 +174,8 @@ public class PostListAdapter extends RecyclerView.Adapter<PostListAdapter.PostVi
         protected TextView mAge;
         protected ImageView mImage;
         protected Target mTarget;
+        protected ImageView mUpvote;
+        protected ImageView mDownvote;
 
         protected String mImageUrl;
         protected int mPostId;
@@ -153,7 +183,7 @@ public class PostListAdapter extends RecyclerView.Adapter<PostListAdapter.PostVi
         protected String mBody;
         protected String mUrl;
         protected int mContributionType;
-
+        protected int mVote;
 
         public PostViewHolder(View v, int contributionType) {
             super(v);
@@ -164,7 +194,11 @@ public class PostListAdapter extends RecyclerView.Adapter<PostListAdapter.PostVi
                 mPoints = (TextView) v.findViewById(R.id.comment_points);
 //                mComments = (TextView)  v.findViewById(R.id.comment_replies);
                 mAge = (TextView) v.findViewById(R.id.comment_age);
+                mUpvote = (ImageView) v.findViewById(R.id.upvote);
+                mDownvote = (ImageView) v.findViewById(R.id.downvote);
 
+                mUpvote.setOnClickListener(mOnClickListener);
+                mDownvote.setOnClickListener(mOnClickListener);
                 mTitle.setOnClickListener(mOnClickListener);
                 mUsername.setOnClickListener(mOnClickListener);
             } else {
@@ -176,6 +210,11 @@ public class PostListAdapter extends RecyclerView.Adapter<PostListAdapter.PostVi
                 mDomain = (TextView)  v.findViewById(R.id.post_url);
                 mAge = (TextView) v.findViewById(R.id.post_age);
                 mImage = (ImageView) v.findViewById(R.id.post_image);
+                mUpvote = (ImageView) v.findViewById(R.id.upvote);
+                mDownvote = (ImageView) v.findViewById(R.id.downvote);
+
+                mUpvote.setOnClickListener(mOnClickListener);
+                mDownvote.setOnClickListener(mOnClickListener);
 
                 mTitle.setOnClickListener(mOnClickListener);
                 mUsername.setOnClickListener(mOnClickListener);
@@ -214,6 +253,10 @@ public class PostListAdapter extends RecyclerView.Adapter<PostListAdapter.PostVi
                     goToPostDetail(v);
                 } else if (v == mUsername) {
                     goToUserInfo(v);
+                } else if (v == mUpvote) {
+                    upvote(v.getContext());
+                } else if(v == mDownvote) {
+                    downvote(v.getContext());
                 }
 //                  else if (v == mImage) {
 //                    FragmentManager fm = ((AppCompatActivity) v.getContext()).getSupportFragmentManager();
@@ -223,6 +266,65 @@ public class PostListAdapter extends RecyclerView.Adapter<PostListAdapter.PostVi
 //                    imageFragment.setArguments(args);
 //                    imageFragment.show(fm, "ImageDialogFragment");
 //                }
+            }
+
+            private void upvote(Context context) {
+                if (!Utilities.loggedIn(context)) {
+                    Toast.makeText(context, context.getString(R.string.must_log_in), Toast.LENGTH_LONG).show();
+                    return;
+                }
+
+                if (mVote == SiftContract.Posts.UPVOTE) {
+                    mVote = SiftContract.Posts.NO_VOTE;
+                    mUpvote.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_up_arrow_24dp));
+                    mDownvote.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_down_arrow_24dp));
+                    mPoints.setTextColor(Color.BLACK);
+                    mPoints.setText(String.valueOf(Integer.valueOf(mPoints.getText().toString()) - 1));
+                } else if(mVote == SiftContract.Posts.DOWNVOTE) {
+                    mVote = SiftContract.Posts.UPVOTE;
+                    mUpvote.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_up_arrow_filled_24dp));
+                    mDownvote.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_down_arrow_24dp));
+                    mPoints.setTextColor(context.getResources().getColor(R.color.upvote));
+                    mPoints.setText(String.valueOf(Integer.valueOf(mPoints.getText().toString()) + 2));
+                } else {
+                    mVote = SiftContract.Posts.UPVOTE;
+                    mUpvote.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_up_arrow_filled_24dp));
+                    mDownvote.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_down_arrow_24dp));
+                    mPoints.setTextColor(context.getResources().getColor(R.color.upvote));
+                    mPoints.setText(String.valueOf(Integer.valueOf(mPoints.getText().toString()) + 1));
+                }
+
+                new VoteTask(context, mServerId, mVote, ContributionInfo.CONTRIBUTION_POST).execute();
+            }
+
+            private void downvote(Context context) {
+                if (!Utilities.loggedIn(context)) {
+                    Toast.makeText(context, context.getString(R.string.must_log_in), Toast.LENGTH_LONG).show();
+                    return;
+                }
+
+                if (mVote == SiftContract.Posts.DOWNVOTE) {
+                    mVote = SiftContract.Posts.NO_VOTE;
+                    mDownvote.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_down_arrow_24dp));
+                    mUpvote.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_up_arrow_24dp));
+                    mPoints.setTextColor(Color.BLACK);
+                    mPoints.setText(String.valueOf(Integer.valueOf(mPoints.getText().toString()) + 1));
+                } else if (mVote == SiftContract.Posts.UPVOTE) {
+                    mVote = SiftContract.Posts.DOWNVOTE;
+                    mDownvote.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_down_arrow_filled_24dp));
+                    mUpvote.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_up_arrow_24dp));
+                    mPoints.setTextColor(context.getResources().getColor(R.color.downvote));
+                    mPoints.setText(String.valueOf(Integer.valueOf(mPoints.getText().toString()) - 2));
+                } else {
+                    mVote = SiftContract.Posts.DOWNVOTE;
+                    mDownvote.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_down_arrow_filled_24dp));
+                    mUpvote.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_up_arrow_24dp));
+                    mPoints.setTextColor(context.getResources().getColor(R.color.downvote));
+                    mPoints.setText(String.valueOf(Integer.valueOf(mPoints.getText().toString()) - 1));
+                }
+
+                new VoteTask(context, mServerId, mVote, ContributionInfo.CONTRIBUTION_POST).execute();
+
             }
 
             private void goToPostDetail(View v) {
@@ -250,6 +352,7 @@ public class PostListAdapter extends RecyclerView.Adapter<PostListAdapter.PostVi
                     intent.putExtra(v.getContext().getString(R.string.server_id), mServerId);
                     intent.putExtra(v.getContext().getString(R.string.body), mBody);
                     intent.putExtra(v.getContext().getString(R.string.domain), domain);
+                    intent.putExtra(v.getContext().getString(R.string.vote), mVote);
 
                     v.getContext().startActivity(intent);
                 }
@@ -264,5 +367,65 @@ public class PostListAdapter extends RecyclerView.Adapter<PostListAdapter.PostVi
                 v.getContext().startActivity(intent);
             }
         });
+    }
+
+    private static final class VoteTask extends AsyncTask<String, Void, Void> {
+
+        Context mContext;
+        String mServerId;
+        int mVote;
+        int mContributionType;
+
+        public VoteTask(Context context, String serverId, int vote, int contributionType) {
+            mContext = context;
+            mServerId = serverId;
+            mVote = vote;
+            mContributionType = contributionType;
+        }
+
+        @Override
+        protected void onPreExecute() {
+
+        }
+
+        @Override
+        protected Void doInBackground(String... params) {
+            try {
+                if (mContributionType == ContributionInfo.CONTRIBUTION_POST) {
+                    Reddit reddit = Reddit.getInstance();
+                    Submission sub = reddit.mRedditClient.getSubmission(mServerId);
+                    AccountManager accountManager = new AccountManager(reddit.mRedditClient);
+
+                    switch (mVote) {
+                        case SiftContract.Posts.NO_VOTE:
+                            accountManager.vote(sub, VoteDirection.NO_VOTE);
+                            break;
+                        case SiftContract.Posts.UPVOTE:
+                            accountManager.vote(sub, VoteDirection.UPVOTE);
+                            break;
+                        case SiftContract.Posts.DOWNVOTE:
+                            accountManager.vote(sub, VoteDirection.DOWNVOTE);
+                            break;
+                    }
+
+                    ContentValues cv = new ContentValues();
+                    cv.put(SiftContract.Posts.COLUMN_VOTE, mVote);
+                    String selection = SiftContract.Posts.COLUMN_SERVER_ID + " = ?";
+                    String[] selectionArgs = new String[]{String.valueOf(mServerId)};
+                    int count = mContext.getContentResolver().update(SiftContract.Posts.CONTENT_URI, cv, selection, selectionArgs);
+                    Log.v("PostSyncAdapter", count + " vote updated");
+                }
+
+            } catch (ApiException e) {
+                e.printStackTrace();
+            }
+
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void nothing) {
+
+        }
     }
 }

@@ -48,10 +48,15 @@ public final class SiftContract {
         public static final String COLUMN_BODY = "body";
         public static final String COLUMN_DOMAIN = "domain";
         public static final String COLUMN_POSITION = "position";
+        public static final String COLUMN_VOTE = "vote";
 
 
         public static final int NOT_FAVORITED = 0;
         public static final int FAVORITED = 1;
+
+        public static final int NO_VOTE = 0;
+        public static final int UPVOTE = 1;
+        public static final int DOWNVOTE = -1;
 
 
         public static final String CREATE_TABLE = "CREATE TABLE " +
@@ -72,11 +77,12 @@ public final class SiftContract {
                 COLUMN_BODY + TEXT_TYPE + COMMA_SEP +
                 COLUMN_DOMAIN + TEXT_TYPE + COMMA_SEP +
                 COLUMN_POSITION + INTEGER_TYPE + COMMA_SEP +
+                COLUMN_VOTE + INTEGER_TYPE + COMMA_SEP +
 //                remove foreign keys that could be null
 //                " FOREIGN KEY(" + COLUMN_SUBREDDIT_ID + ") REFERENCES " + Subreddits.TABLE_NAME + "(" + Subreddits._ID + ")" + COMMA_SEP +
 //                " FOREIGN KEY(" + COLUMN_OWNER_ID + ") REFERENCES " + Users.TABLE_NAME + "(" + Users._ID + ")" + COMMA_SEP +
                 UNIQUE + "(" + COLUMN_SERVER_ID + COMMA_SEP + COLUMN_SUBREDDIT_ID + ")" + ON_CONFLICT_REPLACE + COMMA_SEP +
-                UNIQUE + "(" + COLUMN_POSITION + COMMA_SEP + COLUMN_SUBREDDIT_ID + ")" + ON_CONFLICT_REPLACE + " )";
+                UNIQUE + "(" + COLUMN_POSITION + COMMA_SEP + COLUMN_SUBREDDIT_ID + COLUMN_SUBREDDIT_NAME + ")" + ON_CONFLICT_REPLACE + " )";
 
 
         public static final String DELETE_TABLE = "DROP TABLE IF EXISTS " + TABLE_NAME;
@@ -116,6 +122,7 @@ public final class SiftContract {
         public static final String COLUMN_POINTS = "points";
         public static final String COLUMN_PARENT_ID = "parentId";
         public static final String COLUMN_POST_ID = "postId";
+        public static final String COLUMN_VOTE = "vote";
 
 
         public static final String CREATE_TABLE = "CREATE TABLE " +
@@ -127,6 +134,7 @@ public final class SiftContract {
                 COLUMN_DATE_CREATED + INTEGER_TYPE + COMMA_SEP +
                 COLUMN_POINTS + INTEGER_TYPE + COMMA_SEP +
                 COLUMN_PARENT_ID + INTEGER_TYPE + COMMA_SEP +
+                COLUMN_VOTE + INTEGER_TYPE + COMMA_SEP +
                 COLUMN_POST_ID + INTEGER_TYPE + " )";
 //                " FOREIGN KEY(" + COLUMN_OWNER_ID + ") REFERENCES " + Users.TABLE_NAME + "(" + Users._ID + ")" + COMMA_SEP +
 //                " FOREIGN KEY(" + COLUMN_POST_ID + ") REFERENCES " + Posts.TABLE_NAME + "(" + Posts._ID + ")" +" )";

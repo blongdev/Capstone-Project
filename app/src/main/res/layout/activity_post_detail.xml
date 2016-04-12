@@ -21,17 +21,58 @@
             android:fitsSystemWindows="true"
             android:theme="@style/AppTheme.AppBarOverlay">
 
-                <!--<android.support.v7.widget.Toolbar-->
-                    <!--android:id="@+id/toolbar"-->
-                    <!--android:layout_width="match_parent"-->
-                    <!--android:layout_height="?attr/actionBarSize"-->
-                    <!--android:background="?attr/colorPrimary"-->
-                    <!--app:layout_scrollFlags="scroll|exitUntilCollapsed"-->
-                    <!--app:popupTheme="@style/AppTheme.PopupOverlay">-->
 
-                <!--</android.support.v7.widget.Toolbar>-->
 
-                <include layout="@layout/post_detail"/>
+            <include layout="@layout/post_detail"/>
+
+
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="wrap_content"
+                android:layout_height="?attr/actionBarSize"
+                app:layout_scrollFlags="scroll"
+                app:layout_collapseMode="pin"
+                android:gravity="center_vertical">
+
+                <ImageView
+                    android:id="@+id/upvote"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:padding="8dp"
+                    android:background="@android:color/transparent"
+                    android:src="@drawable/ic_up_arrow_white_24dp"
+                    />
+
+                <ImageView
+                    android:id="@+id/downvote"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:padding="8dp"
+                    android:background="@android:color/transparent"
+                    android:src="@drawable/ic_down_arrow_white_24dp"
+                    />
+
+            </LinearLayout>
+
+            <!--<ImageView-->
+                <!--android:layout_width="wrap_content"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:padding="8dp"-->
+                <!--android:background="@android:color/transparent"-->
+                <!--android:src="@drawable/ic_down_arrow_24dp"-->
+                <!--app:layout_scrollFlags="scroll"-->
+                <!--app:layout_collapseMode="pin" />-->
+
+            <!--<android.support.v7.widget.Toolbar-->
+                <!--android:id="@+id/toolbar"-->
+                <!--android:layout_width="match_parent"-->
+                <!--android:layout_height="?attr/actionBarSize"-->
+                <!--android:background="?attr/colorPrimary"-->
+                <!--app:layout_scrollFlags="scroll"-->
+                <!--app:layout_collapseMode="pin"-->
+                <!--app:popupTheme="@style/AppTheme.PopupOverlay">-->
+
+            <!--</android.support.v7.widget.Toolbar>-->
 
         </android.support.design.widget.AppBarLayout>
 

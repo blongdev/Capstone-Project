@@ -13,8 +13,8 @@ public class ContributionInfo {
     public long mAge;
     public String mServerId;
     public int mContributionType;
+    public int mVote;
 
     public static final int CONTRIBUTION_POST = 0;
     public static final int CONTRIBUTION_COMMENT = 1;
-
 }

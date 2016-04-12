@@ -231,6 +231,7 @@ public class SubredditFragment extends Fragment implements LoaderManager.LoaderC
                         commentInfo.mBody = comment.getBody();
                         commentInfo.mAge = comment.getCreatedUtc().getTime();
                         commentInfo.mContributionType = ContributionInfo.CONTRIBUTION_COMMENT;
+                        commentInfo.mVote = comment.getVote().getValue();
                         newPostArray.add(commentInfo);
                         mPosts.add(commentInfo);
                     } else {
@@ -249,6 +250,7 @@ public class SubredditFragment extends Fragment implements LoaderManager.LoaderC
                         post.mAge = submission.getCreatedUtc().getTime();
                         post.mPosition = ((mPaginator.getPageIndex() - 1) * PAGE_SIZE) + i;
                         post.mContributionType = ContributionInfo.CONTRIBUTION_POST;
+                        post.mVote = submission.getVote().getValue();
                         newPostArray.add(post);
                         mPosts.add(post);
                     }
@@ -352,6 +354,7 @@ public class SubredditFragment extends Fragment implements LoaderManager.LoaderC
             cv.put(SiftContract.Posts.COLUMN_DOMAIN, post.mDomain);
             cv.put(SiftContract.Posts.COLUMN_POSITION, post.mPosition);
             cv.put(SiftContract.Posts.COLUMN_SERVER_ID, post.mServerId);
+            cv.put(SiftContract.Posts.COLUMN_VOTE, post.mVote);
             mContentResolver.insert(SiftContract.Posts.CONTENT_URI, cv);
         }
     }
@@ -388,6 +391,7 @@ public class SubredditFragment extends Fragment implements LoaderManager.LoaderC
                 post.mServerId =cursor.getString(cursor.getColumnIndex(SiftContract.Posts.COLUMN_SERVER_ID));
                 post.mDomain = cursor.getString(cursor.getColumnIndex(SiftContract.Posts.COLUMN_DOMAIN));
                 post.mPosition = cursor.getInt(cursor.getColumnIndex(SiftContract.Posts.COLUMN_POSITION));
+                post.mVote = cursor.getInt(cursor.getColumnIndex(SiftContract.Posts.COLUMN_VOTE));
                 mPosts.add(post);
             }
         }

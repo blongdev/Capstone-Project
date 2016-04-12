@@ -22,6 +22,9 @@
 
     <color name="comment_bg_color">#eeeeee</color>
     <color name="comment_line_color">#9e9e9e</color>
+
+    <color name="upvote">#ff8c61</color>
+    <color name="downvote">#9494ff</color>
     <!--<color name="comment_bg_color">@android:color/white</color>-->
     <!--<color name="comment_line_color">@android:color/white</color>-->
 
