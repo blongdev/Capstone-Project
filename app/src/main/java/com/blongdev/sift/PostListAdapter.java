@@ -294,7 +294,7 @@ public class PostListAdapter extends RecyclerView.Adapter<PostListAdapter.PostVi
                     mPoints.setText(String.valueOf(Integer.valueOf(mPoints.getText().toString()) + 1));
                 }
 
-                Reddit.vote(context, mServerId, mVote, mContributionType);
+                Reddit.votePost(context, mServerId, mVote);
             }
 
             private void downvote(Context context) {
@@ -323,7 +323,7 @@ public class PostListAdapter extends RecyclerView.Adapter<PostListAdapter.PostVi
                     mPoints.setText(String.valueOf(Integer.valueOf(mPoints.getText().toString()) - 1));
                 }
 
-               Reddit.vote(context, mServerId, mVote, mContributionType);
+               Reddit.votePost(context, mServerId, mVote);
 
             }
 

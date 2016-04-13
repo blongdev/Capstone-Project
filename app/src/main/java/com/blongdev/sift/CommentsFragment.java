@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -14,9 +15,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.blongdev.sift.database.SiftContract;
 import com.unnamed.b.atv.model.TreeNode;
@@ -90,7 +93,6 @@ public class CommentsFragment extends Fragment {
     }
 
 
-
 //    private void createTree() {
 //        mRoot = TreeNode.root();
 //
@@ -122,6 +124,12 @@ public class CommentsFragment extends Fragment {
 
     public class CommentViewHolder extends TreeNode.BaseNodeViewHolder<CommentInfo> {
 
+        ImageView mUpvote;
+        ImageView mDownvote;
+        TextView mPoints;
+        Comment mComment;
+        int mVote;
+
         public CommentViewHolder(Context context) {
             super(context);
         }
@@ -142,18 +150,111 @@ public class CommentsFragment extends Fragment {
             LinearLayout commentView = (LinearLayout) view.findViewById(R.id.comment_view);
             commentView.setPadding(padding_left, 0, padding, 0);
 
+            mComment = value.mJrawComment;
+            mVote = mComment.getVote().getValue();
+
             TextView body = (TextView) view.findViewById(R.id.comment_body);
             TextView username = (TextView) view.findViewById(R.id.comment_username);
-            TextView points = (TextView) view.findViewById(R.id.comment_points);
+            mPoints = (TextView) view.findViewById(R.id.comment_points);
+            mUpvote = (ImageView) view.findViewById(R.id.upvote);
+            mDownvote = (ImageView) view.findViewById(R.id.downvote);
+
+            mUpvote.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    upvote(v.getContext());
+                }
+            });
+
+            mDownvote.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    downvote(v.getContext());
+                }
+            });
+
+            if (mVote == SiftContract.Posts.UPVOTE) {
+                mUpvote.setImageDrawable(SiftApplication.getContext().getResources().getDrawable(R.drawable.ic_up_arrow_filled_24dp));
+                mDownvote.setImageDrawable(SiftApplication.getContext().getResources().getDrawable(R.drawable.ic_down_arrow_24dp));
+                mPoints.setTextColor(SiftApplication.getContext().getResources().getColor(R.color.upvote));
+            } else if (mVote == SiftContract.Posts.DOWNVOTE) {
+                mDownvote.setImageDrawable(SiftApplication.getContext().getResources().getDrawable(R.drawable.ic_down_arrow_filled_24dp));
+                mUpvote.setImageDrawable(SiftApplication.getContext().getResources().getDrawable(R.drawable.ic_up_arrow_24dp));
+                mPoints.setTextColor(SiftApplication.getContext().getResources().getColor(R.color.downvote));
+            } else {
+                mUpvote.setImageDrawable(SiftApplication.getContext().getResources().getDrawable(R.drawable.ic_up_arrow_24dp));
+                mDownvote.setImageDrawable(SiftApplication.getContext().getResources().getDrawable(R.drawable.ic_down_arrow_24dp));
+                mPoints.setTextColor(Color.BLACK);
+            }
 
             body.setText(value.mBody);
             username.setText(value.mUsername);
-            points.setText(String.valueOf(value.mPoints));
+            mPoints.setText(String.valueOf(value.mPoints));
 
             Linkify.addLinks(body, Linkify.ALL);
 
             return view;
         }
+
+        private void upvote(Context context) {
+            if (!Utilities.loggedIn(context)) {
+                Toast.makeText(context, context.getString(R.string.must_log_in), Toast.LENGTH_LONG).show();
+                return;
+            }
+
+            if (mVote == SiftContract.Posts.UPVOTE) {
+                mVote = SiftContract.Posts.NO_VOTE;
+                mUpvote.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_up_arrow_24dp));
+                mDownvote.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_down_arrow_24dp));
+                mPoints.setTextColor(Color.BLACK);
+                mPoints.setText(String.valueOf(Integer.valueOf(mPoints.getText().toString()) - 1));
+            } else if(mVote == SiftContract.Posts.DOWNVOTE) {
+                mVote = SiftContract.Posts.UPVOTE;
+                mUpvote.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_up_arrow_filled_24dp));
+                mDownvote.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_down_arrow_24dp));
+                mPoints.setTextColor(context.getResources().getColor(R.color.upvote));
+                mPoints.setText(String.valueOf(Integer.valueOf(mPoints.getText().toString()) + 2));
+            } else {
+                mVote = SiftContract.Posts.UPVOTE;
+                mUpvote.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_up_arrow_filled_24dp));
+                mDownvote.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_down_arrow_24dp));
+                mPoints.setTextColor(context.getResources().getColor(R.color.upvote));
+                mPoints.setText(String.valueOf(Integer.valueOf(mPoints.getText().toString()) + 1));
+            }
+
+            Reddit.voteComment(context, mComment, mVote);
+        }
+
+        private void downvote(Context context) {
+            if (!Utilities.loggedIn(context)) {
+                Toast.makeText(context, context.getString(R.string.must_log_in), Toast.LENGTH_LONG).show();
+                return;
+            }
+
+            if (mVote == SiftContract.Posts.DOWNVOTE) {
+                mVote = SiftContract.Posts.NO_VOTE;
+                mDownvote.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_down_arrow_24dp));
+                mUpvote.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_up_arrow_24dp));
+                mPoints.setTextColor(Color.BLACK);
+                mPoints.setText(String.valueOf(Integer.valueOf(mPoints.getText().toString()) + 1));
+            } else if (mVote == SiftContract.Posts.UPVOTE) {
+                mVote = SiftContract.Posts.DOWNVOTE;
+                mDownvote.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_down_arrow_filled_24dp));
+                mUpvote.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_up_arrow_24dp));
+                mPoints.setTextColor(context.getResources().getColor(R.color.downvote));
+                mPoints.setText(String.valueOf(Integer.valueOf(mPoints.getText().toString()) - 2));
+            } else {
+                mVote = SiftContract.Posts.DOWNVOTE;
+                mDownvote.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_down_arrow_filled_24dp));
+                mUpvote.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_up_arrow_24dp));
+                mPoints.setTextColor(context.getResources().getColor(R.color.downvote));
+                mPoints.setText(String.valueOf(Integer.valueOf(mPoints.getText().toString()) - 1));
+            }
+
+            Reddit.voteComment(context, mComment, mVote);
+
+        }
+
     }
 
 
@@ -216,6 +317,7 @@ public class CommentsFragment extends Fragment {
                 commentInfo.mUsername = comment.getAuthor();
                 commentInfo.mBody = comment.getBody();
                 commentInfo.mPoints = comment.getScore();
+                commentInfo.mJrawComment = comment;
                 TreeNode child = createCommentNode(commentInfo);
                 parent.addChild(child);
                 copyTree(child, commentNode);
@@ -223,5 +325,4 @@ public class CommentsFragment extends Fragment {
         }
 
     }
-
 }

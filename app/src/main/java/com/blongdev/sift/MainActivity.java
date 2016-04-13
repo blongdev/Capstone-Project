@@ -233,6 +233,7 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
     @Override
     public void onResume() {
         super.onResume();
+
         //TODO move this to syncadapter
         GoogleAnalytics.getInstance(this).dispatchLocalHits();
     }

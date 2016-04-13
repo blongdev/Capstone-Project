@@ -25,9 +25,12 @@ import net.dean.jraw.http.oauth.Credentials;
 import net.dean.jraw.http.oauth.OAuthData;
 import net.dean.jraw.http.oauth.OAuthException;
 import net.dean.jraw.http.oauth.OAuthHelper;
+import net.dean.jraw.models.Comment;
 import net.dean.jraw.models.LoggedInAccount;
 import net.dean.jraw.models.Submission;
+import net.dean.jraw.models.Thing;
 import net.dean.jraw.models.VoteDirection;
+import net.dean.jraw.models.attr.Votable;
 
 import java.util.UUID;
 
@@ -370,22 +373,20 @@ public class Reddit {
         }
     }
 
-    public static void vote(Context context, String serverId, int vote, int contributionType) {
-        new VoteTask(context, serverId, vote, contributionType).execute();
+    public static void votePost(Context context, String serverId, int vote) {
+        new VotePostTask(context, serverId, vote).execute();
     }
 
-    private static final class VoteTask extends AsyncTask<String, Void, Void> {
+    private static final class VotePostTask extends AsyncTask<String, Void, Void> {
 
         Context mContext;
         String mServerId;
         int mVote;
-        int mContributionType;
 
-        public VoteTask(Context context, String serverId, int vote, int contributionType) {
+        public VotePostTask(Context context, String serverId, int vote) {
             mContext = context;
             mServerId = serverId;
             mVote = vote;
-            mContributionType = contributionType;
         }
 
         @Override
@@ -401,32 +402,90 @@ public class Reddit {
                     return null;
                 }
 
-                if (mContributionType == ContributionInfo.CONTRIBUTION_POST) {
-                    Submission sub = instance.mRedditClient.getSubmission(mServerId);
-                    //TODO rather then not sending archived posts, hide vote arrows
-                    if (sub.isArchived()) {
-                        return null;
-                    }
-                    net.dean.jraw.managers.AccountManager accountManager = new net.dean.jraw.managers.AccountManager(instance.mRedditClient);
+                Submission sub = instance.mRedditClient.getSubmission(mServerId);
+                //TODO rather then not sending archived posts, hide vote arrows
+                if (sub.isArchived()) {
+                    return null;
+                }
+                net.dean.jraw.managers.AccountManager accountManager = new net.dean.jraw.managers.AccountManager(instance.mRedditClient);
 
-                    switch (mVote) {
-                        case SiftContract.Posts.NO_VOTE:
-                            accountManager.vote(sub, VoteDirection.NO_VOTE);
-                            break;
-                        case SiftContract.Posts.UPVOTE:
-                            accountManager.vote(sub, VoteDirection.UPVOTE);
-                            break;
-                        case SiftContract.Posts.DOWNVOTE:
-                            accountManager.vote(sub, VoteDirection.DOWNVOTE);
-                            break;
-                    }
+                switch (mVote) {
+                    case SiftContract.Posts.NO_VOTE:
+                        accountManager.vote(sub, VoteDirection.NO_VOTE);
+                        break;
+                    case SiftContract.Posts.UPVOTE:
+                        accountManager.vote(sub, VoteDirection.UPVOTE);
+                        break;
+                    case SiftContract.Posts.DOWNVOTE:
+                        accountManager.vote(sub, VoteDirection.DOWNVOTE);
+                        break;
+                }
 
-                    ContentValues cv = new ContentValues();
-                    cv.put(SiftContract.Posts.COLUMN_VOTE, mVote);
-                    String selection = SiftContract.Posts.COLUMN_SERVER_ID + " = ?";
-                    String[] selectionArgs = new String[]{String.valueOf(mServerId)};
-                    int count = mContext.getContentResolver().update(SiftContract.Posts.CONTENT_URI, cv, selection, selectionArgs);
-                    Log.v("PostSyncAdapter", count + " vote updated");
+                ContentValues cv = new ContentValues();
+                cv.put(SiftContract.Posts.COLUMN_VOTE, mVote);
+                String selection = SiftContract.Posts.COLUMN_SERVER_ID + " = ?";
+                String[] selectionArgs = new String[]{String.valueOf(mServerId)};
+                int count = mContext.getContentResolver().update(SiftContract.Posts.CONTENT_URI, cv, selection, selectionArgs);
+                Log.v("PostSyncAdapter", count + " vote updated");
+
+            } catch (ApiException e) {
+                e.printStackTrace();
+            }
+
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void nothing) {
+
+        }
+    }
+
+    public static void voteComment(Context context, Comment comment, int vote) {
+        new VoteCommentTask(context, comment, vote).execute();
+    }
+
+    private static final class VoteCommentTask extends AsyncTask<String, Void, Void> {
+
+        Context mContext;
+        Comment mComment;
+        int mVote;
+
+        public VoteCommentTask(Context context, Comment comment, int vote) {
+            mContext = context;
+            mComment = comment;
+            mVote = vote;
+        }
+
+        @Override
+        protected void onPreExecute() {
+
+        }
+
+        @Override
+        protected Void doInBackground(String... params) {
+            try {
+
+                if (!instance.mRedditClient.isAuthenticated() || !instance.mRedditClient.hasActiveUserContext()) {
+                    return null;
+                }
+
+                //TODO rather then not sending archived comments, hide vote arrows
+                if (mComment.isArchived()) {
+                    return null;
+                }
+                net.dean.jraw.managers.AccountManager accountManager = new net.dean.jraw.managers.AccountManager(instance.mRedditClient);
+
+                switch (mVote) {
+                    case SiftContract.Posts.NO_VOTE:
+                        accountManager.vote(mComment, VoteDirection.NO_VOTE);
+                        break;
+                    case SiftContract.Posts.UPVOTE:
+                        accountManager.vote(mComment, VoteDirection.UPVOTE);
+                        break;
+                    case SiftContract.Posts.DOWNVOTE:
+                        accountManager.vote(mComment, VoteDirection.DOWNVOTE);
+                        break;
                 }
 
             } catch (ApiException e) {
