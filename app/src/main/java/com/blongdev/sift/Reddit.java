@@ -16,7 +16,9 @@ import android.util.Log;
 
 import com.blongdev.sift.database.SiftContract;
 
+import net.dean.jraw.ApiException;
 import net.dean.jraw.RedditClient;
+import net.dean.jraw.http.LoggingMode;
 import net.dean.jraw.http.NetworkException;
 import net.dean.jraw.http.UserAgent;
 import net.dean.jraw.http.oauth.Credentials;
@@ -24,6 +26,8 @@ import net.dean.jraw.http.oauth.OAuthData;
 import net.dean.jraw.http.oauth.OAuthException;
 import net.dean.jraw.http.oauth.OAuthHelper;
 import net.dean.jraw.models.LoggedInAccount;
+import net.dean.jraw.models.Submission;
+import net.dean.jraw.models.VoteDirection;
 
 import java.util.UUID;
 
@@ -44,7 +48,7 @@ public class Reddit {
     public static final long SYNC_INTERVAL_IN_MINUTES = 60L;
     public static final long SYNC_INTERVAL = SYNC_INTERVAL_IN_MINUTES * SECONDS_PER_MINUTE;
 
-    private static Reddit ourInstance = new Reddit();
+    private static Reddit instance = new Reddit();
     public RedditClient mRedditClient;
 
     public UserAgent mUserAgent;
@@ -59,7 +63,7 @@ public class Reddit {
 
 
     public static Reddit getInstance() {
-        return ourInstance;
+        return instance;
     }
 
     private Reddit() {
@@ -71,6 +75,10 @@ public class Reddit {
         if (mRedditClient.isAuthenticated()) {
             mMe = mRedditClient.me();
         }
+
+        //TODO turn off logging for release builds
+        mRedditClient.setLoggingMode(LoggingMode.ALWAYS);
+        mRedditClient.setSaveResponseHistory(true);
     }
 
     public static UserAgent getUserAgent () {
@@ -342,7 +350,7 @@ public class Reddit {
                             String selection = SiftContract.Accounts._ID + " =?";
                             String[] selectionArgs = new String[]{accountId};
                             mContext.getContentResolver().delete(SiftContract.Accounts.CONTENT_URI, selection, selectionArgs);
-                            ourInstance = new Reddit();
+                            instance = new Reddit();
                         }
                     }
                 }
@@ -359,6 +367,78 @@ public class Reddit {
         protected void onPostExecute(Void nothing) {
             Log.v(LOG_TAG, "onPostExecute()");
             mOnRefreshCompleted.restartActivity();
+        }
+    }
+
+    public static void vote(Context context, String serverId, int vote, int contributionType) {
+        new VoteTask(context, serverId, vote, contributionType).execute();
+    }
+
+    private static final class VoteTask extends AsyncTask<String, Void, Void> {
+
+        Context mContext;
+        String mServerId;
+        int mVote;
+        int mContributionType;
+
+        public VoteTask(Context context, String serverId, int vote, int contributionType) {
+            mContext = context;
+            mServerId = serverId;
+            mVote = vote;
+            mContributionType = contributionType;
+        }
+
+        @Override
+        protected void onPreExecute() {
+
+        }
+
+        @Override
+        protected Void doInBackground(String... params) {
+            try {
+
+                if (!instance.mRedditClient.isAuthenticated() || !instance.mRedditClient.hasActiveUserContext()) {
+                    return null;
+                }
+
+                if (mContributionType == ContributionInfo.CONTRIBUTION_POST) {
+                    Submission sub = instance.mRedditClient.getSubmission(mServerId);
+                    //TODO rather then not sending archived posts, hide vote arrows
+                    if (sub.isArchived()) {
+                        return null;
+                    }
+                    net.dean.jraw.managers.AccountManager accountManager = new net.dean.jraw.managers.AccountManager(instance.mRedditClient);
+
+                    switch (mVote) {
+                        case SiftContract.Posts.NO_VOTE:
+                            accountManager.vote(sub, VoteDirection.NO_VOTE);
+                            break;
+                        case SiftContract.Posts.UPVOTE:
+                            accountManager.vote(sub, VoteDirection.UPVOTE);
+                            break;
+                        case SiftContract.Posts.DOWNVOTE:
+                            accountManager.vote(sub, VoteDirection.DOWNVOTE);
+                            break;
+                    }
+
+                    ContentValues cv = new ContentValues();
+                    cv.put(SiftContract.Posts.COLUMN_VOTE, mVote);
+                    String selection = SiftContract.Posts.COLUMN_SERVER_ID + " = ?";
+                    String[] selectionArgs = new String[]{String.valueOf(mServerId)};
+                    int count = mContext.getContentResolver().update(SiftContract.Posts.CONTENT_URI, cv, selection, selectionArgs);
+                    Log.v("PostSyncAdapter", count + " vote updated");
+                }
+
+            } catch (ApiException e) {
+                e.printStackTrace();
+            }
+
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void nothing) {
+
         }
     }
 }

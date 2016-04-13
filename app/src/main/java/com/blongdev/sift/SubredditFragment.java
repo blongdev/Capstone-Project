@@ -120,6 +120,7 @@ public class SubredditFragment extends Fragment implements LoaderManager.LoaderC
 
         if (mPaginatorType == SubredditInfo.SUBMISSION_SEARCH_PAGINATOR && !TextUtils.isEmpty(mSearchTerm)) {
             mPaginator = new SubmissionSearchPaginator(mReddit.mRedditClient, mSearchTerm);
+            mPaginator.setTimePeriod(TimePeriod.ALL);
             savePosts = false;
         } else if (mPaginatorType == SubredditInfo.USER_CONTRIBUTION_PAGINATOR && !TextUtils.isEmpty(mUsername) && !TextUtils.isEmpty(mCategory)) {
             mPaginator = new UserContributionPaginator(mReddit.mRedditClient, mCategory, mUsername);
@@ -136,7 +137,9 @@ public class SubredditFragment extends Fragment implements LoaderManager.LoaderC
         }
         mPaginator.setLimit(PAGE_SIZE);
 
-        getLoaderManager().initLoader(0, null, this);
+        if (savePosts) {
+            getLoaderManager().initLoader(0, null, this);
+        }
 
         //populatePosts();
         //RACE CONDITION WITH AUTHENTICATION IN MAIN ACTIVITY

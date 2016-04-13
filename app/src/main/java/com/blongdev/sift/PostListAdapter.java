@@ -294,7 +294,7 @@ public class PostListAdapter extends RecyclerView.Adapter<PostListAdapter.PostVi
                     mPoints.setText(String.valueOf(Integer.valueOf(mPoints.getText().toString()) + 1));
                 }
 
-                new VoteTask(context, mServerId, mVote, ContributionInfo.CONTRIBUTION_POST).execute();
+                Reddit.vote(context, mServerId, mVote, mContributionType);
             }
 
             private void downvote(Context context) {
@@ -323,7 +323,7 @@ public class PostListAdapter extends RecyclerView.Adapter<PostListAdapter.PostVi
                     mPoints.setText(String.valueOf(Integer.valueOf(mPoints.getText().toString()) - 1));
                 }
 
-                new VoteTask(context, mServerId, mVote, ContributionInfo.CONTRIBUTION_POST).execute();
+               Reddit.vote(context, mServerId, mVote, mContributionType);
 
             }
 
@@ -369,63 +369,4 @@ public class PostListAdapter extends RecyclerView.Adapter<PostListAdapter.PostVi
         });
     }
 
-    private static final class VoteTask extends AsyncTask<String, Void, Void> {
-
-        Context mContext;
-        String mServerId;
-        int mVote;
-        int mContributionType;
-
-        public VoteTask(Context context, String serverId, int vote, int contributionType) {
-            mContext = context;
-            mServerId = serverId;
-            mVote = vote;
-            mContributionType = contributionType;
-        }
-
-        @Override
-        protected void onPreExecute() {
-
-        }
-
-        @Override
-        protected Void doInBackground(String... params) {
-            try {
-                if (mContributionType == ContributionInfo.CONTRIBUTION_POST) {
-                    Reddit reddit = Reddit.getInstance();
-                    Submission sub = reddit.mRedditClient.getSubmission(mServerId);
-                    AccountManager accountManager = new AccountManager(reddit.mRedditClient);
-
-                    switch (mVote) {
-                        case SiftContract.Posts.NO_VOTE:
-                            accountManager.vote(sub, VoteDirection.NO_VOTE);
-                            break;
-                        case SiftContract.Posts.UPVOTE:
-                            accountManager.vote(sub, VoteDirection.UPVOTE);
-                            break;
-                        case SiftContract.Posts.DOWNVOTE:
-                            accountManager.vote(sub, VoteDirection.DOWNVOTE);
-                            break;
-                    }
-
-                    ContentValues cv = new ContentValues();
-                    cv.put(SiftContract.Posts.COLUMN_VOTE, mVote);
-                    String selection = SiftContract.Posts.COLUMN_SERVER_ID + " = ?";
-                    String[] selectionArgs = new String[]{String.valueOf(mServerId)};
-                    int count = mContext.getContentResolver().update(SiftContract.Posts.CONTENT_URI, cv, selection, selectionArgs);
-                    Log.v("PostSyncAdapter", count + " vote updated");
-                }
-
-            } catch (ApiException e) {
-                e.printStackTrace();
-            }
-
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(Void nothing) {
-
-        }
-    }
 }
