@@ -11,6 +11,8 @@ import android.webkit.MimeTypeMap;
 
 import com.blongdev.sift.database.SiftContract;
 
+import net.dean.jraw.RedditClient;
+
 /**
  * Created by Brian on 3/29/2016.
  */
@@ -47,6 +49,24 @@ public class Utilities {
         Cursor cursor = null;
         try {
             cursor = context.getContentResolver().query(SiftContract.Subreddits.CONTENT_URI, projection, selection, selectionArgs, null);
+            if (cursor != null && cursor.moveToFirst()) {
+                return cursor.getInt(0);
+            }
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
+        }
+        return -1;
+    }
+
+    public static int getSubscriptionId(Context context, String subredditName) {
+        String[] projection = new String[]{SiftContract.Subscriptions.COLUMN_SUBREDDIT_ID};
+        String selection = SiftContract.Subreddits.COLUMN_NAME + " =?";
+        String[] selectionArgs = new String[]{subredditName};
+        Cursor cursor = null;
+        try {
+            cursor = context.getContentResolver().query(SiftContract.Subscriptions.VIEW_URI, projection, selection, selectionArgs, null);
             if (cursor != null && cursor.moveToFirst()) {
                 return cursor.getInt(0);
             }
@@ -102,5 +122,25 @@ public class Utilities {
         }
 
         return false;
+    }
+
+    public static long getAccountId (Context context, RedditClient redditClient) {
+        Cursor cursor = null;
+        try {
+            if(redditClient.isAuthenticated() && redditClient.hasActiveUserContext()) {
+                String selection = SiftContract.Accounts.COLUMN_USERNAME + " = ?";
+                String[] selectionArgs = new String[]{redditClient.me().getFullName()};
+                cursor = context.getContentResolver().query(SiftContract.Accounts.CONTENT_URI, null, selection, selectionArgs, null);
+                if (cursor != null && cursor.moveToFirst()) {
+                    return cursor.getLong(cursor.getColumnIndex(SiftContract.Accounts._ID));
+                }
+            }
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
+        }
+
+        return -1;
     }
 }

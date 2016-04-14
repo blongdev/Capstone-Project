@@ -50,6 +50,11 @@
     <string name="search_hint">Search</string>
     <string name="search_term">searchTerm</string>
 
+    <string name="subscribe">subscribe</string>
+
+    <string name="subscribed">Subscribed</string>
+    <string name="unsubscribed">Unsubscribed</string>
+
     <string name="overview">Overview</string>
     <string name="submissions">Submissions</string>
     <string name="subreddits">Subreddits</string>

@@ -13,8 +13,10 @@ import android.os.Bundle;
 import android.provider.Settings;
 import android.text.TextUtils;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.blongdev.sift.database.SiftContract;
+import com.squareup.okhttp.internal.Util;
 
 import net.dean.jraw.ApiException;
 import net.dean.jraw.RedditClient;
@@ -28,6 +30,7 @@ import net.dean.jraw.http.oauth.OAuthHelper;
 import net.dean.jraw.models.Comment;
 import net.dean.jraw.models.LoggedInAccount;
 import net.dean.jraw.models.Submission;
+import net.dean.jraw.models.Subreddit;
 import net.dean.jraw.models.Thing;
 import net.dean.jraw.models.VoteDirection;
 import net.dean.jraw.models.attr.Votable;
@@ -491,6 +494,124 @@ public class Reddit {
             } catch (ApiException e) {
                 e.printStackTrace();
             }
+
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void nothing) {
+
+        }
+    }
+
+    public static void subscribe(Context context, String name) {
+        new SubscribeTask(context, name).execute();
+    }
+
+    private static final class SubscribeTask extends AsyncTask<String, Void, Void> {
+
+        Context mContext;
+        String mName;
+
+        public SubscribeTask(Context context, String name) {
+            mContext = context;
+            mName = name;
+        }
+
+        @Override
+        protected void onPreExecute() {
+
+        }
+
+        @Override
+        protected Void doInBackground(String... params) {
+
+            if (!instance.mRedditClient.isAuthenticated() || !instance.mRedditClient.hasActiveUserContext()) {
+                return null;
+            }
+
+            Subreddit subreddit  = instance.mRedditClient.getSubreddit(mName);
+
+            //TODO rather then not sending archived comments, hide vote arrows
+            if (subreddit == null) {
+                return null;
+            }
+
+            net.dean.jraw.managers.AccountManager accountManager = new net.dean.jraw.managers.AccountManager(instance.mRedditClient);
+            accountManager.subscribe(subreddit);
+
+            ContentValues cv = new ContentValues();
+            long subredditId = Utilities.getSubredditId(mContext, subreddit.getId());
+            if (subredditId <= 0) {
+                cv.put(SiftContract.Subreddits.COLUMN_NAME, subreddit.getDisplayName());
+                cv.put(SiftContract.Subreddits.COLUMN_SERVER_ID, subreddit.getId());
+                Uri subredditUri = mContext.getContentResolver().insert(SiftContract.Subreddits.CONTENT_URI, cv);
+                subredditId = ContentUris.parseId(subredditUri);
+                cv.clear();
+            }
+
+            //add subscription
+            long accountId = Utilities.getAccountId(mContext, instance.mRedditClient);
+            if (accountId > 0) {
+                cv.put(SiftContract.Subscriptions.COLUMN_ACCOUNT_ID, accountId);
+                cv.put(SiftContract.Subscriptions.COLUMN_SUBREDDIT_ID, subredditId);
+                mContext.getContentResolver().insert(SiftContract.Subscriptions.CONTENT_URI, cv);
+                cv.clear();
+            }
+
+            Log.v("PostSyncAdapter", "Subscribed");
+
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void nothing) {
+
+        }
+    }
+
+    public static void unsubscribe(Context context, String name) {
+        new UnsubscribeTask(context, name).execute();
+    }
+
+    private static final class UnsubscribeTask extends AsyncTask<String, Void, Void> {
+
+        Context mContext;
+        String mName;
+
+        public UnsubscribeTask(Context context, String name) {
+            mContext = context;
+            mName = name;
+        }
+
+        @Override
+        protected void onPreExecute() {
+
+        }
+
+        @Override
+        protected Void doInBackground(String... params) {
+
+            if (!instance.mRedditClient.isAuthenticated() || !instance.mRedditClient.hasActiveUserContext()) {
+                return null;
+            }
+
+            Subreddit subreddit  = instance.mRedditClient.getSubreddit(mName);
+
+            //TODO rather then not sending archived comments, hide vote arrows
+            if (subreddit == null) {
+                return null;
+            }
+
+            net.dean.jraw.managers.AccountManager accountManager = new net.dean.jraw.managers.AccountManager(instance.mRedditClient);
+            accountManager.unsubscribe(subreddit);
+
+            long subredditId = Utilities.getSubredditId(mContext, subreddit.getId());
+
+            String selection = SiftContract.Subscriptions.COLUMN_SUBREDDIT_ID + " = ?";
+            String[] selectionArgs = new String[]{String.valueOf(subredditId)};
+            int count = mContext.getContentResolver().delete(SiftContract.Subscriptions.CONTENT_URI, selection, selectionArgs);
+            Log.v("PostSyncAdapter", "Unsubscribed");
 
             return null;
         }
