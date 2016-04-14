@@ -11,6 +11,7 @@
     <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:orientation="horizontal" android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:gravity="center"
         android:id="@+id/comment_block"
         android:background="@drawable/comment_border">
 
@@ -66,7 +67,7 @@
         <LinearLayout
             android:orientation="vertical"
             android:layout_width="wrap_content"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:gravity="center_vertical">
 
             <ImageView
@@ -86,7 +87,6 @@
                 android:src="@drawable/ic_down_arrow_24dp" />
 
         </LinearLayout>
-
     </LinearLayout>
     </RelativeLayout>
 

@@ -141,7 +141,6 @@ public class SubredditFragment extends Fragment implements LoaderManager.LoaderC
             getLoaderManager().initLoader(0, null, this);
         }
 
-        //populatePosts();
         //RACE CONDITION WITH AUTHENTICATION IN MAIN ACTIVITY
         // resetting the viewpager adapter in main activity as workaround
         if (Utilities.connectedToNetwork(mContext)) {
@@ -235,6 +234,8 @@ public class SubredditFragment extends Fragment implements LoaderManager.LoaderC
                         commentInfo.mAge = comment.getCreatedUtc().getTime();
                         commentInfo.mContributionType = ContributionInfo.CONTRIBUTION_COMMENT;
                         commentInfo.mVote = comment.getVote().getValue();
+                        commentInfo.mJrawComment = comment;
+                        commentInfo.mPostServerId = comment.getSubredditId();
                         newPostArray.add(commentInfo);
                         mPosts.add(commentInfo);
                     } else {
@@ -407,6 +408,21 @@ public class SubredditFragment extends Fragment implements LoaderManager.LoaderC
         // above is about to be closed.  We need to make sure we are no
         // longer using it.
         mPostListAdapter.refreshWithList(null);
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+//        //RACE CONDITION WITH AUTHENTICATION IN MAIN ACTIVITY
+//        // resetting the viewpager adapter in main activity as workaround
+//        if (Utilities.connectedToNetwork(mContext)) {
+//            if (mReddit.mRedditClient.isAuthenticated()) {
+//                new GetPostsTask().execute();
+//            } else {
+//                //Base Activity is authenticating. add spinner until authenticated
+//                mLoadingSpinner.setVisibility(View.VISIBLE);
+//            }
+//        }
     }
 
 

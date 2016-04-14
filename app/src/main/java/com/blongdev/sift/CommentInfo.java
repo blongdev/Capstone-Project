@@ -8,6 +8,7 @@ import net.dean.jraw.models.Comment;
 public class CommentInfo extends ContributionInfo {
 
     public int mParentId;
+    public String mPostServerId;
     public Comment mJrawComment;
 
 }

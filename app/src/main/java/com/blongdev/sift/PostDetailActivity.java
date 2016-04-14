@@ -127,7 +127,7 @@ public class PostDetailActivity extends BaseActivity {
         } else {
             mUpvote.setImageDrawable(SiftApplication.getContext().getResources().getDrawable(R.drawable.ic_up_arrow_white_24dp));
             mDownvote.setImageDrawable(SiftApplication.getContext().getResources().getDrawable(R.drawable.ic_down_arrow_white_24dp));
-            mPoints.setTextColor(Color.BLACK);
+            mPoints.setTextColor(Color.WHITE);
         }
 
         //add post and comment fragments
@@ -179,7 +179,7 @@ public class PostDetailActivity extends BaseActivity {
             mVote = SiftContract.Posts.NO_VOTE;
             mUpvote.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_up_arrow_white_24dp));
             mDownvote.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_down_arrow_white_24dp));
-            mPoints.setTextColor(Color.BLACK);
+            mPoints.setTextColor(Color.WHITE);
             mPoints.setText(String.valueOf(Integer.valueOf(mPoints.getText().toString()) - 1));
         } else if(mVote == SiftContract.Posts.DOWNVOTE) {
             mVote = SiftContract.Posts.UPVOTE;
@@ -208,7 +208,7 @@ public class PostDetailActivity extends BaseActivity {
             mVote = SiftContract.Posts.NO_VOTE;
             mDownvote.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_down_arrow_white_24dp));
             mUpvote.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_up_arrow_white_24dp));
-            mPoints.setTextColor(Color.BLACK);
+            mPoints.setTextColor(Color.WHITE);
             mPoints.setText(String.valueOf(Integer.valueOf(mPoints.getText().toString()) + 1));
         } else if (mVote == SiftContract.Posts.UPVOTE) {
             mVote = SiftContract.Posts.DOWNVOTE;

@@ -84,6 +84,7 @@ public class PostListAdapter extends RecyclerView.Adapter<PostListAdapter.PostVi
             postViewHolder.mTitle.setText(comment.mBody);
             postViewHolder.mContributionType = comment.mContributionType;
             postViewHolder.mVote = comment.mVote;
+            postViewHolder.mJrawComment = comment.mJrawComment;
         } else {
             //TODO just have postViewHolder with a reference to a PostInfo object rather than copying all of its fields
             PostInfo post = (PostInfo) mPostList.get(i);
@@ -184,6 +185,7 @@ public class PostListAdapter extends RecyclerView.Adapter<PostListAdapter.PostVi
         protected String mUrl;
         protected int mContributionType;
         protected int mVote;
+        protected Comment mJrawComment;
 
         public PostViewHolder(View v, int contributionType) {
             super(v);
@@ -294,7 +296,11 @@ public class PostListAdapter extends RecyclerView.Adapter<PostListAdapter.PostVi
                     mPoints.setText(String.valueOf(Integer.valueOf(mPoints.getText().toString()) + 1));
                 }
 
-                Reddit.votePost(context, mServerId, mVote);
+                if (mContributionType == ContributionInfo.CONTRIBUTION_POST) {
+                    Reddit.votePost(context, mServerId, mVote);
+                } else if(mContributionType == ContributionInfo.CONTRIBUTION_COMMENT) {
+                    Reddit.voteComment(context, mJrawComment, mVote);
+                }
             }
 
             private void downvote(Context context) {
@@ -323,8 +329,11 @@ public class PostListAdapter extends RecyclerView.Adapter<PostListAdapter.PostVi
                     mPoints.setText(String.valueOf(Integer.valueOf(mPoints.getText().toString()) - 1));
                 }
 
-               Reddit.votePost(context, mServerId, mVote);
-
+                if (mContributionType == ContributionInfo.CONTRIBUTION_POST) {
+                    Reddit.votePost(context, mServerId, mVote);
+                } else if(mContributionType == ContributionInfo.CONTRIBUTION_COMMENT) {
+                    Reddit.voteComment(context, mJrawComment, mVote);
+                }
             }
 
             private void goToPostDetail(View v) {

@@ -404,7 +404,7 @@ public class Reddit {
 
                 Submission sub = instance.mRedditClient.getSubmission(mServerId);
                 //TODO rather then not sending archived posts, hide vote arrows
-                if (sub.isArchived()) {
+                if (sub == null || sub.isArchived()) {
                     return null;
                 }
                 net.dean.jraw.managers.AccountManager accountManager = new net.dean.jraw.managers.AccountManager(instance.mRedditClient);
@@ -471,7 +471,7 @@ public class Reddit {
                 }
 
                 //TODO rather then not sending archived comments, hide vote arrows
-                if (mComment.isArchived()) {
+                if (mComment == null || mComment.isArchived()) {
                     return null;
                 }
                 net.dean.jraw.managers.AccountManager accountManager = new net.dean.jraw.managers.AccountManager(instance.mRedditClient);
