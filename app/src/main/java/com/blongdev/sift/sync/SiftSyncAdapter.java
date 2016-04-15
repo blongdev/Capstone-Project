@@ -2,11 +2,13 @@ package com.blongdev.sift.sync;
 
 import android.accounts.Account;
 import android.content.AbstractThreadedSyncAdapter;
+import android.content.BroadcastReceiver;
 import android.content.ContentProviderClient;
 import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SyncResult;
 import android.database.Cursor;
 import android.net.Uri;
@@ -79,6 +81,7 @@ public class SiftSyncAdapter extends AbstractThreadedSyncAdapter {
     public void onPerformSync(Account account, Bundle extras, String authority, ContentProviderClient provider, SyncResult syncResult) {
         Log.v("SiftSyncAdapter", "onPerformSync()");
         long startTime = System.currentTimeMillis();
+        boolean initialSync = extras.getBoolean(SiftApplication.getContext().getString(R.string.initial_sync), false);
 
         ArrayList<AccountInfo> accounts = new ArrayList<AccountInfo>();
 
@@ -117,9 +120,15 @@ public class SiftSyncAdapter extends AbstractThreadedSyncAdapter {
             }
         }
 
+        if (initialSync)
+        {
+            Intent intent = new Intent("com.blongdev.sift.loggedIn");
+            SiftApplication.getContext().sendBroadcast(intent);
+        }
+
         long endTime = System.currentTimeMillis();
 
-        Log.v("SiftSyncAdapter", "Sync Completed. Total Time: " + (endTime - startTime)/1000 + " seconds");
+        Log.v("SiftSyncAdapter", "Sync Completed. Total Time: " + (endTime - startTime) / 1000 + " seconds");
     }
 
     private void getData(RedditClient redditClient, int accountId, ContentProviderClient provider) {
@@ -260,6 +269,4 @@ public class SiftSyncAdapter extends AbstractThreadedSyncAdapter {
         }
 
     }
-
-
 }

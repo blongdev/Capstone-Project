@@ -79,6 +79,11 @@ public class SubredditActivity extends BaseActivity {
         mSubscribe.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem item) {
+                if (!Utilities.loggedIn(getApplicationContext())) {
+                    Toast.makeText(getApplicationContext(), getApplicationContext().getString(R.string.must_log_in), Toast.LENGTH_LONG).show();
+                    return false;
+                }
+
                 if (mSubscribed) {
                     mSubscribed = false;
                     mSubscribe.setIcon(R.drawable.ic_favorite_outline_24dp);

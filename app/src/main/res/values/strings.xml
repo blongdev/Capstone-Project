@@ -61,6 +61,7 @@
     <string name="users">Users</string>
 
     <string name="frontPage">FrontPage</string>
+    <string name="initial_sync">initialSync</string>
 
     <!-- Strings related to Settings -->
 

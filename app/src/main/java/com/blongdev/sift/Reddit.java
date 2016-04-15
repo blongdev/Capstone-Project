@@ -62,7 +62,7 @@ public class Reddit {
     public Credentials mCredentials;
     public OAuthHelper mOAuthHelper;
     public LoggedInAccount mMe;
-    Account mAccount;
+    //Account mAccount;
 
 
     private static final String LOG_TAG = "Reddit Singleton";
@@ -95,9 +95,9 @@ public class Reddit {
         return Credentials.installedApp(CLIENT_ID, REDIRECT_URL);
     }
 
-    public void addGeneralAccount(Context context) {
-        CreateSyncAccount(context, GENERAL_ACCOUNT);
-    }
+//    public void addGeneralAccount(Context context) {
+//        CreateSyncAccount(context, GENERAL_ACCOUNT);
+//    }
 
     public void refreshKey(Context context, OnRefreshCompleted callback) {
         //TODO make work with multiple accounts
@@ -194,8 +194,7 @@ public class Reddit {
         cv.clear();
         //subreddits
 
-        //add account for sync adapter
-        mAccount = CreateSyncAccount(context, username);
+        runInitialSync(context);
 
     }
 
@@ -271,52 +270,65 @@ public class Reddit {
     }
 
 
+    public void runInitialSync(Context context) {
+        AccountManager accountManager = (AccountManager) context.getSystemService(context.ACCOUNT_SERVICE);
+        Account account = accountManager.getAccountsByType(ACCOUNT_TYPE)[0];
 
-    /**
-     * Create a new dummy account for the sync adapter
-     *
-     * @param context The application context
-     */
-    public static Account CreateSyncAccount(Context context, String accountName) {
-        // Create the account type and default account
-        Account newAccount = new Account(
-                accountName, ACCOUNT_TYPE);
-        // Get an instance of the Android account manager
-        AccountManager accountManager =
-                (AccountManager) context.getSystemService(context.ACCOUNT_SERVICE);
-        /*
-         * Add the account and account type, no password or user data
-         * If successful, return the Account object, otherwise report an error.
-         */
-        if (accountManager.addAccountExplicitly(newAccount, null, null)) {
-            /*
-             * If you don't set android:syncable="true" in
-             * in your <provider> element in the manifest,
-             * then call context.setIsSyncable(account, AUTHORITY, 1)
-             * here.
-             */
-
-            ContentResolver.setIsSyncable(newAccount, SiftContract.AUTHORITY, 1);
-            ContentResolver.setSyncAutomatically(newAccount, SiftContract.AUTHORITY, true);
-            ContentResolver.addPeriodicSync(newAccount, SiftContract.AUTHORITY, Bundle.EMPTY, SYNC_INTERVAL);
-
-
-            return newAccount;
-
-        } else {
-            /*
-             * The account exists or some other error occurred. Log this, report it,
-             * or handle it internally.
-             */
+        if (account != null) {
+            Bundle bundle = new Bundle();
+            bundle.putBoolean(ContentResolver.SYNC_EXTRAS_MANUAL, true);
+            bundle.putBoolean(ContentResolver.SYNC_EXTRAS_EXPEDITED, true);
+            bundle.putBoolean(context.getString(R.string.initial_sync), true);
+            ContentResolver.requestSync(account, SiftContract.AUTHORITY, bundle);
         }
-        return null;
     }
+
+
+//    /**
+//     * Create a new dummy account for the sync adapter
+//     *
+//     * @param context The application context
+//     */
+//    public static Account CreateSyncAccount(Context context, String accountName) {
+//        // Create the account type and default account
+//        Account newAccount = new Account(
+//                accountName, ACCOUNT_TYPE);
+//        // Get an instance of the Android account manager
+//        AccountManager accountManager =
+//                (AccountManager) context.getSystemService(context.ACCOUNT_SERVICE);
+//        /*
+//         * Add the account and account type, no password or user data
+//         * If successful, return the Account object, otherwise report an error.
+//         */
+//        if (accountManager.addAccountExplicitly(newAccount, null, null)) {
+//            /*
+//             * If you don't set android:syncable="true" in
+//             * in your <provider> element in the manifest,
+//             * then call context.setIsSyncable(account, AUTHORITY, 1)
+//             * here.
+//             */
+//
+//            ContentResolver.setIsSyncable(newAccount, SiftContract.AUTHORITY, 1);
+//            ContentResolver.setSyncAutomatically(newAccount, SiftContract.AUTHORITY, true);
+//            ContentResolver.addPeriodicSync(newAccount, SiftContract.AUTHORITY, Bundle.EMPTY, SYNC_INTERVAL);
+//
+//
+//            return newAccount;
+//
+//        } else {
+//            /*
+//             * The account exists or some other error occurred. Log this, report it,
+//             * or handle it internally.
+//             */
+//        }
+//        return null;
+//    }
 //
 //    public AsyncTask refreshToken() {
 //        return new RefreshTokenTask().execute();
 //    }
 
-    public interface OnRefreshCompleted{
+    public interface OnRefreshCompleted {
         void onRefreshCompleted();
         void restartActivity();
     }

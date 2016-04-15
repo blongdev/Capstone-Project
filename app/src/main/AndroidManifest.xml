@@ -8,6 +8,7 @@
     <uses-permission android:name="android.permission.WRITE_SYNC_SETTINGS" />
     <uses-permission android:name="android.permission.AUTHENTICATE_ACCOUNTS" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.GET_ACCOUNTS"/>
 
     <application
         android:name=".SiftApplication"
@@ -25,6 +26,7 @@
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+
             <meta-data
                 android:name="android.app.default_searchable"
                 android:value=".SearchResultsActivity" />
@@ -32,7 +34,7 @@
         <activity
             android:name=".PostDetailActivity"
             android:label="@string/title_activity_post_detail"
-            android:theme="@style/AppTheme.NoActionBar" >
+            android:theme="@style/AppTheme.NoActionBar">
             <meta-data
                 android:name="android.app.default_searchable"
                 android:value=".SearchResultsActivity" />
@@ -40,7 +42,7 @@
         <activity
             android:name=".UserInfoActivity"
             android:label="@string/title_activity_user_info"
-            android:theme="@style/AppTheme.NoActionBar" >
+            android:theme="@style/AppTheme.NoActionBar">
             <meta-data
                 android:name="android.app.default_searchable"
                 android:value=".SearchResultsActivity" />
@@ -48,7 +50,7 @@
         <activity
             android:name=".FriendsListActivity"
             android:label="@string/title_activity_friends_list"
-            android:theme="@style/AppTheme.NoActionBar" >
+            android:theme="@style/AppTheme.NoActionBar">
             <meta-data
                 android:name="android.app.default_searchable"
                 android:value=".SearchResultsActivity" />
@@ -56,7 +58,7 @@
         <activity
             android:name=".SettingsActivity"
             android:label="@string/title_activity_settings"
-            android:parentActivityName=".MainActivity" >
+            android:parentActivityName=".MainActivity">
             <meta-data
                 android:name="android.app.default_searchable"
                 android:value=".SearchResultsActivity" />
@@ -64,7 +66,7 @@
         <activity
             android:name=".MessageActivity"
             android:label="@string/title_activity_message"
-            android:theme="@style/AppTheme.NoActionBar" >
+            android:theme="@style/AppTheme.NoActionBar">
             <meta-data
                 android:name="android.app.default_searchable"
                 android:value=".SearchResultsActivity" />
@@ -72,10 +74,10 @@
         <activity
             android:name=".SubredditListActivity"
             android:label="@string/title_activity_subreddit_list"
-            android:theme="@style/AppTheme.NoActionBar" >
+            android:theme="@style/AppTheme.NoActionBar">
             <meta-data
-            android:name="android.app.default_searchable"
-            android:value=".SearchResultsActivity" />
+                android:name="android.app.default_searchable"
+                android:value=".SearchResultsActivity" />
         </activity>
 
         <provider
@@ -87,7 +89,7 @@
         <activity
             android:name=".MessageDetailActivity"
             android:label="@string/title_activity_message_detail"
-            android:theme="@style/AppTheme.NoActionBar" >
+            android:theme="@style/AppTheme.NoActionBar">
             <meta-data
                 android:name="android.app.default_searchable"
                 android:value=".SearchResultsActivity" />
@@ -95,7 +97,7 @@
         <activity
             android:name=".AuthenticationActivity"
             android:label="@string/title_activity_authentication"
-            android:theme="@style/AppTheme.NoActionBar" >
+            android:theme="@style/AppTheme.NoActionBar">
             <meta-data
                 android:name="android.app.default_searchable"
                 android:value=".SearchResultsActivity" />
@@ -103,7 +105,7 @@
         <activity
             android:name=".BaseActivity"
             android:label="@string/title_activity_base"
-            android:theme="@style/AppTheme.NoActionBar" >
+            android:theme="@style/AppTheme.NoActionBar">
             <meta-data
                 android:name="android.app.default_searchable"
                 android:value=".SearchResultsActivity" />
@@ -133,7 +135,7 @@
         <activity
             android:name=".SubredditActivity"
             android:label="@string/title_activity_subreddit"
-            android:theme="@style/AppTheme.NoActionBar" >
+            android:theme="@style/AppTheme.NoActionBar">
             <meta-data
                 android:name="android.app.default_searchable"
                 android:value=".SearchResultsActivity" />
@@ -144,6 +146,7 @@
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.SEARCH" />
+
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
 
@@ -152,16 +155,18 @@
                 android:resource="@xml/searchable" />
         </activity>
 
-
-        <receiver android:name="com.google.android.gms.analytics.AnalyticsReceiver"
+        <receiver
+            android:name="com.google.android.gms.analytics.AnalyticsReceiver"
             android:enabled="true">
             <intent-filter>
                 <action android:name="com.google.android.gms.analytics.ANALYTICS_DISPATCH" />
             </intent-filter>
         </receiver>
-        <service android:name="com.google.android.gms.analytics.AnalyticsService"
+
+        <service
+            android:name="com.google.android.gms.analytics.AnalyticsService"
             android:enabled="true"
-            android:exported="false"/>
+            android:exported="false" />
 
         <receiver
             android:name="com.google.android.gms.analytics.CampaignTrackingReceiver"
@@ -173,7 +178,16 @@
 
         <service android:name="com.google.android.gms.analytics.CampaignTrackingService" />
 
+        <receiver
+            android:name=".SiftBroadcastReceiver"
+            android:enabled="true"
+            android:exported="true">
 
+            <intent-filter>
+                <action android:name="com.blongdev.sift.loggedIn" />
+            </intent-filter>
+
+        </receiver>
     </application>
 
 </manifest>

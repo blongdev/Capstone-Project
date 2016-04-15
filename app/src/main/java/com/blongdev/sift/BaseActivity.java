@@ -5,6 +5,7 @@ import android.accounts.AccountManager;
 import android.app.Activity;
 import android.app.Dialog;
 import android.app.SearchManager;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -60,7 +61,8 @@ public class BaseActivity extends AppCompatActivity implements Reddit.OnRefreshC
         mTracker.enableExceptionReporting(true);
 
         mReddit = Reddit.getInstance();
-        //mReddit.addGeneralAccount(this);
+
+
     }
 
     @Override
@@ -257,5 +259,8 @@ public class BaseActivity extends AppCompatActivity implements Reddit.OnRefreshC
 
         return super.onOptionsItemSelected(item);
     }
+
+
+
 
 }
