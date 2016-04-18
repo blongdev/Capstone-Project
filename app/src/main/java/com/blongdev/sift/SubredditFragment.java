@@ -247,7 +247,7 @@ public class SubredditFragment extends Fragment implements LoaderManager.LoaderC
                         post.mSubreddit = submission.getSubredditName();
                         post.mPoints = submission.getScore();
                         post.mUrl = submission.getUrl();
-                        post.mImageUrl = getImageUrl(submission);
+                        post.mImageUrl = Reddit.getImageUrl(submission);
                         post.mComments = submission.getCommentCount();
                         post.mBody = submission.getSelftext();
                         post.mDomain = submission.getDomain();
@@ -292,29 +292,6 @@ public class SubredditFragment extends Fragment implements LoaderManager.LoaderC
             }
         }
 
-        public String getImageUrl(Submission sub) {
-            JsonNode data = sub.getDataNode();
-            if (data != null) {
-               JsonNode preview = data.findValue("preview");
-                if (preview != null) {
-                    JsonNode images = preview.findValue("images");
-                    if (images != null) {
-                        JsonNode source = images.findValue("source");
-                        if (source != null) {
-                            List<String> urls = source.findValuesAsText("url");
-                            if (urls != null && urls.size() > 0) {
-                                return urls.get(0);
-                            }
-
-                            //List<String> widths = source.findValuesAsText("width");
-                            //List<String> heights = source.findValuesAsText("height");
-                        }
-                    }
-                }
-            }
-
-            return null;
-        }
     }
 
     private final class AddPostsToDbTask extends AsyncTask<String, Void, Void> {

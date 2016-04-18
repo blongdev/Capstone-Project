@@ -16,6 +16,7 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.blongdev.sift.database.SiftContract;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.squareup.okhttp.internal.Util;
 
 import net.dean.jraw.ApiException;
@@ -35,6 +36,7 @@ import net.dean.jraw.models.Thing;
 import net.dean.jraw.models.VoteDirection;
 import net.dean.jraw.models.attr.Votable;
 
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -441,7 +443,7 @@ public class Reddit {
                 String selection = SiftContract.Posts.COLUMN_SERVER_ID + " = ?";
                 String[] selectionArgs = new String[]{String.valueOf(mServerId)};
                 int count = mContext.getContentResolver().update(SiftContract.Posts.CONTENT_URI, cv, selection, selectionArgs);
-                Log.v("PostSyncAdapter", count + " vote updated");
+                Log.v("Reddit", count + " vote updated");
 
             } catch (ApiException e) {
                 e.printStackTrace();
@@ -571,7 +573,7 @@ public class Reddit {
                 cv.clear();
             }
 
-            Log.v("PostSyncAdapter", "Subscribed");
+            Log.v("Reddit", "Subscribed");
 
             return null;
         }
@@ -623,7 +625,7 @@ public class Reddit {
             String selection = SiftContract.Subscriptions.COLUMN_SUBREDDIT_ID + " = ?";
             String[] selectionArgs = new String[]{String.valueOf(subredditId)};
             int count = mContext.getContentResolver().delete(SiftContract.Subscriptions.CONTENT_URI, selection, selectionArgs);
-            Log.v("PostSyncAdapter", "Unsubscribed");
+            Log.v("Reddit", "Unsubscribed");
 
             return null;
         }
@@ -632,5 +634,162 @@ public class Reddit {
         protected void onPostExecute(Void nothing) {
 
         }
+    }
+
+    public static void favoritePost(Context context, String serverId) {
+        new FavoritePostTask(context, serverId).execute();
+    }
+
+    private static final class FavoritePostTask extends AsyncTask<String, Void, Void> {
+
+        Context mContext;
+        String mServerId;
+
+        public FavoritePostTask(Context context, String serverId) {
+            mContext = context;
+            mServerId = serverId;
+        }
+
+        @Override
+        protected void onPreExecute() {
+
+        }
+
+        @Override
+        protected Void doInBackground(String... params) {
+
+            if (!instance.mRedditClient.isAuthenticated() || !instance.mRedditClient.hasActiveUserContext()) {
+                return null;
+            }
+
+            Submission sub = instance.mRedditClient.getSubmission(mServerId);
+            if (sub == null) {
+                return null;
+            }
+
+            net.dean.jraw.managers.AccountManager accountManager = new net.dean.jraw.managers.AccountManager(instance.mRedditClient);
+            try {
+                accountManager.save(sub);
+
+                ContentValues cv = new ContentValues();
+                cv.put(SiftContract.Posts.COLUMN_SERVER_ID, sub.getId());
+                cv.put(SiftContract.Posts.COLUMN_TITLE, sub.getTitle());
+                cv.put(SiftContract.Posts.COLUMN_OWNER_USERNAME, sub.getAuthor());
+                cv.put(SiftContract.Posts.COLUMN_SUBREDDIT_NAME, sub.getSubredditName());
+                cv.put(SiftContract.Posts.COLUMN_POINTS, sub.getScore());
+                cv.put(SiftContract.Posts.COLUMN_URL, sub.getUrl());
+                cv.put(SiftContract.Posts.COLUMN_IMAGE_URL, getImageUrl(sub));
+                cv.put(SiftContract.Posts.COLUMN_NUM_COMMENTS, sub.getCommentCount());
+                cv.put(SiftContract.Posts.COLUMN_BODY, sub.getSelftext());
+                cv.put(SiftContract.Posts.COLUMN_DOMAIN, sub.getDomain());
+                cv.put(SiftContract.Posts.COLUMN_DATE_CREATED, sub.getCreatedUtc().getTime());
+                cv.put(SiftContract.Posts.COLUMN_VOTE, sub.getVote().getValue());
+                cv.put(SiftContract.Posts.COLUMN_FAVORITED, 1);
+                Uri uri = mContext.getContentResolver().insert(SiftContract.Posts.CONTENT_URI, cv);
+                long postId = ContentUris.parseId(uri);
+
+                cv.clear();
+                long accountId = Utilities.getAccountId(mContext, instance.mRedditClient);
+                cv.put(SiftContract.Favorites.COLUMN_ACCOUNT_ID, accountId);
+                cv.put(SiftContract.Favorites.COLUMN_POST_ID, postId);
+                mContext.getContentResolver().insert(SiftContract.Favorites.CONTENT_URI, cv);
+
+            } catch (ApiException e) {
+                e.printStackTrace();
+            }
+
+
+            Log.v("Reddit", "Saved");
+
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void nothing) {
+
+        }
+    }
+
+    public static void unfavoritePost(Context context, String serverId) {
+        new UnfavoritePostTask(context, serverId).execute();
+    }
+
+    private static final class UnfavoritePostTask extends AsyncTask<String, Void, Void> {
+
+        Context mContext;
+        String mServerId;
+        long mPostId;
+
+        public UnfavoritePostTask(Context context, String serverId) {
+            mContext = context;
+            mServerId = serverId;
+        }
+
+        @Override
+        protected void onPreExecute() {
+
+        }
+
+        @Override
+        protected Void doInBackground(String... params) {
+
+            if (!instance.mRedditClient.isAuthenticated() || !instance.mRedditClient.hasActiveUserContext()) {
+                return null;
+            }
+
+            Submission sub = instance.mRedditClient.getSubmission(mServerId);
+            if (sub == null) {
+                return null;
+            }
+
+            net.dean.jraw.managers.AccountManager accountManager = new net.dean.jraw.managers.AccountManager(instance.mRedditClient);
+            try {
+                accountManager.unsave(sub);
+
+                long postId = Utilities.getSavedPostId(mContext, mServerId);
+
+                if (postId > 0) {
+                    String selection = SiftContract.Favorites.COLUMN_POST_ID + " = ?";
+                    String[] selectionArgs = new String[]{String.valueOf(mPostId)};
+                    int count = mContext.getContentResolver().delete(SiftContract.Favorites.CONTENT_URI, selection, selectionArgs);
+                    Log.v("Reddit", count + " Unsaved");
+
+                }
+
+            } catch (ApiException e) {
+                e.printStackTrace();
+            }
+
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void nothing) {
+
+        }
+    }
+
+    public static String getImageUrl(Submission sub) {
+        JsonNode data = sub.getDataNode();
+        if (data != null) {
+            JsonNode preview = data.findValue("preview");
+            if (preview != null) {
+                JsonNode images = preview.findValue("images");
+                if (images != null) {
+                    JsonNode source = images.findValue("source");
+                    if (source != null) {
+                        List<String> urls = source.findValuesAsText("url");
+                        if (urls != null && urls.size() > 0) {
+                            return urls.get(0);
+                        }
+
+                        //List<String> widths = source.findValuesAsText("width");
+                        //List<String> heights = source.findValuesAsText("height");
+                    }
+                }
+            }
+        }
+
+        return null;
     }
 }

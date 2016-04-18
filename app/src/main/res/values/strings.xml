@@ -51,9 +51,13 @@
     <string name="search_term">searchTerm</string>
 
     <string name="subscribe">subscribe</string>
+    <string name="favorite">favorite</string>
 
     <string name="subscribed">Subscribed</string>
     <string name="unsubscribed">Unsubscribed</string>
+
+    <string name="saved">Saved</string>
+    <string name="unsaved">Unsaved</string>
 
     <string name="overview">Overview</string>
     <string name="submissions">Submissions</string>

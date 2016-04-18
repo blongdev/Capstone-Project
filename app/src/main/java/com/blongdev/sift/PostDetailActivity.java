@@ -1,6 +1,7 @@
 package com.blongdev.sift;
 
 import android.app.FragmentTransaction;
+import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
@@ -12,7 +13,10 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
+import android.text.TextUtils;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.webkit.WebView;
@@ -33,6 +37,8 @@ public class PostDetailActivity extends BaseActivity {
     CommentsFragment mCommentsFragment;
     FragmentManager mFragmentManager;
     boolean mPostShowing;
+    ImageView mFavorite;
+    boolean mFavorited;
 
     LinearLayout mPostDetailLayout;
     TextView mTitle;
@@ -91,6 +97,19 @@ public class PostDetailActivity extends BaseActivity {
         mBody = (TextView) findViewById(R.id.post_body);
         mUpvote = (ImageView) findViewById(R.id.upvote);
         mDownvote = (ImageView) findViewById(R.id.downvote);
+
+        mFavorite = (ImageView) findViewById(R.id.favorite);
+
+        if (mReddit.mRedditClient.isAuthenticated() && mReddit.mRedditClient.hasActiveUserContext()) {
+            if (!TextUtils.isEmpty(mPostServerId)) {
+                long favoriteId = Utilities.getFavoriteId(getApplicationContext(), mPostServerId);
+                if (favoriteId > 0) {
+                    mFavorited = true;
+                    mFavorite.setImageResource(R.drawable.ic_favorite_24dp);
+                }
+            }
+        }
+
 
         mUpvote.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -167,6 +186,28 @@ public class PostDetailActivity extends BaseActivity {
                 ft.commit();
             }
         });
+
+        mFavorite.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (!Utilities.loggedIn(getApplicationContext())) {
+                    Toast.makeText(getApplicationContext(), getApplicationContext().getString(R.string.must_log_in), Toast.LENGTH_LONG).show();
+                    return;
+                }
+
+                if (mFavorited) {
+                    mFavorited = false;
+                    mFavorite.setImageResource(R.drawable.ic_favorite_outline_24dp);
+                    Reddit.getInstance().unfavoritePost(getApplicationContext(), mPostServerId);
+//                    Toast.makeText(getApplicationContext(), getApplicationContext().getString(R.string.unsaved), Toast.LENGTH_LONG).show();
+                } else {
+                    mFavorited = true;
+                    mFavorite.setImageResource(R.drawable.ic_favorite_24dp);
+                    Reddit.getInstance().favoritePost(getApplicationContext(), mPostServerId);
+//                    Toast.makeText(getApplicationContext(), getApplicationContext().getString(R.string.saved), Toast.LENGTH_LONG).show();
+                }
+            }
+        });
     }
 
     private void upvote(Context context) {
@@ -227,6 +268,57 @@ public class PostDetailActivity extends BaseActivity {
         Reddit.votePost(context, mPostServerId, mVote);
 
     }
+
+//    @Override
+//    public boolean onCreateOptionsMenu(Menu menu) {
+//        // Inflate the menu; this adds items to the action bar if it is present.
+//        getMenuInflater().inflate(R.menu.menu_subreddit, menu);
+//        // Associate searchable configuration with the SearchView
+//        SearchManager searchManager =
+//                (SearchManager) getSystemService(Context.SEARCH_SERVICE);
+//        SearchView searchView =
+//                (SearchView) menu.findItem(R.id.menu_search).getActionView();
+//        searchView.setSearchableInfo(
+//                searchManager.getSearchableInfo(getComponentName()));
+//
+//        mFavorite = (MenuItem) menu.findItem(R.id.favorite);
+//
+//        if (mReddit.mRedditClient.isAuthenticated() && mReddit.mRedditClient.hasActiveUserContext()) {
+//            if (!TextUtils.isEmpty(mPostServerId)) {
+//                long subscriptionId = Utilities.getSubscriptionId(getApplicationContext(), mPostServerId);
+//                if (subscriptionId > 0) {
+//                    mFavorited = true;
+//                    mFavorite.setIcon(R.drawable.ic_favorite_24dp);
+//                }
+//            }
+//        }
+//
+//        mFavorite.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+//            @Override
+//            public boolean onMenuItemClick(MenuItem item) {
+//                if (!Utilities.loggedIn(getApplicationContext())) {
+//                    Toast.makeText(getApplicationContext(), getApplicationContext().getString(R.string.must_log_in), Toast.LENGTH_LONG).show();
+//                    return false;
+//                }
+//
+//                if (mFavorited) {
+//                    mFavorited = false;
+//                    mFavorite.setIcon(R.drawable.ic_favorite_outline_24dp);
+//                    Reddit.getInstance().unfavoritePost(getApplicationContext(), mPostServerId);
+////                    Toast.makeText(getApplicationContext(), getApplicationContext().getString(R.string.unsaved), Toast.LENGTH_LONG).show();
+//                } else {
+//                    mFavorited = true;
+//                    mFavorite.setIcon(R.drawable.ic_favorite_24dp);
+//                    Reddit.getInstance().favoritePost(getApplicationContext(), mPostServerId);
+////                    Toast.makeText(getApplicationContext(), getApplicationContext().getString(R.string.saved), Toast.LENGTH_LONG).show();
+//                }
+//                return true;
+//            }
+//        });
+//
+//        return true;
+//    }
+
 
     @Override
     public void onDestroy() {

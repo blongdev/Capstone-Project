@@ -288,7 +288,8 @@ public final class SiftContract {
                 Favorites.COLUMN_POST_ID + COMMA_SEP +
                 Posts.COLUMN_TITLE + COMMA_SEP + Posts.COLUMN_DATE_CREATED + COMMA_SEP + Posts.COLUMN_OWNER_USERNAME + COMMA_SEP +
                 Posts.COLUMN_OWNER_ID + COMMA_SEP + Posts.COLUMN_SUBREDDIT_ID + COMMA_SEP + Posts.COLUMN_SUBREDDIT_NAME + COMMA_SEP +
-                Posts.COLUMN_IMAGE_URL + COMMA_SEP + Posts.COLUMN_POINTS + COMMA_SEP + Posts.COLUMN_NUM_COMMENTS +
+                Posts.COLUMN_IMAGE_URL + COMMA_SEP + Posts.COLUMN_POINTS + COMMA_SEP + Posts.COLUMN_NUM_COMMENTS + COMMA_SEP +
+                Posts.COLUMN_SERVER_ID +
                 " FROM " + Favorites.TABLE_NAME + " INNER JOIN " + Posts.TABLE_NAME +
                 " WHERE " + Favorites.COLUMN_POST_ID + " = " + Posts.TABLE_NAME + "." + Posts._ID;
 

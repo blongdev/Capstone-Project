@@ -78,6 +78,24 @@ public class Utilities {
         return -1;
     }
 
+    public static int getFavoriteId(Context context, String serverId) {
+        String[] projection = new String[]{SiftContract.Favorites.COLUMN_POST_ID};
+        String selection = SiftContract.Posts.COLUMN_SERVER_ID + " = ?";
+        String[] selectionArgs = new String[]{serverId};
+        Cursor cursor = null;
+        try {
+            cursor = context.getContentResolver().query(SiftContract.Favorites.VIEW_URI, projection, selection, selectionArgs, null);
+            if (cursor != null && cursor.moveToFirst()) {
+                return cursor.getInt(0);
+            }
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
+        }
+        return -1;
+    }
+
     public static String getMimeType(String url) {
         String type = null;
         String extension = MimeTypeMap.getFileExtensionFromUrl(url);
@@ -134,6 +152,24 @@ public class Utilities {
                 if (cursor != null && cursor.moveToFirst()) {
                     return cursor.getLong(cursor.getColumnIndex(SiftContract.Accounts._ID));
                 }
+            }
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
+        }
+
+        return -1;
+    }
+
+    public static long getSavedPostId (Context context, String serverId) {
+        Cursor cursor = null;
+        try {
+            String selection = SiftContract.Posts.COLUMN_SERVER_ID + " = ? AND " + SiftContract.Posts.FAVORITED + " = 1";
+            String[] selectionArgs = new String[]{serverId};
+            cursor = context.getContentResolver().query(SiftContract.Posts.CONTENT_URI, null, selection, selectionArgs, null);
+            if (cursor != null && cursor.moveToFirst()) {
+                return cursor.getLong(cursor.getColumnIndex(SiftContract.Posts._ID));
             }
         } finally {
             if (cursor != null) {
