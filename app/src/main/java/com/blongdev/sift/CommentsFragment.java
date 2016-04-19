@@ -138,6 +138,7 @@ public class CommentsFragment extends Fragment {
             mReply = (ImageView) view.findViewById(R.id.reply_to_comment);
             mReplyText = (EditText) view.findViewById(R.id.reply_text);
             mCommentArea = (LinearLayout) view.findViewById(R.id.comment_area);
+            mSendComment = (ImageView) view.findViewById(R.id.send);
 
             mUpvote.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -179,7 +180,7 @@ public class CommentsFragment extends Fragment {
                 @Override
                 public void onClick(View v) {
                     if (!TextUtils.isEmpty(mReplyText.getText().toString())) {
-                        Reddit.commentOnPost(view.getContext(), mPostServerId, mReplyText.getText().toString());
+                        Reddit.replyToComment(view.getContext(), mComment, mReplyText.getText().toString());
                         mReplyText.setText(null);
                         mCommentArea.setVisibility(View.GONE);
                         mReplyText.clearFocus();

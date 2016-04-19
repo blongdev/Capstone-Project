@@ -9,6 +9,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.text.TextUtils;
+import android.text.util.Linkify;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -105,6 +106,7 @@ public class PostDetailFragment extends Fragment {
 //        mUrl.setText(domain);
 //        mAge.setText(age);
         mBody.setText(body);
+        Linkify.addLinks(mBody, Linkify.ALL);
 
 //        Picasso.with(getContext()).load(imageUrl).into(mImage);
 
