@@ -28,6 +28,7 @@ import android.widget.TextView;
 import com.blongdev.sift.database.SiftContract;
 import com.blongdev.sift.database.SiftDbHelper;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.squareup.okhttp.internal.Util;
 import com.squareup.picasso.Picasso;
 
 import net.dean.jraw.http.oauth.OAuthData;
@@ -224,7 +225,7 @@ public class SubredditFragment extends Fragment implements LoaderManager.LoaderC
                 Listing<Contribution> page = mPaginator.next();
                 int i = 0;
                 for (Contribution contribution : page) {
-                    if (TextUtils.equals(contribution.getClass().getName(), Comment.class.getName())) {
+                    if (contribution instanceof Comment) {
                         Comment comment = (Comment) contribution;
                         CommentInfo commentInfo = new CommentInfo();
                         commentInfo.mUsername = comment.getAuthor();
@@ -235,7 +236,7 @@ public class SubredditFragment extends Fragment implements LoaderManager.LoaderC
                         commentInfo.mContributionType = ContributionInfo.CONTRIBUTION_COMMENT;
                         commentInfo.mVote = comment.getVote().getValue();
                         commentInfo.mJrawComment = comment;
-                        commentInfo.mPostServerId = comment.getSubredditId();
+                        commentInfo.mPostServerId = Utilities.getServerIdFromFullName(comment.getSubmissionId());
                         newPostArray.add(commentInfo);
                         mPosts.add(commentInfo);
                     } else {

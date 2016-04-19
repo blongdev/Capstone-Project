@@ -81,6 +81,7 @@ public class PostListAdapter extends RecyclerView.Adapter<PostListAdapter.PostVi
             postViewHolder.mAge.setText(Utilities.getAgeString(comment.mAge));
             postViewHolder.mPostId = comment.mPost;
             postViewHolder.mServerId = comment.mServerId;
+            postViewHolder.mPostServerId = comment.mPostServerId;
             postViewHolder.mTitle.setText(comment.mBody);
             postViewHolder.mContributionType = comment.mContributionType;
             postViewHolder.mVote = comment.mVote;
@@ -186,6 +187,7 @@ public class PostListAdapter extends RecyclerView.Adapter<PostListAdapter.PostVi
         protected int mContributionType;
         protected int mVote;
         protected Comment mJrawComment;
+        protected String mPostServerId;
 
         public PostViewHolder(View v, int contributionType) {
             super(v);
@@ -338,7 +340,7 @@ public class PostListAdapter extends RecyclerView.Adapter<PostListAdapter.PostVi
 
             private void goToPostDetail(View v) {
                 if (mContributionType == ContributionInfo.CONTRIBUTION_COMMENT) {
-
+                    new GetPostTask(v.getContext(), mPostServerId).execute();
                 } else {
                     String title = mTitle.getText().toString();
                     String username = mUsername.getText().toString();
@@ -376,6 +378,49 @@ public class PostListAdapter extends RecyclerView.Adapter<PostListAdapter.PostVi
                 v.getContext().startActivity(intent);
             }
         });
+
+        private final class GetPostTask extends AsyncTask<String, Void, Submission> {
+            Context mContext;
+            String mSubmissionServerId;
+
+            public GetPostTask(Context context, String submissionServerId) {
+                mContext = context;
+                mSubmissionServerId = submissionServerId;
+            }
+
+            @Override
+            protected Submission doInBackground(String... params) {
+                Reddit reddit = Reddit.getInstance();
+                return reddit.mRedditClient.getSubmission(mSubmissionServerId);
+            }
+
+            @Override
+            protected void onPreExecute() {
+
+            }
+
+            @Override
+            protected void onPostExecute(Submission sub) {
+                if (sub != null) {
+                    Intent intent = new Intent(mContext, PostDetailActivity.class);
+                    intent.putExtra(mContext.getString(R.string.title), sub.getTitle());
+                    intent.putExtra(mContext.getString(R.string.username), sub.getAuthor());
+                    intent.putExtra(mContext.getString(R.string.subreddit), sub.getSubredditName());
+                    intent.putExtra(mContext.getString(R.string.points), sub.getScore());
+                    intent.putExtra(mContext.getString(R.string.comments), sub.getCommentCount());
+                    intent.putExtra(mContext.getString(R.string.url), sub.getUrl());
+                    intent.putExtra(mContext.getString(R.string.age), Utilities.getAgeString(sub.getCreatedUtc().getTime()));
+                    intent.putExtra(mContext.getString(R.string.post_id), mPostId);
+                    intent.putExtra(mContext.getString(R.string.server_id), mPostServerId);
+                    intent.putExtra(mContext.getString(R.string.body), sub.getSelftext());
+                    intent.putExtra(mContext.getString(R.string.domain), sub.getDomain());
+                    intent.putExtra(mContext.getString(R.string.vote), sub.getVote());
+
+                    mContext.startActivity(intent);
+                }
+            }
+
+        }
     }
 
 }

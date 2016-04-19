@@ -179,4 +179,12 @@ public class Utilities {
 
         return -1;
     }
+
+    public static String getServerIdFromFullName(String fullName) {
+        String[] parts = fullName.split("_");
+        if (parts.length > 1) {
+            return parts[1];
+        }
+        return null;
+    }
 }
