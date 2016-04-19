@@ -19,7 +19,6 @@
     <string name="username">username</string>
     <string name="subreddit">subreddit</string>
     <string name="points">points</string>
-    <string name="comments">comments</string>
     <string name="url">url</string>
     <string name="age">age</string>
     <string name="title_activity_user_info">UserInfoActivity</string>
@@ -56,16 +55,25 @@
     <string name="subscribed">Subscribed</string>
     <string name="unsubscribed">Unsubscribed</string>
 
-    <string name="saved">Saved</string>
-    <string name="unsaved">Unsaved</string>
+    <string name="overview">overview</string>
+    <string name="saved">saved</string>
+    <string name="gilded">gilded</string>
+    <string name="submitted">submitted</string>
+    <string name="comments">comments</string>
 
-    <string name="overview">Overview</string>
+    <string name="unsaved">unsaved</string>
+
+
+
+
     <string name="submissions">Submissions</string>
     <string name="subreddits">Subreddits</string>
     <string name="users">Users</string>
 
     <string name="frontPage">FrontPage</string>
     <string name="initial_sync">initialSync</string>
+
+    <string name="comment_posted">Comment Posted</string>
 
     <!-- Strings related to Settings -->
 

@@ -10,7 +10,6 @@ public class SubredditInfo {
     public int mAge;
     public String mServerId;
 
-
     public static final int SUBREDDIT_PAGINATOR = 0;
     public static final int SUBMISSION_SEARCH_PAGINATOR = 1;
     public static final int USER_CONTRIBUTION_PAGINATOR = 2;
@@ -18,5 +17,6 @@ public class SubredditInfo {
     public static final String CATEGORY_SUBMITTED = "submitted";
     public static final String CATEGORY_COMMENTS = "comments";
     public static final String CATEGORY_OVERVIEW = "overview";
+    public static final String CATEGORY_SAVED = "saved";
 
 }

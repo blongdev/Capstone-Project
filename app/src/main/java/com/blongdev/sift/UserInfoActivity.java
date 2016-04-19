@@ -38,22 +38,9 @@ import java.util.List;
 
 public class UserInfoActivity extends BaseActivity {
 
-    /**
-     * The {@link android.support.v4.view.PagerAdapter} that will provide
-     * fragments for each of the sections. We use a
-     * {@link FragmentPagerAdapter} derivative, which will keep every
-     * loaded fragment in memory. If this becomes too memory intensive, it
-     * may be best to switch to a
-     * {@link android.support.v4.app.FragmentStatePagerAdapter}.
-     */
     private SectionsPagerAdapter mSectionsPagerAdapter;
-
-    /**
-     * The {@link ViewPager} that will host the section contents.
-     */
     private ViewPager mViewPager;
     private String mUsername;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -94,11 +81,6 @@ public class UserInfoActivity extends BaseActivity {
     }
 
 
-
-    /**
-     * A {@link FragmentPagerAdapter} that returns a fragment corresponding to
-     * one of the sections/tabs/pages.
-     */
     public class SectionsPagerAdapter extends FragmentPagerAdapter {
 
         public SectionsPagerAdapter(FragmentManager fm) {
@@ -113,29 +95,42 @@ public class UserInfoActivity extends BaseActivity {
 
             switch (position) {
                 case 0:
-                    args.putString(getString(R.string.category), SubredditInfo.CATEGORY_OVERVIEW);
+                    args.putString(getString(R.string.category), getString(R.string.overview));
                     SubredditFragment overviewFrag = new SubredditFragment();
                     overviewFrag.setArguments(args);
                     return overviewFrag;
                 case 1:
-                    args.putString(getString(R.string.category), SubredditInfo.CATEGORY_SUBMITTED);
-                    SubredditFragment subFrag2 = new SubredditFragment();
-                    subFrag2.setArguments(args);
-                    return subFrag2;
+                    args.putString(getString(R.string.category), getString(R.string.submitted));
+                    SubredditFragment subFrag = new SubredditFragment();
+                    subFrag.setArguments(args);
+                    return subFrag;
                 case 2:
-                    args.putString(getString(R.string.category), SubredditInfo.CATEGORY_COMMENTS);
+                    args.putString(getString(R.string.category), getString(R.string.comments));
                     SubredditFragment commentsFrag = new SubredditFragment();
                     commentsFrag.setArguments(args);
                     return commentsFrag;
-
+                case 3:
+                    args.putString(getString(R.string.category), getString(R.string.gilded));
+                    SubredditFragment gildedFrag = new SubredditFragment();
+                    gildedFrag.setArguments(args);
+                    return gildedFrag;
+                case 4:
+                    args.putString(getString(R.string.category), getString(R.string.saved));
+                    SubredditFragment savedFrag = new SubredditFragment();
+                    savedFrag.setArguments(args);
+                    return savedFrag;
             }
             return null;
         }
 
         @Override
         public int getCount() {
-            // Show 3 total pages.
-            return 3;
+            if (mReddit.mRedditClient.isAuthenticated() && mReddit.mRedditClient.hasActiveUserContext()) {
+                if (TextUtils.equals(mReddit.mRedditClient.getAuthenticatedUser(), mUsername)) {
+                    return 5;
+                }
+            }
+            return 4;
         }
 
         @Override
@@ -147,43 +142,13 @@ public class UserInfoActivity extends BaseActivity {
                     return getString(R.string.submissions);
                 case 2:
                     return getString(R.string.comments);
+                case 3:
+                    return getString(R.string.gilded);
+                case 4:
+                    return getString(R.string.saved);
             }
             return null;
         }
     }
 
-
-
-
-//
-//
-//    private final class GetSubredditsTask extends AsyncTask<String, Void, ArrayList<SubredditInfo>> {
-//        @Override
-//        protected ArrayList<SubredditInfo> doInBackground(String... params) {
-//            if (mPaginator != null && mPaginator.hasNext()) {
-//                Listing<Subreddit> page = mPaginator.next();
-//                for (Subreddit subreddit : page) {
-//                    SubredditInfo sub = new SubredditInfo();
-//                    sub.mName = subreddit.getDisplayName();
-//                    sub.mServerId = subreddit.getId();
-//                    mSubreddits.add(sub);
-//                }
-//            }
-//
-//            return mSubreddits;
-//        }
-//
-//        @Override
-//        protected void onPreExecute() {
-//            if(mSubreddits.size() == 0) {
-//                mLoadingSpinner.setVisibility(View.VISIBLE);
-//            }
-//        }
-//
-//        @Override
-//        protected void onPostExecute(ArrayList<SubredditInfo> subs) {
-//            mLoadingSpinner.setVisibility(View.GONE);
-//            mSubredditAdapter.refreshWithList(subs);
-//        }
-//    }
 }

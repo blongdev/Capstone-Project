@@ -19,7 +19,9 @@ import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.webkit.WebView;
+import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -54,6 +56,10 @@ public class PostDetailActivity extends BaseActivity {
     TextView mBody;
     ImageView mUpvote;
     ImageView mDownvote;
+    ImageView mReply;
+    LinearLayout mCommentArea;
+    EditText mReplyText;
+    ImageView mSendComment;
 
     int mVote;
 
@@ -97,6 +103,10 @@ public class PostDetailActivity extends BaseActivity {
         mBody = (TextView) findViewById(R.id.post_body);
         mUpvote = (ImageView) findViewById(R.id.upvote);
         mDownvote = (ImageView) findViewById(R.id.downvote);
+        mReply = (ImageView) findViewById(R.id.reply);
+        mCommentArea = (LinearLayout) findViewById(R.id.comment_area);
+        mReplyText = (EditText) findViewById(R.id.reply_text);
+        mSendComment = (ImageView) findViewById(R.id.send);
 
         mFavorite = (ImageView) findViewById(R.id.favorite);
 
@@ -125,6 +135,43 @@ public class PostDetailActivity extends BaseActivity {
             }
         });
 
+        mReply.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (!Utilities.loggedIn(getApplicationContext())) {
+                    Toast.makeText(getApplicationContext(), getString(R.string.must_log_in), Toast.LENGTH_LONG).show();
+                    return;
+                }
+
+                if (mCommentArea.getVisibility() == View.GONE) {
+                    mCommentArea.setVisibility(View.VISIBLE);
+                    mReplyText.requestFocus();
+                } else {
+                    mCommentArea.setVisibility(View.GONE);
+                    mReplyText.clearFocus();
+
+                    //hide keyboard
+                    InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+                    imm.hideSoftInputFromWindow(mReplyText.getWindowToken(), 0);
+                }
+            }
+        });
+
+        mSendComment.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (!TextUtils.isEmpty(mReplyText.getText().toString())) {
+                    Reddit.commentOnPost(getApplicationContext(), mPostServerId, mReplyText.getText().toString());
+                    mReplyText.setText(null);
+                    mCommentArea.setVisibility(View.GONE);
+                    mReplyText.clearFocus();
+
+                    //hide keyboard
+                    InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+                    imm.hideSoftInputFromWindow(mReplyText.getWindowToken(), 0);
+                }
+            }
+        });
 
         mTitle.setText(title);
         mUsername.setText(username);

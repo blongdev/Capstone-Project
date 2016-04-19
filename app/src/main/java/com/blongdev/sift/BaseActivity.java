@@ -45,6 +45,8 @@ public class BaseActivity extends AppCompatActivity implements Reddit.OnRefreshC
     MenuItem mNavInbox;
     MenuItem mNavFriends;
 
+    String mUsername;
+
     boolean mHasUser;
 
     View mRemoveAccount;
@@ -89,6 +91,30 @@ public class BaseActivity extends AppCompatActivity implements Reddit.OnRefreshC
 
         mRemoveAccount = mNavHeader.findViewById(R.id.remove_account);
 
+        TextView navUser = (TextView) mNavHeader.findViewById(R.id.nav_username);
+
+        Cursor cursor = null;
+        try {
+            cursor = getContentResolver().query(SiftContract.Accounts.CONTENT_URI, null, null, null, null);
+            if (cursor != null) {
+                if (cursor.moveToFirst()) {
+                    mUsername = cursor.getString(cursor.getColumnIndex(SiftContract.Accounts.COLUMN_USERNAME));
+                    if (!TextUtils.isEmpty(mUsername)) {
+                        navUser.setText(mUsername);
+                        mHasUser = true;
+                    }
+                } else {
+                    mNavFriends.setVisible(false);
+                    mNavProfile.setVisible(false);
+                    mNavInbox.setVisible(false);
+                }
+            }
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
+        }
+
         mNavigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
 
             @Override
@@ -107,9 +133,8 @@ public class BaseActivity extends AppCompatActivity implements Reddit.OnRefreshC
                     startActivity(intent);
                     return true;
                 case R.id.nav_profile:
-                    Reddit reddit = Reddit.getInstance();
                     intent = new Intent(getApplicationContext(), UserInfoActivity.class);
-                    intent.putExtra(getString(R.string.username), "My Profile");
+                    intent.putExtra(getString(R.string.username), mUsername);
                     startActivity(intent);
                     return true;
                 case R.id.nav_inbox:
@@ -134,29 +159,7 @@ public class BaseActivity extends AppCompatActivity implements Reddit.OnRefreshC
             }
         });
 
-        TextView navUser = (TextView) mNavHeader.findViewById(R.id.nav_username);
 
-        Cursor cursor = null;
-        try {
-            cursor = getContentResolver().query(SiftContract.Accounts.CONTENT_URI, null, null, null, null);
-            if (cursor != null) {
-                if (cursor.moveToFirst()) {
-                    String username = cursor.getString(cursor.getColumnIndex(SiftContract.Accounts.COLUMN_USERNAME));
-                    if (!TextUtils.isEmpty(username)) {
-                        navUser.setText(username);
-                        mHasUser = true;
-                    }
-                } else {
-                    mNavFriends.setVisible(false);
-                    mNavProfile.setVisible(false);
-                    mNavInbox.setVisible(false);
-                }
-            }
-        } finally {
-            if (cursor != null) {
-                cursor.close();
-            }
-        }
         if (mHasUser) {
             mRemoveAccount.setVisibility(View.VISIBLE);
             mRemoveAccount.setOnClickListener(new View.OnClickListener() {
@@ -215,8 +218,8 @@ public class BaseActivity extends AppCompatActivity implements Reddit.OnRefreshC
         TextView navUser = (TextView) mNavHeader.findViewById(R.id.nav_username);
         if (mReddit.mRedditClient.isAuthenticated()) {
             if (mReddit.mRedditClient.hasActiveUserContext()) {
-                String username = mReddit.mRedditClient.getAuthenticatedUser();
-                navUser.setText(username);
+                mUsername = mReddit.mRedditClient.getAuthenticatedUser();
+                navUser.setText(mUsername);
             }
         } else {
             navUser.setText(getString(R.string.nav_header_add_account));

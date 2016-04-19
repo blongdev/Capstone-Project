@@ -750,7 +750,7 @@ public class Reddit {
 
                 if (postId > 0) {
                     String selection = SiftContract.Favorites.COLUMN_POST_ID + " = ?";
-                    String[] selectionArgs = new String[]{String.valueOf(mPostId)};
+                    String[] selectionArgs = new String[]{String.valueOf(postId)};
                     int count = mContext.getContentResolver().delete(SiftContract.Favorites.CONTENT_URI, selection, selectionArgs);
                     Log.v("Reddit", count + " Unsaved");
 
@@ -768,6 +768,104 @@ public class Reddit {
 
         }
     }
+
+
+    public static void commentOnPost(Context context, String serverId, String comment) {
+        new CommentOnPostTask(context, serverId, comment).execute();
+    }
+
+    private static final class CommentOnPostTask extends AsyncTask<String, Void, Void> {
+
+        Context mContext;
+        String mServerId;
+        String mComment;
+
+        public CommentOnPostTask(Context context, String serverId, String comment) {
+            mContext = context;
+            mServerId = serverId;
+            mComment =  comment;
+        }
+
+        @Override
+        protected void onPreExecute() {
+
+        }
+
+        @Override
+        protected Void doInBackground(String... params) {
+
+            if (!instance.mRedditClient.isAuthenticated() || !instance.mRedditClient.hasActiveUserContext()) {
+                return null;
+            }
+
+            Submission sub = instance.mRedditClient.getSubmission(mServerId);
+            if (sub == null) {
+                return null;
+            }
+
+            net.dean.jraw.managers.AccountManager accountManager = new net.dean.jraw.managers.AccountManager(instance.mRedditClient);
+            try {
+                accountManager.reply(sub, mComment);
+
+            } catch (ApiException e) {
+                e.printStackTrace();
+            }
+
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void nothing) {
+            Toast.makeText(mContext, mContext.getString(R.string.comment_posted), Toast.LENGTH_LONG).show();
+        }
+    }
+
+    public static void replyToComment(Context context, Comment comment, String reply) {
+        new ReplyToCommentTask(context, comment, reply).execute();
+    }
+
+    private static final class ReplyToCommentTask extends AsyncTask<String, Void, Void> {
+
+        Context mContext;
+        String mReply;
+        Comment mComment;
+
+        public ReplyToCommentTask(Context context, Comment comment, String reply) {
+            mContext = context;
+            mReply = reply;
+            mComment =  comment;
+        }
+
+        @Override
+        protected void onPreExecute() {
+
+        }
+
+        @Override
+        protected Void doInBackground(String... params) {
+
+            if (!instance.mRedditClient.isAuthenticated() || !instance.mRedditClient.hasActiveUserContext()) {
+                return null;
+            }
+
+            net.dean.jraw.managers.AccountManager accountManager = new net.dean.jraw.managers.AccountManager(instance.mRedditClient);
+            try {
+                accountManager.reply(mComment, mReply);
+
+            } catch (ApiException e) {
+                e.printStackTrace();
+            }
+
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void nothing) {
+            Toast.makeText(mContext, mContext.getString(R.string.comment_posted), Toast.LENGTH_LONG).show();
+        }
+    }
+
+
 
     public static String getImageUrl(Submission sub) {
         JsonNode data = sub.getDataNode();

@@ -17,11 +17,13 @@ import android.os.RemoteException;
 import android.util.Log;
 
 import com.blongdev.sift.AccountInfo;
+import com.blongdev.sift.ContributionInfo;
 import com.blongdev.sift.R;
 import com.blongdev.sift.Reddit;
 import com.blongdev.sift.SiftApplication;
 import com.blongdev.sift.SubscriptionInfo;
 import com.blongdev.sift.UserInfo;
+import com.blongdev.sift.Utilities;
 import com.blongdev.sift.database.SiftContract;
 
 import net.dean.jraw.RedditClient;
@@ -29,6 +31,7 @@ import net.dean.jraw.http.oauth.OAuthData;
 import net.dean.jraw.http.oauth.OAuthException;
 import net.dean.jraw.http.oauth.OAuthHelper;
 import net.dean.jraw.managers.AccountManager;
+import net.dean.jraw.models.Contribution;
 import net.dean.jraw.models.Listing;
 import net.dean.jraw.models.Message;
 import net.dean.jraw.models.Submission;
@@ -115,7 +118,7 @@ public class SiftSyncAdapter extends AbstractThreadedSyncAdapter {
                 e.printStackTrace();
             }
 
-            if (redditClient.isAuthenticated()) {
+            if (redditClient.isAuthenticated() && redditClient.hasActiveUserContext()) {
                 getData(redditClient, currentAccount.mId, provider);
             }
         }
@@ -155,41 +158,39 @@ public class SiftSyncAdapter extends AbstractThreadedSyncAdapter {
         }
 
         //add favorite posts
-//        Cursor cursor = null;
-//        try {
-//            cursor = provider.query(SiftContract.Subscriptions.VIEW_URI, null, null, null, null);
-//            if (cursor != null) {
-//                while (cursor.moveToNext()) {
-//                    int subredditId = cursor.getInt(cursor.getColumnIndex(SiftContract.Subscriptions.COLUMN_SUBREDDIT_ID));
-//                    String subredditName = cursor.getString(cursor.getColumnIndex(SiftContract.Subreddits.COLUMN_NAME));
-//
-//                    SubredditPaginator postPager = new SubredditPaginator(redditClient, subredditName);
-//                    postPager.setLimit(10);
-//                    if (postPager.hasNext()) {
-//                        Listing<Submission> submissions = postPager.next();
-//                        for (Submission post : submissions) {
-//                            cv.put(SiftContract.Posts.COLUMN_OWNER_USERNAME, post.getAuthor());
-//                            cv.put(SiftContract.Posts.COLUMN_SERVER_ID, post.getId());
-//                            cv.put(SiftContract.Posts.COLUMN_NUM_COMMENTS, post.getCommentCount());
-//                            cv.put(SiftContract.Posts.COLUMN_POINTS, post.getScore());
-//                            cv.put(SiftContract.Posts.COLUMN_SUBREDDIT_ID, subredditId);
-//                            cv.put(SiftContract.Posts.COLUMN_SUBREDDIT_NAME, post.getSubredditName());
-//                            cv.put(SiftContract.Posts.COLUMN_IMAGE_URL, post.getThumbnail());
-//                            cv.put(SiftContract.Posts.COLUMN_TITLE, post.getTitle());
-//                            mContentResolver.insert(SiftContract.Posts.CONTENT_URI, cv);
-//                            cv.clear();
-//                        }
-//                        Log.d("SiftSyncAdapter", submissions.size() + " posts added for " + subredditName);
-//                    }
-//                }
-//            }
-//        } catch (RemoteException e) {
-//            e.printStackTrace();
-//        } finally {
-//            if (cursor != null) {
-//                cursor.close();
-//            }
-//        }
+        UserContributionPaginator favorites = new UserContributionPaginator(redditClient, SiftApplication.getContext().getString(R.string.saved), redditClient.getAuthenticatedUser());
+        favorites.setLimit(Integer.MAX_VALUE);
+        if (favorites.hasNext()) {
+            Listing<Contribution> contributions = favorites.next();
+            Submission sub;
+            for (Contribution c : contributions) {
+                //TODO make sure a new sync wont cause insert conflicts
+                if (c instanceof Submission) {
+                    sub = (Submission) c;
+                    cv.put(SiftContract.Posts.COLUMN_SERVER_ID, sub.getId());
+                    cv.put(SiftContract.Posts.COLUMN_TITLE, sub.getTitle());
+                    cv.put(SiftContract.Posts.COLUMN_OWNER_USERNAME, sub.getAuthor());
+                    cv.put(SiftContract.Posts.COLUMN_SUBREDDIT_NAME, sub.getSubredditName());
+                    cv.put(SiftContract.Posts.COLUMN_POINTS, sub.getScore());
+                    cv.put(SiftContract.Posts.COLUMN_URL, sub.getUrl());
+                    cv.put(SiftContract.Posts.COLUMN_IMAGE_URL, Reddit.getImageUrl(sub));
+                    cv.put(SiftContract.Posts.COLUMN_NUM_COMMENTS, sub.getCommentCount());
+                    cv.put(SiftContract.Posts.COLUMN_BODY, sub.getSelftext());
+                    cv.put(SiftContract.Posts.COLUMN_DOMAIN, sub.getDomain());
+                    cv.put(SiftContract.Posts.COLUMN_DATE_CREATED, sub.getCreatedUtc().getTime());
+                    cv.put(SiftContract.Posts.COLUMN_VOTE, sub.getVote().getValue());
+                    cv.put(SiftContract.Posts.COLUMN_FAVORITED, 1);
+                    Uri uri = mContentResolver.insert(SiftContract.Posts.CONTENT_URI, cv);
+                    long postId = ContentUris.parseId(uri);
+
+                    cv.clear();
+                    cv.put(SiftContract.Favorites.COLUMN_ACCOUNT_ID, accountId);
+                    cv.put(SiftContract.Favorites.COLUMN_POST_ID, postId);
+                    mContentResolver.insert(SiftContract.Favorites.CONTENT_URI, cv);
+                    cv.clear();
+                }
+            }
+        }
 
 
         ImportantUserPaginator friends = new ImportantUserPaginator(redditClient, SiftApplication.getContext().getString(R.string.friends));
