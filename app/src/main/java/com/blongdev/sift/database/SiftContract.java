@@ -82,7 +82,7 @@ public final class SiftContract {
 //                " FOREIGN KEY(" + COLUMN_SUBREDDIT_ID + ") REFERENCES " + Subreddits.TABLE_NAME + "(" + Subreddits._ID + ")" + COMMA_SEP +
 //                " FOREIGN KEY(" + COLUMN_OWNER_ID + ") REFERENCES " + Users.TABLE_NAME + "(" + Users._ID + ")" + COMMA_SEP +
                 UNIQUE + "(" + COLUMN_SERVER_ID + COMMA_SEP + COLUMN_SUBREDDIT_ID + ")" + ON_CONFLICT_REPLACE + COMMA_SEP +
-                UNIQUE + "(" + COLUMN_POSITION + COMMA_SEP + COLUMN_SUBREDDIT_ID + COMMA_SEP + COLUMN_SUBREDDIT_NAME + ")" + ON_CONFLICT_REPLACE + " )";
+                UNIQUE + "(" + COLUMN_POSITION + COMMA_SEP + COLUMN_SUBREDDIT_ID + ")" + ON_CONFLICT_REPLACE + " )";
 
 
         public static final String DELETE_TABLE = "DROP TABLE IF EXISTS " + TABLE_NAME;

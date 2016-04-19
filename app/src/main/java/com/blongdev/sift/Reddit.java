@@ -806,7 +806,6 @@ public class Reddit {
             net.dean.jraw.managers.AccountManager accountManager = new net.dean.jraw.managers.AccountManager(instance.mRedditClient);
             try {
                 accountManager.reply(sub, mComment);
-
             } catch (ApiException e) {
                 e.printStackTrace();
             }

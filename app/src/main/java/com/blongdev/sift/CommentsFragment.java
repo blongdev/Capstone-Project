@@ -14,6 +14,8 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -93,35 +95,6 @@ public class CommentsFragment extends Fragment {
     }
 
 
-//    private void createTree() {
-//        mRoot = TreeNode.root();
-//
-//        for (int i = 0; i < 15; i++) {
-//            TreeNode parent = createCommentNode("Comment " + i);
-//            for (int j = 0; j < 3; j++) {
-//                TreeNode child = createCommentNode("Reply " + i + " " + j);
-//                for (int k = 0; k < 3; k++) {
-//                    TreeNode child2 = createCommentNode("Reply " + i + " " + j + " " + k);
-//                    child.addChild(child2);
-//                }
-//                parent.addChild(child);
-//            }
-//            mRoot.addChild(parent);
-//        }
-
-
-//        TreeNode parent = createCommentNode("Comment 1");
-//        TreeNode parent2 = createCommentNode("Comment 2");
-//        TreeNode child0 = createCommentNode("Comment 3");
-//        TreeNode child1 = createCommentNode("Comment 4");
-//        TreeNode child2 = createCommentNode("Comment 5");
-//        TreeNode child3 = createCommentNode("Comment 6");
-//        parent.addChildren(child0, child1);
-//        child1.addChildren(child2, child3);
-//        mRoot.addChild(parent);
-//        mRoot.addChild(parent2);
-//    }
-
     public class CommentViewHolder extends TreeNode.BaseNodeViewHolder<CommentInfo> {
 
         ImageView mUpvote;
@@ -129,6 +102,10 @@ public class CommentsFragment extends Fragment {
         TextView mPoints;
         Comment mComment;
         int mVote;
+        ImageView mReply;
+        EditText mReplyText;
+        ImageView mSendComment;
+        LinearLayout mCommentArea;
 
         public CommentViewHolder(Context context) {
             super(context);
@@ -158,6 +135,9 @@ public class CommentsFragment extends Fragment {
             mPoints = (TextView) view.findViewById(R.id.comment_points);
             mUpvote = (ImageView) view.findViewById(R.id.upvote);
             mDownvote = (ImageView) view.findViewById(R.id.downvote);
+            mReply = (ImageView) view.findViewById(R.id.reply_to_comment);
+            mReplyText = (EditText) view.findViewById(R.id.reply_text);
+            mCommentArea = (LinearLayout) view.findViewById(R.id.comment_area);
 
             mUpvote.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -170,6 +150,44 @@ public class CommentsFragment extends Fragment {
                 @Override
                 public void onClick(View v) {
                     downvote(v.getContext());
+                }
+            });
+
+            mReply.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (!Utilities.loggedIn(v.getContext())) {
+                        Toast.makeText(v.getContext(), getString(R.string.must_log_in), Toast.LENGTH_LONG).show();
+                        return;
+                    }
+
+                    if (mCommentArea.getVisibility() == View.GONE) {
+                        mCommentArea.setVisibility(View.VISIBLE);
+                        mReplyText.requestFocus();
+                    } else {
+                        mCommentArea.setVisibility(View.GONE);
+                        mReplyText.clearFocus();
+
+                        //hide keyboard
+                        InputMethodManager imm = (InputMethodManager) v.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+                        imm.hideSoftInputFromWindow(mReplyText.getWindowToken(), 0);
+                    }
+                }
+            });
+
+            mSendComment.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (!TextUtils.isEmpty(mReplyText.getText().toString())) {
+                        Reddit.commentOnPost(view.getContext(), mPostServerId, mReplyText.getText().toString());
+                        mReplyText.setText(null);
+                        mCommentArea.setVisibility(View.GONE);
+                        mReplyText.clearFocus();
+
+                        //hide keyboard
+                        InputMethodManager imm = (InputMethodManager) view.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+                        imm.hideSoftInputFromWindow(mReplyText.getWindowToken(), 0);
+                    }
                 }
             });
 
