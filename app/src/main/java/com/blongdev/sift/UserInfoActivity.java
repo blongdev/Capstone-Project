@@ -1,5 +1,7 @@
 package com.blongdev.sift;
 
+import android.app.SearchManager;
+import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.support.design.widget.CoordinatorLayout;
@@ -13,6 +15,7 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
 
 import android.support.v4.app.Fragment;
@@ -41,6 +44,8 @@ public class UserInfoActivity extends BaseActivity {
     private SectionsPagerAdapter mSectionsPagerAdapter;
     private ViewPager mViewPager;
     private String mUsername;
+    private MenuItem mAddFriend;
+    private boolean mIsFriend;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -149,6 +154,51 @@ public class UserInfoActivity extends BaseActivity {
             }
             return null;
         }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.menu_subreddit, menu);
+        // Associate searchable configuration with the SearchView
+        SearchManager searchManager =
+                (SearchManager) getSystemService(Context.SEARCH_SERVICE);
+        SearchView searchView =
+                (SearchView) menu.findItem(R.id.menu_search).getActionView();
+        searchView.setSearchableInfo(
+                searchManager.getSearchableInfo(getComponentName()));
+
+        mAddFriend = (MenuItem) menu.findItem(R.id.subscribe);
+
+        if (mReddit.mRedditClient.isAuthenticated() && mReddit.mRedditClient.hasActiveUserContext()) {
+            if (Utilities.isFriend(getApplicationContext(),mUsername)) {
+                mIsFriend = true;
+                mAddFriend.setIcon(R.drawable.ic_favorite_24dp);
+            }
+        }
+
+        mAddFriend.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                if (!Utilities.loggedIn(getApplicationContext())) {
+                    Toast.makeText(getApplicationContext(), getApplicationContext().getString(R.string.must_log_in), Toast.LENGTH_LONG).show();
+                    return false;
+                }
+
+                if (mIsFriend) {
+                    mIsFriend = false;
+                    mAddFriend.setIcon(R.drawable.ic_favorite_outline_24dp);
+                    Reddit.getInstance().removeFriend(getApplicationContext(), mUsername);
+                } else {
+                    mIsFriend = true;
+                    mAddFriend.setIcon(R.drawable.ic_favorite_24dp);
+                    Reddit.getInstance().addFriend(getApplicationContext(), mUsername);
+                }
+                return true;
+            }
+        });
+
+        return true;
     }
 
 }

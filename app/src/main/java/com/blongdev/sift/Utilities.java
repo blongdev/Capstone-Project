@@ -180,6 +180,42 @@ public class Utilities {
         return -1;
     }
 
+    public static long getSavedUserId (Context context, String username) {
+        Cursor cursor = null;
+        try {
+            String selection = SiftContract.Users.COLUMN_USERNAME + " = ?";
+            String[] selectionArgs = new String[]{username};
+            cursor = context.getContentResolver().query(SiftContract.Users.CONTENT_URI, null, selection, selectionArgs, null);
+            if (cursor != null && cursor.moveToFirst()) {
+                return cursor.getLong(cursor.getColumnIndex(SiftContract.Users._ID));
+            }
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
+        }
+
+        return -1;
+    }
+
+    public static boolean isFriend (Context context, String username) {
+        Cursor cursor = null;
+        try {
+            String selection = SiftContract.Users.COLUMN_USERNAME + " = ?";
+            String[] selectionArgs = new String[]{username};
+            cursor = context.getContentResolver().query(SiftContract.Friends.VIEW_URI, null, selection, selectionArgs, null);
+            if (cursor != null && cursor.moveToFirst()) {
+                return true;
+            }
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
+        }
+
+        return false;
+    }
+
     public static String getServerIdFromFullName(String fullName) {
         String[] parts = fullName.split("_");
         if (parts.length > 1) {

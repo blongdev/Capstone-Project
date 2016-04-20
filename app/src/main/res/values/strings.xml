@@ -51,6 +51,7 @@
 
     <string name="subscribe">subscribe</string>
     <string name="favorite">favorite</string>
+    <string name="add_friend">addFriend</string>
 
     <string name="subscribed">Subscribed</string>
     <string name="unsubscribed">Unsubscribed</string>
@@ -74,6 +75,9 @@
     <string name="initial_sync">initialSync</string>
 
     <string name="comment_posted">Comment Posted</string>
+    <string name="friend_added">Friend Added</string>
+    <string name="friend_removed">Friend Removed</string>
+
 
     <!-- Strings related to Settings -->
 

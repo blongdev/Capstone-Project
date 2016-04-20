@@ -98,6 +98,12 @@ public class SiftProvider extends ContentProvider {
                         selection,
                         selectionArgs);
                 break;
+
+            case FRIENDS:
+                rowsDeleted = db.delete(SiftContract.Friends.TABLE_NAME,
+                        selection,
+                        selectionArgs);
+                break;
             default:
                 throw new IllegalArgumentException("Unknown URI: " + uri);
         }

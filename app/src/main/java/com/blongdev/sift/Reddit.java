@@ -865,6 +865,114 @@ public class Reddit {
     }
 
 
+    public static void addFriend(Context context, String username) {
+        new AddFriendTask(context, username).execute();
+    }
+
+    private static final class AddFriendTask extends AsyncTask<String, Void, Void> {
+
+        Context mContext;
+        String mUsername;
+
+        public AddFriendTask(Context context, String username) {
+            mContext = context;
+            mUsername = username;
+        }
+
+        @Override
+        protected void onPreExecute() {
+
+        }
+
+        @Override
+        protected Void doInBackground(String... params) {
+
+            if (!instance.mRedditClient.isAuthenticated() || !instance.mRedditClient.hasActiveUserContext()) {
+                return null;
+            }
+            net.dean.jraw.models.Account user = instance.mRedditClient.getUser(mUsername);
+
+            if (!user.isFriend()) {
+                net.dean.jraw.managers.AccountManager accountManager = new net.dean.jraw.managers.AccountManager(instance.mRedditClient);
+                accountManager.updateFriend(mUsername);
+            }
+
+            ContentValues cv = new ContentValues();
+            cv.put(SiftContract.Users.COLUMN_SERVER_ID, user.getId());
+            cv.put(SiftContract.Users.COLUMN_USERNAME, mUsername);
+            Uri userUri = mContext.getContentResolver().insert(SiftContract.Users.CONTENT_URI, cv);
+            long userId = ContentUris.parseId(userUri);
+            cv.clear();
+
+            //add friend
+            long accountId = Utilities.getAccountId(mContext, instance.mRedditClient);
+            cv.put(SiftContract.Friends.COLUMN_ACCOUNT_ID, accountId);
+            cv.put(SiftContract.Friends.COLUMN_FRIEND_USER_ID, userId);
+            mContext.getContentResolver().insert(SiftContract.Friends.CONTENT_URI, cv);
+
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void nothing) {
+            Toast.makeText(mContext, mContext.getString(R.string.friend_added), Toast.LENGTH_LONG).show();
+        }
+    }
+
+
+    public static void removeFriend(Context context, String username) {
+        new RemoveFriendTask(context, username).execute();
+    }
+
+    private static final class RemoveFriendTask extends AsyncTask<String, Void, Void> {
+
+        Context mContext;
+        String mUsername;
+
+        public RemoveFriendTask(Context context, String username) {
+            mContext = context;
+            mUsername = username;
+        }
+
+        @Override
+        protected void onPreExecute() {
+
+        }
+
+        @Override
+        protected Void doInBackground(String... params) {
+
+            if (!instance.mRedditClient.isAuthenticated() || !instance.mRedditClient.hasActiveUserContext()) {
+                return null;
+            }
+            net.dean.jraw.models.Account user = instance.mRedditClient.getUser(mUsername);
+            if (user.isFriend()) {
+                net.dean.jraw.managers.AccountManager accountManager = new net.dean.jraw.managers.AccountManager(instance.mRedditClient);
+                accountManager.deleteFriend(mUsername);
+            }
+
+            long userId = Utilities.getSavedUserId(mContext, mUsername);
+
+            if (userId > 0) {
+                String selection = SiftContract.Friends.COLUMN_FRIEND_USER_ID + " = ?";
+                String[] selectionArgs = new String[]{String.valueOf(userId)};
+                int count = mContext.getContentResolver().delete(SiftContract.Friends.CONTENT_URI, selection, selectionArgs);
+                Log.v("Reddit", count + " Removed");
+
+            }
+
+
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void nothing) {
+            Toast.makeText(mContext, mContext.getString(R.string.friend_removed), Toast.LENGTH_LONG).show();
+        }
+    }
+
+
+
 
     public static String getImageUrl(Submission sub) {
         JsonNode data = sub.getDataNode();
