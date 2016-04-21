@@ -5,12 +5,22 @@ import android.appwidget.AppWidgetManager;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.drawable.Drawable;
+import android.support.v7.widget.RecyclerView;
+import android.view.View;
+import android.widget.ImageView;
 import android.widget.RemoteViews;
 import android.widget.RemoteViewsService;
+import android.widget.TextView;
 
 import com.blongdev.sift.R;
 import com.blongdev.sift.database.SiftContract;
 import com.squareup.okhttp.internal.Util;
+import com.squareup.picasso.Picasso;
+import com.squareup.picasso.Target;
+
+import net.dean.jraw.models.Comment;
 
 import java.util.ArrayList;
 
@@ -99,14 +109,19 @@ public class WidgetService extends RemoteViewsService {
 
         @Override
         public RemoteViews getViewAt(int position) {
-
             final RemoteViews remoteView = new RemoteViews(
                     context.getPackageName(), R.layout.sift_widget_item);
             PostInfo post = mList.get(position);
-            remoteView.setTextViewText(R.id.appwidget_text, post.mTitle);
+
+            remoteView.setTextViewText(R.id.post_title, post.mTitle);
+            remoteView.setTextViewText(R.id.post_username, post.mUsername);
+            remoteView.setTextViewText(R.id.post_subreddit, post.mSubreddit);
+            remoteView.setTextViewText(R.id.post_points, String.valueOf(post.mPoints));
+            remoteView.setTextViewText(R.id.post_comments, post.mComments + " Comments");
+            remoteView.setTextViewText(R.id.post_url, post.mDomain);
+            remoteView.setTextViewText(R.id.post_age, Utilities.getAgeString(post.mAge));
 
             Intent intent = new Intent(context, SiftWidget.class);
-
             intent.putExtra(context.getString(R.string.title), post.mTitle);
             intent.putExtra(context.getString(R.string.username), post.mUsername);
             intent.putExtra(context.getString(R.string.subreddit), post.mSubreddit);
@@ -120,9 +135,7 @@ public class WidgetService extends RemoteViewsService {
             intent.putExtra(context.getString(R.string.body), post.mBody);
             intent.putExtra(context.getString(R.string.domain), post.mDomain);
             intent.putExtra(context.getString(R.string.vote), post.mVote);
-
-
-            remoteView.setOnClickFillInIntent(R.id.appwidget_text, intent);
+            remoteView.setOnClickFillInIntent(R.id.post_title, intent);
 
             return remoteView;
         }
@@ -156,5 +169,4 @@ public class WidgetService extends RemoteViewsService {
         }
 
     }
-
 }

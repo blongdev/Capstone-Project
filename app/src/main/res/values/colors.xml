@@ -7,7 +7,8 @@
     <color name="colorPrimary">#37474F</color>
     <color name="colorPrimaryDark">#263238</color>
     <color name="colorAccent">#40C4FF</color>
-    <color name="background">#607D8B</color>
+    <color name="background">#546E7A</color>
+    <color name="cardBackground">#78909C</color>
 
     <color name="imageBg">#90A4AE</color>
 
