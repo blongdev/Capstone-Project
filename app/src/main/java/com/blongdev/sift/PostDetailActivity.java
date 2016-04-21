@@ -4,6 +4,7 @@ import android.app.FragmentTransaction;
 import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
 import android.graphics.Color;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
@@ -87,7 +88,33 @@ public class PostDetailActivity extends BaseActivity {
         String body = intent.getStringExtra(getString(R.string.body));
         String domain = intent.getStringExtra(getString(R.string.domain));
         mVote = intent.getIntExtra(getString(R.string.vote),0);
+
 //
+//        if (!TextUtils.isEmpty(title)) {
+//            Cursor cursor = null;
+//            try {
+//                String selection = SiftContract.Posts._ID + " = ?";
+//                String[] selectionArgs = new String[]{String.valueOf(mPostId)};
+//                cursor = getContentResolver().query(SiftContract.Posts.CONTENT_URI, null, selection, selectionArgs, null);
+//                if (cursor != null && cursor.moveToFirst()) {
+//                    title = cursor.getString(cursor.getColumnIndex(SiftContract.Posts.COLUMN_TITLE));
+//                    username = cursor.getString(cursor.getColumnIndex(SiftContract.Posts.COLUMN_OWNER_USERNAME));
+//                    subreddit = cursor.getString(cursor.getColumnIndex(SiftContract.Posts.COLUMN_SUBREDDIT_NAME));
+//                    points = cursor.getString(cursor.getColumnIndex(SiftContract.Posts.COLUMN_POINTS));
+//                    comments = cursor.getString(cursor.getColumnIndex(SiftContract.Posts.COLUMN_NUM_COMMENTS));
+//                    url = cursor.getString(cursor.getColumnIndex(SiftContract.Posts.COLUMN_URL));
+//                    age = Utilities.getAgeString(cursor.getLong(cursor.getColumnIndex(SiftContract.Posts.COLUMN_DATE_CREATED)));
+//                    imageUrl = cursor.getString(cursor.getColumnIndex(SiftContract.Posts.COLUMN_IMAGE_URL));
+//                    body = cursor.getString(cursor.getColumnIndex(SiftContract.Posts.COLUMN_BODY));
+//                    domain = cursor.getString(cursor.getColumnIndex(SiftContract.Posts.COLUMN_DOMAIN));
+//                    mVote = cursor.getInt(cursor.getColumnIndex(SiftContract.Posts.COLUMN_VOTE));
+//                }
+//            } finally {
+//                if (cursor != null) {
+//                    cursor.close();
+//                }
+//            }
+//        }
 
         mPostDetailLayout = (LinearLayout) findViewById(R.id.post_detail_layout);
         mTitle = (TextView) findViewById(R.id.post_title);
