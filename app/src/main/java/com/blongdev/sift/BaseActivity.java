@@ -23,10 +23,12 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
+import android.text.InputType;
 import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -44,6 +46,7 @@ public class BaseActivity extends AppCompatActivity implements Reddit.OnRefreshC
     MenuItem mNavProfile;
     MenuItem mNavInbox;
     MenuItem mNavFriends;
+    MenuItem mMySubreddits;
 
     String mUsername;
 
@@ -88,6 +91,7 @@ public class BaseActivity extends AppCompatActivity implements Reddit.OnRefreshC
         mNavFriends = mNavMenu.findItem(R.id.nav_friends);
         mNavProfile = mNavMenu.findItem(R.id.nav_profile);
         mNavInbox = mNavMenu.findItem(R.id.nav_inbox);
+        mMySubreddits = mNavMenu.findItem(R.id.nav_subreddits);
 
         mRemoveAccount = mNavHeader.findViewById(R.id.remove_account);
 
@@ -107,6 +111,7 @@ public class BaseActivity extends AppCompatActivity implements Reddit.OnRefreshC
                     mNavFriends.setVisible(false);
                     mNavProfile.setVisible(false);
                     mNavInbox.setVisible(false);
+                    mMySubreddits.setVisible(false);
                 }
             }
         } finally {
@@ -148,6 +153,54 @@ public class BaseActivity extends AppCompatActivity implements Reddit.OnRefreshC
                 case R.id.nav_subreddits:
                     intent = new Intent(getApplicationContext(), SubredditListActivity.class);
                     startActivity(intent);
+                    return true;
+                case R.id.nav_go_to_user:
+                    AlertDialog.Builder userBuilder = new AlertDialog.Builder(BaseActivity.this);
+
+                    final EditText userInput = new EditText(BaseActivity.this);
+                    userInput.setInputType(InputType.TYPE_CLASS_TEXT);
+                    userBuilder.setView(userInput);
+
+                    userBuilder.setMessage(getString(R.string.nav_go_to_user))
+                        .setPositiveButton(R.string.go, new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                String user = userInput.getText().toString();
+                                if (!TextUtils.isEmpty(user)) {
+                                    Reddit.goToUser(getApplicationContext(), user);
+                                }
+                            }
+                        })
+                        .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+
+                            }
+                        });
+                    AlertDialog userDialog = userBuilder.create();
+                    userDialog.show();
+                    return true;
+                case R.id.nav_go_to_subreddit:
+                    AlertDialog.Builder subredditBuilder = new AlertDialog.Builder(BaseActivity.this);
+
+                    final EditText subredditInput = new EditText(BaseActivity.this);
+                    subredditInput.setInputType(InputType.TYPE_CLASS_TEXT);
+                    subredditBuilder.setView(subredditInput);
+
+                    subredditBuilder.setMessage(getString(R.string.nav_go_to_subreddit))
+                            .setPositiveButton(R.string.go, new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int id) {
+                                    String sub = subredditInput.getText().toString();
+                                    if (!TextUtils.isEmpty(sub)) {
+                                        Reddit.goToSubreddit(getApplicationContext(), sub);
+                                    }
+                                }
+                            })
+                            .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int id) {
+
+                                }
+                            });
+                    AlertDialog subredditDialog = subredditBuilder.create();
+                    subredditDialog.show();
                     return true;
                 case R.id.nav_settings:
                     intent = new Intent(getApplicationContext(), SettingsActivity.class);

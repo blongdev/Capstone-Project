@@ -7,8 +7,18 @@
     <string name="action_settings">Settings</string>
     <string name="nav_header_add_account">Log in</string>
     <string name="nav_header_remove_account">Remove Account</string>
+    <string name="nav_home">Home</string>
+    <string name="nav_profile">My Profile</string>
+    <string name="nav_inbox">Inbox</string>
+    <string name="nav_friends">Friends</string>
+    <string name="nav_subreddits">My Subreddits</string>
+    <string name="nav_settings">Settings</string>
+    <string name="nav_go_to_user">Go To User</string>
+    <string name="nav_go_to_subreddit">Go To Subreddit</string>
+    <string name="nav_popular">Popular</string>
 
     <string name="remove">Remove</string>
+    <string name="go">Go</string>
     <string name="cancel">Cancel</string>
     <string name="remove_account">Remove this account?</string>
 
@@ -77,6 +87,8 @@
     <string name="comment_posted">Comment Posted</string>
     <string name="friend_added">Friend Added</string>
     <string name="friend_removed">Friend Removed</string>
+    <string name="user_not_found">User not found</string>
+    <string name="subreddit_not_found">Subreddit not found</string>
 
 
     <!-- Strings related to Settings -->

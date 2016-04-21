@@ -9,37 +9,49 @@
             android:id="@+id/nav_home"
             android:icon="@drawable/ic_home_24dp"
             android:checked="false"
-            android:title="Home" />
+            android:title="@string/nav_home" />
 
         <item
             android:id="@+id/nav_profile"
             android:checked="false"
             android:icon="@drawable/ic_person_24dp"
-            android:title="Profile" />
+            android:title="@string/nav_profile" />
 
         <item
             android:id="@+id/nav_inbox"
             android:checked="false"
             android:icon="@drawable/ic_email_24dp"
-            android:title="Inbox" />
+            android:title="@string/nav_inbox" />
 
         <item
             android:id="@+id/nav_friends"
             android:checked="false"
             android:icon="@drawable/ic_people_24dp"
-            android:title="Friends" />
+            android:title="@string/nav_friends" />
 
         <item
             android:id="@+id/nav_subreddits"
             android:checked="false"
             android:icon="@drawable/ic_folder_24dp"
-            android:title="Subreddits" />
+            android:title="@string/nav_subreddits"/>
+
+        <item
+            android:id="@+id/nav_go_to_user"
+            android:checked="false"
+            android:icon="@drawable/ic_arrow_forward_24dp"
+            android:title="@string/nav_go_to_user"/>
+
+        <item
+            android:id="@+id/nav_go_to_subreddit"
+            android:checked="false"
+            android:icon="@drawable/ic_arrow_forward_24dp"
+            android:title="@string/nav_go_to_subreddit"/>
 
         <item
             android:id="@+id/nav_settings"
             android:checked="false"
             android:icon="@drawable/ic_settings_24dp"
-            android:title="Settings" />
+            android:title="@string/nav_settings" />
 
     </group>
 </menu>

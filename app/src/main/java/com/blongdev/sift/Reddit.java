@@ -6,6 +6,7 @@ import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -971,7 +972,103 @@ public class Reddit {
         }
     }
 
+    public static void goToUser(Context context, String username) {
+        new GoToUserTask(context, username).execute();
+    }
 
+    private static final class GoToUserTask extends AsyncTask<String, Void, Void> {
+
+        Context mContext;
+        String mUsername;
+        boolean mUserFound = false;
+
+        public GoToUserTask(Context context, String username) {
+            mContext = context;
+            mUsername = username;
+        }
+
+        @Override
+        protected void onPreExecute() {
+
+        }
+
+        @Override
+        protected Void doInBackground(String... params) {
+            if (!instance.mRedditClient.isAuthenticated()) {
+                return null;
+            }
+
+            try {
+                instance.mRedditClient.getUser(mUsername);
+                mUserFound = true;
+            } catch (NetworkException e) {
+                e.printStackTrace();
+            }
+
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void nothing) {
+            if (mUserFound) {
+                Intent intent = new Intent(mContext, UserInfoActivity.class);
+                intent.putExtra(mContext.getString(R.string.username), mUsername);
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                mContext.startActivity(intent);
+            } else {
+                Toast.makeText(mContext, mContext.getString(R.string.user_not_found), Toast.LENGTH_LONG).show();
+            }
+        }
+    }
+
+    public static void goToSubreddit(Context context, String subreddit) {
+        new GoToSubredditTask(context, subreddit).execute();
+    }
+
+    private static final class GoToSubredditTask extends AsyncTask<String, Void, Void> {
+
+        Context mContext;
+        String mSubreddit;
+        boolean mSubredditFound = false;
+
+        public GoToSubredditTask(Context context, String subreddit) {
+            mContext = context;
+            mSubreddit = subreddit;
+        }
+
+        @Override
+        protected void onPreExecute() {
+
+        }
+
+        @Override
+        protected Void doInBackground(String... params) {
+            if (!instance.mRedditClient.isAuthenticated()) {
+                return null;
+            }
+
+            try {
+                instance.mRedditClient.getSubreddit(mSubreddit);
+                mSubredditFound = true;
+            } catch (NetworkException e) {
+                e.printStackTrace();
+            }
+
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void nothing) {
+            if (mSubredditFound) {
+                Intent intent = new Intent(mContext, SubredditActivity.class);
+                intent.putExtra(mContext.getString(R.string.subreddit_name), mSubreddit);
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                mContext.startActivity(intent);
+            } else {
+                Toast.makeText(mContext, mContext.getString(R.string.subreddit_not_found), Toast.LENGTH_LONG).show();
+            }
+        }
+    }
 
 
     public static String getImageUrl(Submission sub) {
