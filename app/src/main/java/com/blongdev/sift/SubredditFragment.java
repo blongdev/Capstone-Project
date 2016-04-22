@@ -112,7 +112,7 @@ public class SubredditFragment extends Fragment implements LoaderManager.LoaderC
         } else {
             Intent intent = getActivity().getIntent();
             mSubredditName = intent.getStringExtra(getString(R.string.subreddit_name));
-            mSubredditId = intent.getLongExtra(getString(R.string.subreddit_id), -1);
+            mSubredditId = intent.getLongExtra(getString(R.string.subreddit_id), 0);
             mPaginatorType = intent.getIntExtra(getString(R.string.paginator_type), SubredditInfo.SUBREDDIT_PAGINATOR);
             mSearchTerm = intent.getStringExtra(getString(R.string.search_term));
             mUsername = intent.getStringExtra(getString(R.string.username));

@@ -12,6 +12,7 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.Settings;
+import android.support.v4.content.LocalBroadcastManager;
 import android.text.TextUtils;
 import android.util.Log;
 import android.widget.Toast;
@@ -51,6 +52,8 @@ public class Reddit {
 
     public static final String ACCOUNT_TYPE = "com.blongdev";
     public static final String GENERAL_ACCOUNT = "General";
+
+    public static final String AUTHENTICATED = "com.blongdev.sift.AUTH_KEY_REFRESHED";
 
 
     public static final long SECONDS_PER_MINUTE = 60L;
@@ -111,7 +114,7 @@ public class Reddit {
                  if (cursor.moveToFirst()) {
                     mRefreshToken = cursor.getString(cursor.getColumnIndex(SiftContract.Accounts.COLUMN_REFRESH_KEY));
                     if (mRefreshToken != null && !mRefreshToken.isEmpty()) {
-                        new RefreshTokenTask(callback).execute();
+                        new RefreshTokenTask(callback, context).execute();
                         return;
                     }
                  } else {
@@ -204,9 +207,11 @@ public class Reddit {
     private final class RefreshTokenTask extends AsyncTask<String, Void, OAuthData> {
 
         private OnRefreshCompleted mOnRefreshCompleted;
+        private Context mContext;
 
-        public RefreshTokenTask(OnRefreshCompleted activity) {
+        public RefreshTokenTask(OnRefreshCompleted activity, Context context) {
             mOnRefreshCompleted = activity;
+            mContext = context;
         }
 
         @Override
@@ -230,6 +235,9 @@ public class Reddit {
         protected void onPostExecute(OAuthData oAuthData) {
             Log.v(LOG_TAG, "onPostExecute()");
             mOnRefreshCompleted.onRefreshCompleted();
+
+            Intent refreshIntent = new Intent(AUTHENTICATED);
+            LocalBroadcastManager.getInstance(mContext).sendBroadcast(refreshIntent);
         }
     }
 
@@ -269,6 +277,9 @@ public class Reddit {
         protected void onPostExecute(Void nothing) {
             Log.v(LOG_TAG, "onPostExecute()");
             mOnRefreshCompleted.onRefreshCompleted();
+
+            Intent refreshIntent = new Intent(AUTHENTICATED);
+            LocalBroadcastManager.getInstance(mContext).sendBroadcast(refreshIntent);
         }
     }
 

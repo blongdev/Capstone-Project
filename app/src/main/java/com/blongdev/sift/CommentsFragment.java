@@ -1,13 +1,16 @@
 package com.blongdev.sift;
 
 import android.app.Activity;
+import android.content.BroadcastReceiver;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.LocalBroadcastManager;
 import android.text.TextUtils;
 import android.text.util.Linkify;
 import android.util.Log;
@@ -49,6 +52,15 @@ public class CommentsFragment extends Fragment {
     TextView mNoComments;
     ProgressBar mLoadingSpinner;
 
+    private BroadcastReceiver mBroadcastReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (!TextUtils.isEmpty(mPostServerId)) {
+                new getCommentsTask().execute();
+            }
+        }
+    };
+
     public CommentsFragment() {
         // Required empty public constructor
     }
@@ -70,13 +82,7 @@ public class CommentsFragment extends Fragment {
         mNoComments = (TextView) rootView.findViewById(R.id.no_comments);
         mLoadingSpinner = (ProgressBar) rootView.findViewById(R.id.progressSpinner);
 
-        //createTree();
-
         mCommentsContainer = (FrameLayout) rootView.findViewById(R.id.comments_container);
-//        AndroidTreeView tView = new AndroidTreeView(getActivity(), mRoot);
-//        tView.setDefaultContainerStyle(R.style.CommentStyle);
-//        //tView.setDefaultViewHolder(CommentViewHolder.class);
-//        mCommentsContainer.addView(tView.getView());
 
         Bundle args = getArguments();
         if (args != null) {
@@ -89,6 +95,22 @@ public class CommentsFragment extends Fragment {
 
         return rootView;
     }
+
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        LocalBroadcastManager.getInstance(getContext()).registerReceiver(mBroadcastReceiver,
+                new IntentFilter(Reddit.AUTHENTICATED));
+    }
+
+    @Override
+    public void onPause() {
+        LocalBroadcastManager.getInstance(getContext()).unregisterReceiver(mBroadcastReceiver);
+        super.onPause();
+    }
+
 
     private TreeNode createCommentNode(CommentInfo comment) {
         return new TreeNode(comment).setViewHolder(new CommentViewHolder(getContext()));
@@ -296,8 +318,14 @@ public class CommentsFragment extends Fragment {
 
         @Override
         protected Void doInBackground(String... params) {
+
             long startTime = System.currentTimeMillis();
             Reddit reddit = Reddit.getInstance();
+
+            if (!reddit.mRedditClient.isAuthenticated()) {
+                return null;
+            }
+
             Submission post = reddit.mRedditClient.getSubmission(mPostServerId);
             CommentNode root = post.getComments();
 
@@ -314,7 +342,7 @@ public class CommentsFragment extends Fragment {
         protected void onPostExecute(Void nothing) {
 
             //if the user leaves the activity before comments load, return to prevent a crash
-            if (getContext() == null) {
+            if (getContext() == null || mRoot == null) {
                 return;
             }
 
