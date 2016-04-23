@@ -17,6 +17,8 @@
     <string name="nav_go_to_subreddit">Go To Subreddit</string>
     <string name="nav_popular">Popular</string>
 
+    <string name="popular">popular</string>
+
     <string name="remove">Remove</string>
     <string name="go">Go</string>
     <string name="cancel">Cancel</string>

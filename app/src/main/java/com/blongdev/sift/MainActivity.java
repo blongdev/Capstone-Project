@@ -3,6 +3,7 @@ package com.blongdev.sift;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -41,6 +42,7 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
 
     private ArrayList<SubscriptionInfo> mSubreddits;
     ProgressBar mLoadingSpinner;
+    String mCategory = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,7 +57,14 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
         frontpage.mSubredditName = getString(R.string.frontPage);
         mSubreddits.add(frontpage);
 
-        if (Utilities.loggedIn(getApplicationContext())) {
+        Intent intent = getIntent();
+        if (intent != null) {
+            mCategory = intent.getStringExtra(getString(R.string.category));
+        }
+
+        if (mCategory != null && mReddit.mRedditClient.isAuthenticated()) {
+            new GetSubredditsTask(getApplicationContext()).execute();
+        } else if (Utilities.loggedIn(getApplicationContext())){
             getSupportLoaderManager().initLoader(0, null, this);
         } else if (mReddit.mRedditClient.isAuthenticated()){
             new GetSubredditsTask(getApplicationContext()).execute();
@@ -179,6 +188,7 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
     private final class GetSubredditsTask extends AsyncTask<String, Void, ArrayList<SubscriptionInfo>> {
 
         Context mContext;
+
 
         public GetSubredditsTask(Context context) {
             mContext = context;

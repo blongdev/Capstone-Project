@@ -154,6 +154,11 @@ public class BaseActivity extends AppCompatActivity implements Reddit.OnRefreshC
                     intent = new Intent(getApplicationContext(), SubredditListActivity.class);
                     startActivity(intent);
                     return true;
+                case R.id.nav_popular:
+                    intent = new Intent(getApplicationContext(), MainActivity.class);
+                    intent.putExtra(getString(R.string.category), getString(R.string.popular));
+                    startActivity(intent);
+                    return true;
                 case R.id.nav_go_to_user:
                     AlertDialog.Builder userBuilder = new AlertDialog.Builder(BaseActivity.this);
 
