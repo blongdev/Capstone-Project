@@ -30,6 +30,7 @@ import net.dean.jraw.http.oauth.Credentials;
 import net.dean.jraw.http.oauth.OAuthData;
 import net.dean.jraw.http.oauth.OAuthException;
 import net.dean.jraw.http.oauth.OAuthHelper;
+import net.dean.jraw.models.Captcha;
 import net.dean.jraw.models.Comment;
 import net.dean.jraw.models.LoggedInAccount;
 import net.dean.jraw.models.Submission;
@@ -53,7 +54,7 @@ public class Reddit {
     public static final String ACCOUNT_TYPE = "com.blongdev";
     public static final String GENERAL_ACCOUNT = "General";
 
-    public static final String AUTHENTICATED = "com.blongdev.sift.AUTH_KEY_REFRESHED";
+    public static final String AUTHENTICATED = "com.blongdev.sift.AUTHENTICATED";
 
 
     public static final long SECONDS_PER_MINUTE = 60L;
@@ -1032,6 +1033,8 @@ public class Reddit {
         }
     }
 
+
+
     public static void goToSubreddit(Context context, String subreddit) {
         new GoToSubredditTask(context, subreddit).execute();
     }
@@ -1080,6 +1083,48 @@ public class Reddit {
             }
         }
     }
+
+
+    public static void getCaptcha(Context context) {
+        new GetCaptchaTask(context).execute();
+    }
+
+    private static final class GetCaptchaTask extends AsyncTask<String, Void, Captcha> {
+
+        Context mContext;
+
+        public GetCaptchaTask(Context context) {
+            mContext = context;
+        }
+
+        @Override
+        protected void onPreExecute() {
+
+        }
+
+        @Override
+        protected Captcha doInBackground(String... params) {
+            if (!instance.mRedditClient.isAuthenticated()) {
+                return null;
+            }
+
+            try {
+                if (instance.mRedditClient.needsCaptcha()) {
+                    return instance.mRedditClient.getNewCaptcha();
+                }
+            } catch (NetworkException | ApiException e) {
+                e.printStackTrace();
+            }
+
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Captcha captcha) {
+
+        }
+    }
+
 
 
     public static String getImageUrl(Submission sub) {

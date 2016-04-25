@@ -256,6 +256,7 @@ public class SubredditFragment extends Fragment implements LoaderManager.LoaderC
                         post.mPosition = ((mPaginator.getPageIndex() - 1) * PAGE_SIZE) + i;
                         post.mContributionType = ContributionInfo.CONTRIBUTION_POST;
                         post.mVote = submission.getVote().getValue();
+                        post.mFavorited = submission.isSaved();
                         newPostArray.add(post);
                         mPosts.add(post);
                     }
@@ -337,6 +338,7 @@ public class SubredditFragment extends Fragment implements LoaderManager.LoaderC
             cv.put(SiftContract.Posts.COLUMN_POSITION, post.mPosition);
             cv.put(SiftContract.Posts.COLUMN_SERVER_ID, post.mServerId);
             cv.put(SiftContract.Posts.COLUMN_VOTE, post.mVote);
+            cv.put(SiftContract.Posts.COLUMN_FAVORITED, post.mFavorited);
             mContentResolver.insert(SiftContract.Posts.CONTENT_URI, cv);
         }
     }

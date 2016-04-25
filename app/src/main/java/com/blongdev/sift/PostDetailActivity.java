@@ -32,6 +32,8 @@ import android.widget.Toast;
 
 import com.blongdev.sift.database.SiftContract;
 import com.fasterxml.jackson.databind.deser.Deserializers;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
 
 public class PostDetailActivity extends BaseActivity {
     private int mPostId = 0;
@@ -282,6 +284,14 @@ public class PostDetailActivity extends BaseActivity {
                 }
             }
         });
+
+
+        //admob
+        AdView mAdView = (AdView) findViewById(R.id.adView);
+        AdRequest adRequest = new AdRequest.Builder()
+                .addTestDevice("83A93BC0EF7E3BAB7AF855EAF3421EC4")
+                .build();
+        mAdView.loadAd(adRequest);
     }
 
     private void upvote(Context context) {

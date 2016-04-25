@@ -45,4 +45,7 @@ dependencies {
 
     //analytics
     compile 'com.google.android.gms:play-services-analytics:8.3.0'
+
+    //admob
+    compile 'com.google.android.gms:play-services-ads:8.3.0'
 }

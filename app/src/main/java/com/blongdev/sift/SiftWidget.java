@@ -28,6 +28,8 @@ import java.util.List;
  */
 public class SiftWidget extends AppWidgetProvider {
 
+    public static final String WIDGET_IDS ="siftWidgetIds";
+
     static void updateAppWidget(Context context, AppWidgetManager appWidgetManager,
                                 int appWidgetId) {
 
@@ -72,6 +74,11 @@ public class SiftWidget extends AppWidgetProvider {
         if (intent.getAction().equals(WidgetService.ListProvider.GO_TO_POST_DETAIL)) {
             Intent activity = new Intent(context,PostDetailActivity.class);
             context.startActivity(activity);
+        } else if (intent.hasExtra(WIDGET_IDS)) {
+            int[] ids = intent.getExtras().getIntArray(WIDGET_IDS);
+            this.onUpdate(context, AppWidgetManager.getInstance(context), ids);
+        } else {
+            super.onReceive(context, intent);
         }
 
     }

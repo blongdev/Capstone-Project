@@ -1,8 +1,10 @@
 package com.blongdev.sift.sync;
 
 import android.accounts.Account;
+import android.appwidget.AppWidgetManager;
 import android.content.AbstractThreadedSyncAdapter;
 import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.ContentProviderClient;
 import android.content.ContentResolver;
 import android.content.ContentUris;
@@ -14,6 +16,7 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.RemoteException;
+import android.text.TextUtils;
 import android.util.Log;
 
 import com.blongdev.sift.AccountInfo;
@@ -21,6 +24,7 @@ import com.blongdev.sift.ContributionInfo;
 import com.blongdev.sift.R;
 import com.blongdev.sift.Reddit;
 import com.blongdev.sift.SiftApplication;
+import com.blongdev.sift.SiftWidget;
 import com.blongdev.sift.SubscriptionInfo;
 import com.blongdev.sift.UserInfo;
 import com.blongdev.sift.Utilities;
@@ -53,6 +57,7 @@ public class SiftSyncAdapter extends AbstractThreadedSyncAdapter {
     // Global variables
     // Define a variable to contain a content resolver instance
     ContentResolver mContentResolver;
+    Context mContext;
 
     /**
      * Set up the sync adapter
@@ -64,6 +69,7 @@ public class SiftSyncAdapter extends AbstractThreadedSyncAdapter {
          * from the incoming Context
          */
         mContentResolver = context.getContentResolver();
+        mContext = context;
     }
 
     /**
@@ -107,8 +113,9 @@ public class SiftSyncAdapter extends AbstractThreadedSyncAdapter {
             }
         }
 
+        RedditClient redditClient = new RedditClient(Reddit.getUserAgent());
+
         for (AccountInfo currentAccount : accounts) {
-            RedditClient redditClient = new RedditClient(Reddit.getUserAgent());
             OAuthHelper oAuthHelper = redditClient.getOAuthHelper();
             oAuthHelper.setRefreshToken(currentAccount.mRefreshKey);
             try {
@@ -119,14 +126,48 @@ public class SiftSyncAdapter extends AbstractThreadedSyncAdapter {
             }
 
             if (redditClient.isAuthenticated() && redditClient.hasActiveUserContext()) {
-                getData(redditClient, currentAccount.mId, provider);
+                getData(redditClient, currentAccount.mId, provider, initialSync);
             }
         }
 
-        if (initialSync)
-        {
+        if (initialSync) {
             Intent intent = new Intent("com.blongdev.sift.loggedIn");
             SiftApplication.getContext().sendBroadcast(intent);
+        } else {
+            //sync front page posts
+            SubredditPaginator paginator = new SubredditPaginator(redditClient);
+            Listing<Submission> submissions = paginator.next();
+
+            ContentValues cv = new ContentValues();
+            int i = 0;
+            for (Submission sub : submissions) {
+                cv.put(SiftContract.Posts.COLUMN_SERVER_ID, sub.getId());
+                cv.put(SiftContract.Posts.COLUMN_TITLE, sub.getTitle());
+                cv.put(SiftContract.Posts.COLUMN_OWNER_USERNAME, sub.getAuthor());
+                cv.put(SiftContract.Posts.COLUMN_SUBREDDIT_NAME, sub.getSubredditName());
+                cv.put(SiftContract.Posts.COLUMN_SUBREDDIT_ID, -1);
+                cv.put(SiftContract.Posts.COLUMN_POINTS, sub.getScore());
+                cv.put(SiftContract.Posts.COLUMN_URL, sub.getUrl());
+                cv.put(SiftContract.Posts.COLUMN_IMAGE_URL, Reddit.getImageUrl(sub));
+                cv.put(SiftContract.Posts.COLUMN_NUM_COMMENTS, sub.getCommentCount());
+                cv.put(SiftContract.Posts.COLUMN_BODY, sub.getSelftext());
+                cv.put(SiftContract.Posts.COLUMN_DOMAIN, sub.getDomain());
+                cv.put(SiftContract.Posts.COLUMN_DATE_CREATED, sub.getCreatedUtc().getTime());
+                cv.put(SiftContract.Posts.COLUMN_VOTE, sub.getVote().getValue());
+                cv.put(SiftContract.Posts.COLUMN_FAVORITED, sub.isSaved());
+                cv.put(SiftContract.Posts.COLUMN_POSITION, i);
+                mContentResolver.insert(SiftContract.Posts.CONTENT_URI, cv);
+                cv.clear();
+                i++;
+            }
+
+            //update widgets with new frontpage posts
+            AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(mContext);
+            int[] appWidgetIds = appWidgetManager.getAppWidgetIds(new ComponentName(mContext, SiftWidget.class));
+            Intent updateIntent = new Intent();
+            updateIntent.setAction(AppWidgetManager.ACTION_APPWIDGET_UPDATE);
+            updateIntent.putExtra(SiftWidget.WIDGET_IDS, appWidgetIds);
+            mContext.sendBroadcast(updateIntent);
         }
 
         long endTime = System.currentTimeMillis();
@@ -134,7 +175,7 @@ public class SiftSyncAdapter extends AbstractThreadedSyncAdapter {
         Log.v("SiftSyncAdapter", "Sync Completed. Total Time: " + (endTime - startTime) / 1000 + " seconds");
     }
 
-    private void getData(RedditClient redditClient, int accountId, ContentProviderClient provider) {
+    private void getData(RedditClient redditClient, int accountId, ContentProviderClient provider, boolean initialSync) {
         ContentValues cv = new ContentValues();
         //Subscribed
         UserSubredditsPaginator subscribed = new UserSubredditsPaginator(redditClient, "subscriber");
@@ -143,17 +184,50 @@ public class SiftSyncAdapter extends AbstractThreadedSyncAdapter {
             Listing<Subreddit> subreddits = subscribed.next();
             for (Subreddit s : subreddits) {
                 //add subreddit
-                cv.put(SiftContract.Subreddits.COLUMN_NAME, s.getDisplayName());
-                cv.put(SiftContract.Subreddits.COLUMN_SERVER_ID, s.getId());
-                Uri subredditUri = mContentResolver.insert(SiftContract.Subreddits.CONTENT_URI, cv);
-                long subredditId = ContentUris.parseId(subredditUri);
-                cv.clear();
+                String subName = s.getDisplayName();
+                String serverId = s.getId();
+
+                //check if subreddit exists in db
+                long subredditId = Utilities.getSubredditId(SiftApplication.getContext(), serverId);
+                if (subredditId <= 0) {
+                    cv.put(SiftContract.Subreddits.COLUMN_NAME, subName);
+                    cv.put(SiftContract.Subreddits.COLUMN_SERVER_ID, serverId);
+                    Uri subredditUri = mContentResolver.insert(SiftContract.Subreddits.CONTENT_URI, cv);
+                    subredditId = ContentUris.parseId(subredditUri);
+                    cv.clear();
+                }
 
                 //add subscription
                 cv.put(SiftContract.Subscriptions.COLUMN_ACCOUNT_ID, accountId);
                 cv.put(SiftContract.Subscriptions.COLUMN_SUBREDDIT_ID, subredditId);
                 mContentResolver.insert(SiftContract.Subscriptions.CONTENT_URI, cv);
                 cv.clear();
+
+                if (!initialSync) {
+                    SubredditPaginator paginator = new SubredditPaginator(redditClient, subName);
+                    Listing<Submission> submissions = paginator.next();
+                    int i = 0;
+                    for (Submission sub : submissions) {
+                        cv.put(SiftContract.Posts.COLUMN_SERVER_ID, sub.getId());
+                        cv.put(SiftContract.Posts.COLUMN_TITLE, sub.getTitle());
+                        cv.put(SiftContract.Posts.COLUMN_OWNER_USERNAME, sub.getAuthor());
+                        cv.put(SiftContract.Posts.COLUMN_SUBREDDIT_NAME, sub.getSubredditName());
+                        cv.put(SiftContract.Posts.COLUMN_SUBREDDIT_ID, subredditId);
+                        cv.put(SiftContract.Posts.COLUMN_POINTS, sub.getScore());
+                        cv.put(SiftContract.Posts.COLUMN_URL, sub.getUrl());
+                        cv.put(SiftContract.Posts.COLUMN_IMAGE_URL, Reddit.getImageUrl(sub));
+                        cv.put(SiftContract.Posts.COLUMN_NUM_COMMENTS, sub.getCommentCount());
+                        cv.put(SiftContract.Posts.COLUMN_BODY, sub.getSelftext());
+                        cv.put(SiftContract.Posts.COLUMN_DOMAIN, sub.getDomain());
+                        cv.put(SiftContract.Posts.COLUMN_DATE_CREATED, sub.getCreatedUtc().getTime());
+                        cv.put(SiftContract.Posts.COLUMN_VOTE, sub.getVote().getValue());
+                        cv.put(SiftContract.Posts.COLUMN_FAVORITED, sub.isSaved());
+                        cv.put(SiftContract.Posts.COLUMN_POSITION, i);
+                        mContentResolver.insert(SiftContract.Posts.CONTENT_URI, cv);
+                        cv.clear();
+                        i++;
+                    }
+                }
             }
         }
 

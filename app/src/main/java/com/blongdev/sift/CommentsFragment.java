@@ -370,6 +370,5 @@ public class CommentsFragment extends Fragment {
                 copyTree(child, commentNode);
             }
         }
-
     }
 }

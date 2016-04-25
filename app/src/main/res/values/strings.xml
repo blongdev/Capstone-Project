@@ -170,4 +170,8 @@
     <string name="title_activity_search_results">SearchResultsActivity</string>
     <string name="appwidget_text">EXAMPLE</string>
     <string name="add_widget">Add widget</string>
+    
+    
+    <!--admob unit ids-->
+    <string name="admob_unit_id_post_detail">ca-app-pub-0619092467992816/8561604081</string>
 </resources>
