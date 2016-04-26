@@ -51,6 +51,8 @@ public class CommentsFragment extends Fragment {
     Activity mActivity;
     TextView mNoComments;
     ProgressBar mLoadingSpinner;
+    AndroidTreeView mTreeView;
+    View mTree;
 
     private BroadcastReceiver mBroadcastReceiver = new BroadcastReceiver() {
         @Override
@@ -111,30 +113,49 @@ public class CommentsFragment extends Fragment {
         super.onPause();
     }
 
-
-    private TreeNode createCommentNode(CommentInfo comment) {
-        return new TreeNode(comment).setViewHolder(new CommentViewHolder(getContext()));
+    public void replyToPost(){
+        addReplyNode(getContext(), mRoot);
     }
 
+    private void addReplyNode(Context context, TreeNode node) {
+        String username = Utilities.getLoggedInUsername(context);
+        CommentInfo commentInfo = new CommentInfo();
+        commentInfo.mUsername = username;
+        commentInfo.mPoints = 1;
+        TreeNode child = createReplyNode(commentInfo);
+        mTreeView.addNode(node, child);
+        mTreeView.expandNode(node);
+    }
+
+    private TreeNode createCommentNode(CommentInfo comment) {
+        return new TreeNode(comment).setViewHolder(new CommentViewHolder(getContext(), false));
+    }
+
+    private TreeNode createReplyNode(CommentInfo comment) {
+        return new TreeNode(comment).setViewHolder(new CommentViewHolder(getContext(), true));
+    }
 
     public class CommentViewHolder extends TreeNode.BaseNodeViewHolder<CommentInfo> {
 
         ImageView mUpvote;
         ImageView mDownvote;
         TextView mPoints;
+        TextView mBody;
         Comment mComment;
         int mVote;
         ImageView mReply;
         EditText mReplyText;
         ImageView mSendComment;
         LinearLayout mCommentArea;
+        boolean mIsReply;
 
-        public CommentViewHolder(Context context) {
+        public CommentViewHolder(Context context, boolean isReply) {
             super(context);
+            mIsReply = isReply;
         }
 
         @Override
-        public View createNodeView(TreeNode node, CommentInfo value) {
+        public View createNodeView(final TreeNode node, CommentInfo value) {
             final LayoutInflater inflater = LayoutInflater.from(context);
             final View view = inflater.inflate(R.layout.comment, null, false);
 
@@ -149,10 +170,19 @@ public class CommentsFragment extends Fragment {
             LinearLayout commentView = (LinearLayout) view.findViewById(R.id.comment_view);
             commentView.setPadding(padding_left, 0, padding, 0);
 
-            mComment = value.mJrawComment;
-            mVote = mComment.getVote().getValue();
+            if (!mIsReply) {
+                mComment = value.mJrawComment;
+                mVote = mComment.getVote().getValue();
+            } else {
+                mVote = SiftContract.Posts.UPVOTE;
+                TreeNode parent = node.getParent();
+                if (parent != null && !parent.isRoot()) {
+                    CommentInfo ci = (CommentInfo) parent.getValue();
+                    mComment = ci.mJrawComment;
+                }
+            }
 
-            TextView body = (TextView) view.findViewById(R.id.comment_body);
+            mBody = (TextView) view.findViewById(R.id.comment_body);
             TextView username = (TextView) view.findViewById(R.id.comment_username);
             mPoints = (TextView) view.findViewById(R.id.comment_points);
             mUpvote = (ImageView) view.findViewById(R.id.upvote);
@@ -161,6 +191,13 @@ public class CommentsFragment extends Fragment {
             mReplyText = (EditText) view.findViewById(R.id.reply_text);
             mCommentArea = (LinearLayout) view.findViewById(R.id.comment_area);
             mSendComment = (ImageView) view.findViewById(R.id.send);
+
+            if (mIsReply) {
+                mCommentArea.setVisibility(View.VISIBLE);
+                mReplyText.requestFocus();
+                mBody.setVisibility(View.GONE);
+                mReply.setVisibility(View.GONE);
+            }
 
             mUpvote.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -184,17 +221,15 @@ public class CommentsFragment extends Fragment {
                         return;
                     }
 
-                    if (mCommentArea.getVisibility() == View.GONE) {
-                        mCommentArea.setVisibility(View.VISIBLE);
-                        mReplyText.requestFocus();
-                    } else {
-                        mCommentArea.setVisibility(View.GONE);
-                        mReplyText.clearFocus();
+                    addReplyNode(context, node);
 
-                        //hide keyboard
-                        InputMethodManager imm = (InputMethodManager) v.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
-                        imm.hideSoftInputFromWindow(mReplyText.getWindowToken(), 0);
-                    }
+//                    String username = Utilities.getLoggedInUsername(context);
+//                    CommentInfo commentInfo = new CommentInfo();
+//                    commentInfo.mUsername = username;
+//                    commentInfo.mPoints = 1;
+//                    TreeNode child = createReplyNode(commentInfo);
+//                    mTreeView.addNode(node, child);
+//                    mTreeView.expandNode(node);
                 }
             });
 
@@ -202,8 +237,13 @@ public class CommentsFragment extends Fragment {
                 @Override
                 public void onClick(View v) {
                     if (!TextUtils.isEmpty(mReplyText.getText().toString())) {
-                        Reddit.replyToComment(view.getContext(), mComment, mReplyText.getText().toString());
-                        mReplyText.setText(null);
+                        if (mComment != null) {
+                            Reddit.replyToComment(view.getContext(), mComment, mReplyText.getText().toString());
+                        } else {
+                            Reddit.commentOnPost(view.getContext(), mPostServerId, mReplyText.getText().toString());
+                        }
+                        mBody.setText(mReplyText.getText().toString());
+                        mBody.setVisibility(View.VISIBLE);
                         mCommentArea.setVisibility(View.GONE);
                         mReplyText.clearFocus();
 
@@ -227,12 +267,11 @@ public class CommentsFragment extends Fragment {
                 mDownvote.setImageDrawable(SiftApplication.getContext().getResources().getDrawable(R.drawable.ic_down_arrow_24dp));
                 mPoints.setTextColor(Color.BLACK);
             }
-
-            body.setText(value.mBody);
+            mBody.setText(value.mBody);
             username.setText(value.mUsername);
             mPoints.setText(String.valueOf(value.mPoints));
 
-            Linkify.addLinks(body, Linkify.ALL);
+            Linkify.addLinks(mBody, Linkify.ALL);
 
             return view;
         }
@@ -352,9 +391,10 @@ public class CommentsFragment extends Fragment {
 
             mLoadingSpinner.setVisibility(View.GONE);
 
-            AndroidTreeView tView = new AndroidTreeView(mActivity, mRoot);
-            tView.setDefaultContainerStyle(R.style.CommentStyle);
-            mCommentsContainer.addView(tView.getView());
+            mTreeView = new AndroidTreeView(mActivity, mRoot);
+            mTreeView.setDefaultContainerStyle(R.style.CommentStyle);
+            mTree = mTreeView.getView();
+            mCommentsContainer.addView(mTree);
         }
 
         public void copyTree(TreeNode parent, CommentNode commentParent) {

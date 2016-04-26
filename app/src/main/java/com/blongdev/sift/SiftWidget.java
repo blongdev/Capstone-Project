@@ -80,7 +80,6 @@ public class SiftWidget extends AppWidgetProvider {
         } else {
             super.onReceive(context, intent);
         }
-
     }
 
 }

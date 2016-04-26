@@ -142,6 +142,22 @@ public class Utilities {
         return false;
     }
 
+    public static String getLoggedInUsername (Context context) {
+        Cursor cursor = null;
+        try {
+            cursor = context.getContentResolver().query(SiftContract.Accounts.CONTENT_URI, null, null,null, null);
+            if (cursor != null && cursor.moveToFirst()) {
+                return cursor.getString(cursor.getColumnIndex(SiftContract.Accounts.COLUMN_USERNAME));
+            }
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
+        }
+
+        return null;
+    }
+
     public static long getAccountId (Context context, RedditClient redditClient) {
         Cursor cursor = null;
         try {

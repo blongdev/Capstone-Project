@@ -63,6 +63,9 @@ public class PostDetailActivity extends BaseActivity {
     LinearLayout mCommentArea;
     EditText mReplyText;
     ImageView mSendComment;
+    FrameLayout mPostView;
+    FrameLayout mCommentsView;
+
 
     int mVote;
 
@@ -172,35 +175,41 @@ public class PostDetailActivity extends BaseActivity {
                     return;
                 }
 
-                if (mCommentArea.getVisibility() == View.GONE) {
-                    mCommentArea.setVisibility(View.VISIBLE);
-                    mReplyText.requestFocus();
-                } else {
-                    mCommentArea.setVisibility(View.GONE);
-                    mReplyText.clearFocus();
-
-                    //hide keyboard
-                    InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
-                    imm.hideSoftInputFromWindow(mReplyText.getWindowToken(), 0);
+                mCommentsFragment.replyToPost();
+                if (mPostShowing) {
+                    toggleComments();
                 }
+
+
+//                if (mCommentArea.getVisibility() == View.GONE) {
+//                    mCommentArea.setVisibility(View.VISIBLE);
+//                    mReplyText.requestFocus();
+//                } else {
+//                    mCommentArea.setVisibility(View.GONE);
+//                    mReplyText.clearFocus();
+//
+//                    //hide keyboard
+//                    InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+//                    imm.hideSoftInputFromWindow(mReplyText.getWindowToken(), 0);
+//                }
             }
         });
 
-        mSendComment.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (!TextUtils.isEmpty(mReplyText.getText().toString())) {
-                    Reddit.commentOnPost(getApplicationContext(), mPostServerId, mReplyText.getText().toString());
-                    mReplyText.setText(null);
-                    mCommentArea.setVisibility(View.GONE);
-                    mReplyText.clearFocus();
-
-                    //hide keyboard
-                    InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
-                    imm.hideSoftInputFromWindow(mReplyText.getWindowToken(), 0);
-                }
-            }
-        });
+//        mSendComment.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                if (!TextUtils.isEmpty(mReplyText.getText().toString())) {
+//                    Reddit.commentOnPost(getApplicationContext(), mPostServerId, mReplyText.getText().toString());
+//                    mReplyText.setText(null);
+//                    mCommentArea.setVisibility(View.GONE);
+//                    mReplyText.clearFocus();
+//
+//                    //hide keyboard
+//                    InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+//                    imm.hideSoftInputFromWindow(mReplyText.getWindowToken(), 0);
+//                }
+//            }
+//        });
 
         mTitle.setText(title);
         mUsername.setText(username);
@@ -239,27 +248,17 @@ public class PostDetailActivity extends BaseActivity {
         ft.add(R.id.comments_fragment, mCommentsFragment);
         ft.commit();
 
-        FrameLayout postView = (FrameLayout) findViewById(R.id.post_detail_fragment);
-        final FrameLayout commentsView = (FrameLayout) findViewById(R.id.comments_fragment);
+        mPostView = (FrameLayout) findViewById(R.id.post_detail_fragment);
+        mCommentsView = (FrameLayout) findViewById(R.id.comments_fragment);
 
         mPostShowing = true;
-        commentsView.setVisibility(View.GONE);
+        mCommentsView.setVisibility(View.GONE);
 
         mFab = (FloatingActionButton) findViewById(R.id.fab);
         mFab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                android.support.v4.app.FragmentTransaction ft = mFragmentManager.beginTransaction();
-                if (mPostShowing) {
-                    mPostShowing = false;
-                    commentsView.setVisibility(View.VISIBLE);
-                    mFab.setImageResource(R.drawable.ic_attachment_24dp);
-                } else {
-                    mPostShowing = true;
-                    commentsView.setVisibility(View.GONE);
-                    mFab.setImageResource(R.drawable.ic_forum_24dp);
-                }
-                ft.commit();
+                toggleComments();
             }
         });
 
@@ -290,8 +289,23 @@ public class PostDetailActivity extends BaseActivity {
         AdView mAdView = (AdView) findViewById(R.id.adView);
         AdRequest adRequest = new AdRequest.Builder()
                 .addTestDevice("83A93BC0EF7E3BAB7AF855EAF3421EC4")
+                .addTestDevice("8ECA7CA419932CA97BD67F76A2A69C4F")
                 .build();
         mAdView.loadAd(adRequest);
+    }
+
+    private void toggleComments() {
+        android.support.v4.app.FragmentTransaction ft = mFragmentManager.beginTransaction();
+        if (mPostShowing) {
+            mPostShowing = false;
+            mCommentsView.setVisibility(View.VISIBLE);
+            mFab.setImageResource(R.drawable.ic_attachment_24dp);
+        } else {
+            mPostShowing = true;
+            mCommentsView.setVisibility(View.GONE);
+            mFab.setImageResource(R.drawable.ic_forum_24dp);
+        }
+        ft.commit();
     }
 
     private void upvote(Context context) {

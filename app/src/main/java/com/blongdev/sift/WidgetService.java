@@ -158,6 +158,7 @@ public class WidgetService extends RemoteViewsService {
 
         @Override
         public void onCreate() {
+            mList = getPosts(context);
         }
 
         @Override
