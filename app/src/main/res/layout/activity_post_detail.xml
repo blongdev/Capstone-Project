@@ -114,6 +114,12 @@
 
         </android.support.design.widget.AppBarLayout>
 
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/background"
+            app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
         <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
             xmlns:tools="http://schemas.android.com/tools"
             android:layout_width="match_parent"
@@ -124,7 +130,9 @@
             android:paddingTop="0dp"
             android:orientation="vertical"
             android:clipToPadding="false"
+            android:background="@color/background"
             tools:context="com.blongdev.sift.PostDetailActivity"
+            android:layout_above="@+id/adView"
             app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
             <FrameLayout
@@ -149,14 +157,20 @@
 
         </LinearLayout>
 
-        <com.google.android.gms.ads.AdView
-            android:id="@+id/adView"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="bottom"
-            app:adSize="BANNER"
-            app:adUnitId="@string/admob_unit_id_post_detail">
-        </com.google.android.gms.ads.AdView>
+            <com.google.android.gms.ads.AdView
+                android:id="@id/adView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom|center_horizontal"
+                app:adSize="BANNER"
+                android:layout_alignParentBottom="true"
+                android:layout_centerHorizontal="true"
+                app:adUnitId="@string/admob_unit_id_post_detail">
+            </com.google.android.gms.ads.AdView>
+
+        </RelativeLayout>
+
+
 
         <android.support.design.widget.FloatingActionButton
             android:id="@+id/fab"

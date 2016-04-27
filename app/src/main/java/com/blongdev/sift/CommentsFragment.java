@@ -114,7 +114,9 @@ public class CommentsFragment extends Fragment {
     }
 
     public void replyToPost(){
-        addReplyNode(getContext(), mRoot);
+        if(mTreeView != null) {
+            addReplyNode(getContext(), mRoot);
+        }
     }
 
     private void addReplyNode(Context context, TreeNode node) {
@@ -125,7 +127,22 @@ public class CommentsFragment extends Fragment {
         TreeNode child = createReplyNode(commentInfo);
         mTreeView.addNode(node, child);
         mTreeView.expandNode(node);
+//        int bottom = child.getViewHolder().getView().getBottom();
+//        mTree.scrollTo(0, bottom);
     }
+//
+//    private void addNodeToFront(TreeNode node, TreeNode child) {
+//        List<TreeNode> children = node.getChildren();
+//        for (TreeNode t : children) {
+//            node.deleteChild(t);
+//        }
+//
+//        mTreeView.addNode(node, child);
+//
+//        for (TreeNode t : children) {
+//            node.addChildren(children);
+//        }
+//    }
 
     private TreeNode createCommentNode(CommentInfo comment) {
         return new TreeNode(comment).setViewHolder(new CommentViewHolder(getContext(), false));
@@ -222,14 +239,6 @@ public class CommentsFragment extends Fragment {
                     }
 
                     addReplyNode(context, node);
-
-//                    String username = Utilities.getLoggedInUsername(context);
-//                    CommentInfo commentInfo = new CommentInfo();
-//                    commentInfo.mUsername = username;
-//                    commentInfo.mPoints = 1;
-//                    TreeNode child = createReplyNode(commentInfo);
-//                    mTreeView.addNode(node, child);
-//                    mTreeView.expandNode(node);
                 }
             });
 
