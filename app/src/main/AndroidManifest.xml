@@ -195,9 +195,19 @@
                 android:name="android.appwidget.provider"
                 android:resource="@xml/sift_widget_info" />
         </receiver>
+
         <service
             android:name=".WidgetService"
             android:permission="android.permission.BIND_REMOTEVIEWS" />
+
+        <activity
+            android:name=".ComposePostActivity"
+            android:label="@string/title_activity_compose_post"
+            android:theme="@style/AppTheme.NoActionBar">
+            <meta-data
+                android:name="android.app.default_searchable"
+                android:value=".SearchResultsActivity" />
+        </activity>
     </application>
 
 </manifest>

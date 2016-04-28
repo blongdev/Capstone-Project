@@ -170,8 +170,21 @@
     <string name="title_activity_search_results">SearchResultsActivity</string>
     <string name="appwidget_text">EXAMPLE</string>
     <string name="add_widget">Add widget</string>
-    
-    
+
+    <!-- Compose activity-->
+    <string name="compose_title">Title</string>
+    <string name="compose_text">Text (optional)</string>
+    <string name="compose_url">Url</string>
+    <string name="compose_captcha">Enter the characters in the image</string>
+    <string name="link">Link</string>
+    <string name="add_title">Please add a title</string>
+    <string name="add_url">Please add a valid url</string>
+    <string name="add_captcha">Please fill in the captcha</string>
+    <string name="submit_successful">Submitted successfully</string>
+    <string name="submit_error">Error submitting</string>
+
+
     <!--admob unit ids-->
     <string name="admob_unit_id_post_detail">ca-app-pub-0619092467992816/8561604081</string>
+    <string name="title_activity_compose_post">ComposePostActivity</string>
 </resources>

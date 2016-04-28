@@ -39,6 +39,8 @@ import net.dean.jraw.models.Thing;
 import net.dean.jraw.models.VoteDirection;
 import net.dean.jraw.models.attr.Votable;
 
+
+import java.net.URL;
 import java.util.List;
 import java.util.UUID;
 
@@ -1085,16 +1087,27 @@ public class Reddit {
     }
 
 
-    public static void getCaptcha(Context context) {
-        new GetCaptchaTask(context).execute();
+    public static void textSubmission(Context context, String subreddit, String title, String text, Captcha captcha, String captchaAttempt) {
+        new TextSubmissionTask(context, subreddit, title, text, captcha, captchaAttempt).execute();
     }
 
-    private static final class GetCaptchaTask extends AsyncTask<String, Void, Captcha> {
+    private static final class TextSubmissionTask extends AsyncTask<String, Void, Void> {
 
         Context mContext;
+        String mSubreddit;
+        String mTitle;
+        String mText;
+        Captcha mCaptcha;
+        String mCaptchaAttempt;
+        boolean mSubmitted = false;
 
-        public GetCaptchaTask(Context context) {
+        public TextSubmissionTask(Context context, String subreddit, String title, String text, Captcha captcha, String captchaAttempt) {
             mContext = context;
+            mSubreddit = subreddit;
+            mTitle = title;
+            mText = text;
+            mCaptcha = captcha;
+            mCaptchaAttempt = captchaAttempt;
         }
 
         @Override
@@ -1103,15 +1116,22 @@ public class Reddit {
         }
 
         @Override
-        protected Captcha doInBackground(String... params) {
+        protected Void doInBackground(String... params) {
             if (!instance.mRedditClient.isAuthenticated()) {
                 return null;
             }
 
             try {
-                if (instance.mRedditClient.needsCaptcha()) {
-                    return instance.mRedditClient.getNewCaptcha();
+                net.dean.jraw.managers.AccountManager accountManager = new net.dean.jraw.managers.AccountManager(instance.mRedditClient);
+                net.dean.jraw.managers.AccountManager.SubmissionBuilder submission
+                        = new net.dean.jraw.managers.AccountManager.SubmissionBuilder(mText, mSubreddit, mTitle);
+
+                if (mCaptcha != null && !TextUtils.isEmpty(mCaptchaAttempt)) {
+                    accountManager.submit(submission, mCaptcha, mCaptchaAttempt);
+                } else {
+                    accountManager.submit(submission);
                 }
+                mSubmitted = true;
             } catch (NetworkException | ApiException e) {
                 e.printStackTrace();
             }
@@ -1120,11 +1140,83 @@ public class Reddit {
         }
 
         @Override
-        protected void onPostExecute(Captcha captcha) {
-
+        protected void onPostExecute(Void nothing) {
+            if (mSubmitted) {
+                Toast.makeText(mContext, mContext.getString(R.string.submit_successful), Toast.LENGTH_LONG).show();
+                Intent intent = new Intent(mContext, MainActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                mContext.startActivity(intent);
+            } else {
+                Toast.makeText(mContext, mContext.getString(R.string.submit_error), Toast.LENGTH_LONG).show();
+            }
         }
     }
 
+    public static void linkSubmission(Context context, String subreddit, String title, URL url, Captcha captcha, String captchaAttempt) {
+        new LinkSubmissionTask(context, subreddit, title, url, captcha, captchaAttempt).execute();
+    }
+
+    private static final class LinkSubmissionTask extends AsyncTask<String, Void, Void> {
+
+        Context mContext;
+        String mSubreddit;
+        String mTitle;
+        URL mUrl;
+        Captcha mCaptcha;
+        String mCaptchaAttempt;
+        boolean mSubmitted = false;
+
+        public LinkSubmissionTask(Context context, String subreddit, String title, URL url, Captcha captcha, String captchaAttempt) {
+            mContext = context;
+            mSubreddit = subreddit;
+            mTitle = title;
+            mUrl = url;
+            mCaptcha = captcha;
+            mCaptchaAttempt = captchaAttempt;
+        }
+
+        @Override
+        protected void onPreExecute() {
+
+        }
+
+        @Override
+        protected Void doInBackground(String... params) {
+            if (!instance.mRedditClient.isAuthenticated()) {
+                return null;
+            }
+
+            try {
+
+                net.dean.jraw.managers.AccountManager accountManager = new net.dean.jraw.managers.AccountManager(instance.mRedditClient);
+                net.dean.jraw.managers.AccountManager.SubmissionBuilder submission
+                        = new net.dean.jraw.managers.AccountManager.SubmissionBuilder(mUrl, mSubreddit, mTitle);
+
+                if (mCaptcha != null && !TextUtils.isEmpty(mCaptchaAttempt)) {
+                    accountManager.submit(submission, mCaptcha, mCaptchaAttempt);
+                } else {
+                    accountManager.submit(submission);
+                }
+                mSubmitted = true;
+            } catch (NetworkException | ApiException e) {
+                e.printStackTrace();
+            }
+
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void nothing) {
+            if (mSubmitted) {
+                Toast.makeText(mContext, mContext.getString(R.string.submit_successful), Toast.LENGTH_LONG).show();
+                Intent intent = new Intent(mContext, MainActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                mContext.startActivity(intent);
+            } else {
+                Toast.makeText(mContext, mContext.getString(R.string.submit_error), Toast.LENGTH_LONG).show();
+            }
+        }
+    }
 
 
     public static String getImageUrl(Submission sub) {

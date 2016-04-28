@@ -21,6 +21,7 @@ import android.support.v4.view.ViewPager;
 import android.util.Log;
 import android.view.View;
 import android.widget.ProgressBar;
+import android.widget.Toast;
 
 import com.blongdev.sift.database.SiftContract;
 import com.google.android.gms.analytics.GoogleAnalytics;
@@ -84,8 +85,16 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Not yet implemented", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+                if (!Utilities.loggedIn(getApplicationContext())) {
+                    Toast.makeText(getApplicationContext(), getString(R.string.must_log_in), Toast.LENGTH_LONG).show();
+                    return;
+                }
+
+                Intent intent = new Intent(getApplicationContext(), ComposePostActivity.class);
+                intent.putExtra(getString(R.string.subreddit_name), mSubreddits.get(mPager.getCurrentItem()).mSubredditName);
+                startActivity(intent);
+//                Snackbar.make(view, "Not yet implemented", Snackbar.LENGTH_LONG)
+//                        .setAction("Action", null).show();
             }
         });
     }
