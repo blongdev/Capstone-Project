@@ -36,6 +36,7 @@ public class ComposePostActivity extends BaseActivity {
     EditText mTitle;
     EditText mBody;
     EditText mCaptchaText;
+    View mCaptchaBlock;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,6 +50,7 @@ public class ComposePostActivity extends BaseActivity {
         mTitle = (EditText) findViewById(R.id.title_text);
         mBody = (EditText) findViewById(R.id.body_text);
         mCaptchaText = (EditText) findViewById(R.id.captcha_text);
+        mCaptchaBlock = findViewById(R.id.captcha_block);
 
         Intent intent = getIntent();
         if (intent != null) {
@@ -149,6 +151,7 @@ public class ComposePostActivity extends BaseActivity {
             if (captcha != null) {
                 mCaptcha = captcha;
                 Picasso.with(mContext).load(captcha.getImageUrl().toString()).into(mCaptchaImage);
+                mCaptchaBlock.setVisibility(View.VISIBLE);
             }
         }
     }

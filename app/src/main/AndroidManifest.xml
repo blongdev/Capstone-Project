@@ -208,6 +208,14 @@
                 android:name="android.app.default_searchable"
                 android:value=".SearchResultsActivity" />
         </activity>
+        <activity
+            android:name=".ComposeMessageActivity"
+            android:label="@string/title_activity_compose_message"
+            android:theme="@style/AppTheme.NoActionBar">
+            <meta-data
+                android:name="android.app.default_searchable"
+                android:value=".SearchResultsActivity" />
+        </activity>
     </application>
 
 </manifest>

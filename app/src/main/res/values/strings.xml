@@ -184,7 +184,16 @@
     <string name="submit_error">Error submitting</string>
 
 
+    <!-- Messages -->
+    <string name="message_sent">Message sent</string>
+    <string name="message_error">Error sending message</string>
+    <string name="message_subject">Subject</string>
+    <string name="message_body">Body</string>
+    <string name="add_subject">Please add a subject</string>
+    <string name="add_body">Please add a body</string>
+
     <!--admob unit ids-->
     <string name="admob_unit_id_post_detail">ca-app-pub-0619092467992816/8561604081</string>
     <string name="title_activity_compose_post">ComposePostActivity</string>
+    <string name="title_activity_compose_message">ComposeMessageActivity</string>
 </resources>

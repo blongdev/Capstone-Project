@@ -14,40 +14,38 @@
         tools:showIn="@layout/activity_compose_post"
         android:gravity="center_horizontal">
 
-
         <TextView
-            android:id="@+id/subreddit_label"
+            android:id="@+id/to_label"
             android:textSize="24sp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerHorizontal="true"/>
 
         <RelativeLayout
-            android:id="@+id/title_block"
+            android:id="@+id/subject_block"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@id/subreddit_label"
             android:padding="16dp" >
 
             <TextView
-                android:id="@+id/title_label"
+                android:id="@+id/subject_label"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textSize="16sp"
-                android:text="@string/compose_title"/>
+                android:text="@string/message_subject"/>
 
             <EditText
-                android:id="@+id/title_text"
+                android:id="@+id/subject_text"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_below="@id/title_label"/>
+                android:layout_below="@id/subject_label"/>
         </RelativeLayout>
 
         <RelativeLayout
             android:id="@+id/body_block"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@id/title_block"
+            android:layout_below="@id/subject_block"
             android:padding="16dp">
 
             <TextView
@@ -55,52 +53,15 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textSize="16sp"
-                android:text="@string/compose_text"/>
-
-            <CheckBox
-                android:id="@+id/link"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_below="@id/body_label"
-                android:text="@string/link" />
+                android:text="@string/message_body"/>
 
             <EditText
                 android:id="@+id/body_text"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_below="@id/link"/>
-
-
+                android:layout_below="@id/body_label"/>
 
         </RelativeLayout>
-
-
-        <RelativeLayout
-            android:id="@+id/captcha_block"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/body_block"
-            android:visibility="gone"
-            android:padding="16dp">
-
-            <ImageView
-                android:id="@+id/captcha_image"
-                android:layout_width="wrap_content"
-                android:minHeight="100dp"
-                android:minWidth="200dp"
-                android:layout_height="wrap_content" />
-
-            <EditText
-                android:id="@+id/captcha_text"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_below="@id/captcha_image"
-                android:layout_alignLeft="@id/captcha_image"
-                android:layout_alignRight="@id/captcha_image"/>
-
-        </RelativeLayout>
-
-
 
     </RelativeLayout>
 </ScrollView>

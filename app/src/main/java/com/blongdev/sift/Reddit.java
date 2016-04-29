@@ -1219,6 +1219,73 @@ public class Reddit {
     }
 
 
+
+    public static void sendMessage(Context context, String to, String subject, String body) {
+        new SendMessageTask(context, to, subject, body).execute();
+    }
+
+    private static final class SendMessageTask extends AsyncTask<String, Void, Void> {
+
+        Context mContext;
+        String mTo;
+        String mSubject;
+        String mBody;
+        Captcha mCaptcha;
+        String mCaptchaAttempt;
+        boolean mSent = false;
+
+//        public SendMessageTask(Context context, String to, String subject, String body, Captcha captcha, String captchaAttempt) {
+//            mContext = context;
+//            mTo = to;
+//            mSubject = subject;
+//            mBody = body;
+//            mCaptcha = captcha;
+//            mCaptchaAttempt = captchaAttempt;
+//        }
+
+        public SendMessageTask(Context context, String to, String subject, String body) {
+            mContext = context;
+            mTo = to;
+            mSubject = subject;
+            mBody = body;
+        }
+
+        @Override
+        protected void onPreExecute() {
+
+        }
+
+        @Override
+        protected Void doInBackground(String... params) {
+            if (!instance.mRedditClient.isAuthenticated()) {
+                return null;
+            }
+
+            try {
+                net.dean.jraw.managers.InboxManager inboxManager = new net.dean.jraw.managers.InboxManager(instance.mRedditClient);
+                inboxManager.compose(mTo, mSubject, mBody);
+                mSent = true;
+            } catch (NetworkException | ApiException e) {
+                e.printStackTrace();
+            }
+
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void nothing) {
+            if (mSent) {
+                Toast.makeText(mContext, mContext.getString(R.string.message_sent), Toast.LENGTH_LONG).show();
+                Intent intent = new Intent(mContext, MessageActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                mContext.startActivity(intent);
+            } else {
+                Toast.makeText(mContext, mContext.getString(R.string.message_error), Toast.LENGTH_LONG).show();
+            }
+        }
+    }
+
+
     public static String getImageUrl(Submission sub) {
         JsonNode data = sub.getDataNode();
         if (data != null) {

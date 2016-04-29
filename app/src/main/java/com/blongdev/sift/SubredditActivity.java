@@ -45,8 +45,17 @@ public class SubredditActivity extends BaseActivity {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+                if (!Utilities.loggedIn(getApplicationContext())) {
+                    Toast.makeText(getApplicationContext(), getString(R.string.must_log_in), Toast.LENGTH_LONG).show();
+                    return;
+                }
+
+                Intent intent = new Intent(getApplicationContext(), ComposePostActivity.class);
+                intent.putExtra(getString(R.string.subreddit_name), mSubredditName);
+                startActivity(intent);
+
+//                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
+//                        .setAction("Action", null).show();
             }
         });
     }
