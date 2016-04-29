@@ -191,6 +191,7 @@
     <string name="message_body">Body</string>
     <string name="add_subject">Please add a subject</string>
     <string name="add_body">Please add a body</string>
+    <string name="re">Re: </string>
 
     <!--admob unit ids-->
     <string name="admob_unit_id_post_detail">ca-app-pub-0619092467992816/8561604081</string>

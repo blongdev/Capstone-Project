@@ -207,6 +207,11 @@ public class UserInfoActivity extends BaseActivity {
             }
         });
 
+        //hide friend icon on my profile
+        if (TextUtils.equals(Utilities.getLoggedInUsername(getApplicationContext()), mUsername)) {
+            mAddFriend.setVisible(false);
+        }
+
         return true;
     }
 

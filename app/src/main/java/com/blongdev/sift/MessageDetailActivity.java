@@ -13,8 +13,12 @@ import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Toast;
 
 public class MessageDetailActivity extends BaseActivity {
+
+    String mUsername;
+    String mTitle;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -24,23 +28,36 @@ public class MessageDetailActivity extends BaseActivity {
 
         //Change toolbar title to username
         Intent intent = getIntent();
-        String username = intent.getStringExtra(getString(R.string.username));
-        if (!TextUtils.isEmpty(username)) {
+        mUsername = intent.getStringExtra(getString(R.string.username));
+        mTitle = intent.getStringExtra(getString(R.string.title));
+
+        if (!TextUtils.isEmpty(mUsername)) {
             ActionBar toolbar = getSupportActionBar();
             if (toolbar != null) {
-                toolbar.setTitle(username);
+                toolbar.setTitle(mUsername);
             }
         }
-
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+                if (!Utilities.loggedIn(getApplicationContext())) {
+                    Toast.makeText(getApplicationContext(), getString(R.string.must_log_in), Toast.LENGTH_LONG).show();
+                    return;
+                }
+
+                Intent intent = new Intent(getApplicationContext(), ComposeMessageActivity.class);
+                intent.putExtra(getString(R.string.username), mUsername);
+                intent.putExtra(getString(R.string.title), getString(R.string.re) + mTitle);
+                startActivity(intent);
             }
         });
+
+        //hide reply fab when viewing sent message
+        if(TextUtils.equals(mUsername, Utilities.getLoggedInUsername(getApplicationContext()))) {
+            fab.setVisibility(View.GONE);
+        }
     }
 
 }

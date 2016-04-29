@@ -34,6 +34,10 @@ public class ComposeMessageActivity extends BaseActivity {
         if (intent != null) {
             mUserTo = intent.getStringExtra(getString(R.string.username));
             mTo.setText(mUserTo);
+            String subject = intent.getStringExtra(getString(R.string.title));
+            if (!TextUtils.isEmpty(subject)) {
+                mSubject.setText(subject);
+            }
         }
 
 

@@ -187,6 +187,7 @@ public class MessageActivityFragment extends Fragment implements LoaderManager.L
     public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
         if (cursor != null) {
             mMessages.clear();
+            cursor.moveToPosition(-1);
             while (cursor.moveToNext()) {
                 MessageInfo msg = new MessageInfo();
                 msg.mFrom = cursor.getString(cursor.getColumnIndex(SiftContract.Messages.COLUMN_USER_FROM));
