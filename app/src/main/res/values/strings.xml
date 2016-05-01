@@ -81,6 +81,8 @@
     <string name="subreddits">Subreddits</string>
     <string name="users">Users</string>
 
+    <string name="subscribers">Subscribers</string>
+
     <string name="frontPage">FrontPage</string>
     <string name="initial_sync">initialSync</string>
 

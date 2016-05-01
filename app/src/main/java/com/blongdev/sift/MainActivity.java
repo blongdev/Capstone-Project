@@ -216,16 +216,28 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
                 Listing<Subreddit> subs = paginator.next();
                 ContentValues cv = new ContentValues();
                 String selection = SiftContract.Subreddits.COLUMN_SERVER_ID + " =?";
-                String name, serverId;
+                String name, serverId, description;
                 long subredditId;
+                long numSubscribers = -1;
                 for (Subreddit subreddit : subs) {
                     SubscriptionInfo sub = new SubscriptionInfo();
                     name = subreddit.getDisplayName();
                     serverId = subreddit.getId();
+
+                    try {
+                        //bug in jraw library sometimes throws nullpointerexception
+                        numSubscribers = subreddit.getSubscriberCount();
+                    } catch (NullPointerException e) {
+                        e.printStackTrace();
+                    }
+
+                    description = subreddit.getPublicDescription();
                     subredditId = Utilities.getSubredditId(mContext, serverId);
                     if (subredditId < 0) {
                         cv.put(SiftContract.Subreddits.COLUMN_NAME, name);
                         cv.put(SiftContract.Subreddits.COLUMN_SERVER_ID, serverId);
+                        cv.put(SiftContract.Subreddits.COLUMN_DESCRIPTION, description);
+                        cv.put(SiftContract.Subreddits.COLUMN_SUBSCRIBERS, numSubscribers);
                         Uri uri = mContext.getContentResolver().insert(SiftContract.Subreddits.CONTENT_URI, cv);
                         subredditId = ContentUris.parseId(uri);
                         cv.clear();
@@ -233,6 +245,8 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
                     sub.mSubredditId = subredditId;
                     sub.mSubredditName = name;
                     sub.mServerId = serverId;
+                    sub.mSubscribers = numSubscribers;
+                    sub.mDescription = description;
                     subredditArray.add(sub);
                     mSubreddits.add(sub);
                     cv.clear();

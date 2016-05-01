@@ -133,7 +133,7 @@ public class SiftSyncAdapter extends AbstractThreadedSyncAdapter {
         if (initialSync) {
             Intent intent = new Intent("com.blongdev.sift.loggedIn");
             SiftApplication.getContext().sendBroadcast(intent);
-        } else {
+        } else if (redditClient.isAuthenticated()) {
             //sync front page posts
             SubredditPaginator paginator = new SubredditPaginator(redditClient);
             Listing<Submission> submissions = paginator.next();
@@ -186,12 +186,22 @@ public class SiftSyncAdapter extends AbstractThreadedSyncAdapter {
                 //add subreddit
                 String subName = s.getDisplayName();
                 String serverId = s.getId();
+                String description = s.getPublicDescription();
+                long numSubscribers = -1;
+                try {
+                    //bug in jraw library sometimes throws nullpointerexception
+                     numSubscribers = s.getSubscriberCount();
+                } catch (NullPointerException e) {
+                    e.printStackTrace();
+                }
 
                 //check if subreddit exists in db
                 long subredditId = Utilities.getSubredditId(SiftApplication.getContext(), serverId);
                 if (subredditId <= 0) {
                     cv.put(SiftContract.Subreddits.COLUMN_NAME, subName);
                     cv.put(SiftContract.Subreddits.COLUMN_SERVER_ID, serverId);
+                    cv.put(SiftContract.Subreddits.COLUMN_DESCRIPTION, description);
+                    cv.put(SiftContract.Subreddits.COLUMN_SUBSCRIBERS, numSubscribers);
                     Uri subredditUri = mContentResolver.insert(SiftContract.Subreddits.CONTENT_URI, cv);
                     subredditId = ContentUris.parseId(subredditUri);
                     cv.clear();

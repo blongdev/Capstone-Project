@@ -10,4 +10,6 @@ public class SubscriptionInfo {
 
     public String mSubredditName;
     public int mSubredditDate;
+    public String mDescription;
+    public long mSubscribers;
 }

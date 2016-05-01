@@ -179,6 +179,8 @@ public final class SiftContract {
         public static final String COLUMN_NAME = "name";
         public static final String COLUMN_DATE_CREATED = "dateCreated";
         public static final String COLUMN_SERVER_ID = "serverId";
+        public static final String COLUMN_DESCRIPTION = "description";
+        public static final String COLUMN_SUBSCRIBERS = "subscribers";
 
 
         public static final String CREATE_TABLE = "CREATE TABLE " +
@@ -187,6 +189,8 @@ public final class SiftContract {
                 COLUMN_NAME + TEXT_TYPE + COMMA_SEP +
                 COLUMN_DATE_CREATED + INTEGER_TYPE + COMMA_SEP +
                 COLUMN_SERVER_ID + TEXT_TYPE + COMMA_SEP +
+                COLUMN_DESCRIPTION + TEXT_TYPE + COMMA_SEP +
+                COLUMN_SUBSCRIBERS + INTEGER_TYPE + COMMA_SEP +
                 UNIQUE + "(" + COLUMN_SERVER_ID + ")" + ON_CONFLICT_IGNORE + " )";
 
 
@@ -254,7 +258,8 @@ public final class SiftContract {
 
         public static final String CREATE_VIEW = "CREATE VIEW " + VIEW_NAME + " AS SELECT " + Subscriptions.COLUMN_ACCOUNT_ID + COMMA_SEP +
                 Subscriptions.COLUMN_SUBREDDIT_ID + COMMA_SEP +
-                Subreddits.COLUMN_NAME + COMMA_SEP + Subreddits.COLUMN_DATE_CREATED +
+                Subreddits.COLUMN_NAME + COMMA_SEP + Subreddits.COLUMN_DATE_CREATED + COMMA_SEP +
+                Subreddits.COLUMN_DESCRIPTION + COMMA_SEP + Subreddits.COLUMN_SUBSCRIBERS +
                 " FROM " + Subscriptions.TABLE_NAME + " INNER JOIN " + Subreddits.TABLE_NAME +
                 " WHERE " + Subscriptions.COLUMN_SUBREDDIT_ID + " = " + Subreddits.TABLE_NAME + "." + Subreddits._ID;
 

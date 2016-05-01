@@ -574,6 +574,15 @@ public class Reddit {
             if (subredditId <= 0) {
                 cv.put(SiftContract.Subreddits.COLUMN_NAME, subreddit.getDisplayName());
                 cv.put(SiftContract.Subreddits.COLUMN_SERVER_ID, subreddit.getId());
+                cv.put(SiftContract.Subreddits.COLUMN_DESCRIPTION, subreddit.getPublicDescription());
+
+                try {
+                    //bug in jraw library sometimes throws nullpointerexception
+                    cv.put(SiftContract.Subreddits.COLUMN_SUBSCRIBERS, subreddit.getSubscriberCount());
+                } catch (NullPointerException e) {
+                    e.printStackTrace();
+                }
+
                 Uri subredditUri = mContext.getContentResolver().insert(SiftContract.Subreddits.CONTENT_URI, cv);
                 subredditId = ContentUris.parseId(subredditUri);
                 cv.clear();

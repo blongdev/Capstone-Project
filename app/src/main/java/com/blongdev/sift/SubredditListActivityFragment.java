@@ -87,6 +87,8 @@ public class SubredditListActivityFragment extends Fragment {
                         ContentValues cv = new ContentValues();
                         cv.put(SiftContract.Subreddits.COLUMN_NAME, sub.mName);
                         cv.put(SiftContract.Subreddits.COLUMN_SERVER_ID, sub.mServerId);
+                        cv.put(SiftContract.Subreddits.COLUMN_DESCRIPTION, sub.mDescription);
+                        cv.put(SiftContract.Subreddits.COLUMN_SUBSCRIBERS, sub.mSubscribers);
                         Uri uri = getContext().getContentResolver().insert(SiftContract.Subreddits.CONTENT_URI, cv);
                         sub.mId = ContentUris.parseId(uri);
                     }
@@ -120,6 +122,8 @@ public class SubredditListActivityFragment extends Fragment {
                 view = LayoutInflater.from(getContext()).inflate(R.layout.subreddit, parent, false);
                 viewHolder = new SubredditViewHolder();
                 viewHolder.mName = (TextView) view.findViewById(R.id.subreddit_name);
+                viewHolder.mDescription = (TextView) view.findViewById(R.id.subreddit_description);
+                viewHolder.mSubscribers = (TextView) view.findViewById(R.id.subreddit_subscribers);
                 view.setTag(viewHolder);
             } else {
                 viewHolder = (SubredditViewHolder) view.getTag();
@@ -128,6 +132,10 @@ public class SubredditListActivityFragment extends Fragment {
             SubredditInfo sub = mSubreddits.get(position);
             if(sub != null) {
                 viewHolder.mName.setText(sub.mName);
+                viewHolder.mDescription.setText(sub.mDescription);
+                if (sub.mSubscribers > 0) {
+                    viewHolder.mSubscribers.setText(sub.mSubscribers + " " + getContext().getString(R.string.subscribers));
+                }
                 //Picasso.with(getContext()).load(R.drawable.ic_account_circle_24dp).placeholder(R.drawable.ic_account_circle_24dp).into(viewHolder.mImage);
             }
 
@@ -149,6 +157,8 @@ public class SubredditListActivityFragment extends Fragment {
                     SubredditInfo sub = new SubredditInfo();
                     sub.mId = cursor.getLong(cursor.getColumnIndex(SiftContract.Subscriptions.COLUMN_SUBREDDIT_ID));
                     sub.mName = cursor.getString(cursor.getColumnIndex(SiftContract.Subreddits.COLUMN_NAME));
+                    sub.mDescription = cursor.getString(cursor.getColumnIndex(SiftContract.Subreddits.COLUMN_DESCRIPTION));
+                    sub.mSubscribers = cursor.getLong(cursor.getColumnIndex(SiftContract.Subreddits.COLUMN_SUBSCRIBERS));
                     mSubreddits.add(sub);
                 }
         }
@@ -157,6 +167,8 @@ public class SubredditListActivityFragment extends Fragment {
 
     public static class SubredditViewHolder {
         protected TextView mName;
+        protected TextView mDescription;
+        protected TextView mSubscribers;
     }
 
 
@@ -169,6 +181,13 @@ public class SubredditListActivityFragment extends Fragment {
                     SubredditInfo sub = new SubredditInfo();
                     sub.mName = subreddit.getDisplayName();
                     sub.mServerId = subreddit.getId();
+                    sub.mDescription = subreddit.getPublicDescription();
+                    try {
+                        //bug in jraw library sometimes throws nullpointerexception
+                        sub.mSubscribers = subreddit.getSubscriberCount();
+                    } catch (NullPointerException e) {
+                        e.printStackTrace();
+                    }
                     mSubreddits.add(sub);
                 }
             }
