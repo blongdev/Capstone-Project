@@ -276,17 +276,21 @@ public class SiftSyncAdapter extends AbstractThreadedSyncAdapter {
             }
         }
 
-
         ImportantUserPaginator friends = new ImportantUserPaginator(redditClient, SiftApplication.getContext().getString(R.string.friends));
         friends.setLimit(Integer.MAX_VALUE);
         if (friends.hasNext()) {
             Listing<UserRecord> friend = friends.next();
             for (UserRecord u : friend) {
-
                 //TODO make sure a new sync wont cause insert conflicts
                 //GET USER INFO
+                String fullname = u.getFullName();
+                net.dean.jraw.models.Account user = redditClient.getUser(fullname);
+
                 cv.put(SiftContract.Users.COLUMN_SERVER_ID, u.getId());
-                cv.put(SiftContract.Users.COLUMN_USERNAME, u.getFullName());
+                cv.put(SiftContract.Users.COLUMN_USERNAME, fullname);
+                cv.put(SiftContract.Users.COLUMN_DATE_CREATED, user.getCreatedUtc().getTime());
+                cv.put(SiftContract.Users.COLUMN_COMMENT_KARMA, user.getCommentKarma());
+                cv.put(SiftContract.Users.COLUMN_LINK_KARMA, user.getLinkKarma());
                 Uri userUri = mContentResolver.insert(SiftContract.Users.CONTENT_URI, cv);
                 long userId = ContentUris.parseId(userUri);
                 cv.clear();

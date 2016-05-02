@@ -178,7 +178,7 @@ public class Reddit {
         mMe = mRedditClient.me();
         String username = mMe.getFullName();
         String serverId = mMe.getId();
-        long date = mMe.getCreated().getTime();
+        long date = mMe.getCreatedUtc().getTime();
         long commentKarma = mMe.getCommentKarma();
         long linkKarma = mMe.getLinkKarma();
 
@@ -186,6 +186,9 @@ public class Reddit {
         ContentValues cv = new ContentValues();
         cv.put(SiftContract.Users.COLUMN_USERNAME, username);
         cv.put(SiftContract.Users.COLUMN_DATE_CREATED, date);
+        cv.put(SiftContract.Users.COLUMN_SERVER_ID, serverId);
+        cv.put(SiftContract.Users.COLUMN_COMMENT_KARMA, commentKarma);
+        cv.put(SiftContract.Users.COLUMN_LINK_KARMA, linkKarma);
 
         Uri userUri = context.getContentResolver().insert(SiftContract.Users.CONTENT_URI, cv);
         long userId = ContentUris.parseId(userUri);
@@ -924,6 +927,9 @@ public class Reddit {
             ContentValues cv = new ContentValues();
             cv.put(SiftContract.Users.COLUMN_SERVER_ID, user.getId());
             cv.put(SiftContract.Users.COLUMN_USERNAME, mUsername);
+            cv.put(SiftContract.Users.COLUMN_DATE_CREATED, user.getCreatedUtc().getTime());
+            cv.put(SiftContract.Users.COLUMN_COMMENT_KARMA, user.getCommentKarma());
+            cv.put(SiftContract.Users.COLUMN_LINK_KARMA, user.getLinkKarma());
             Uri userUri = mContext.getContentResolver().insert(SiftContract.Users.CONTENT_URI, cv);
             long userId = ContentUris.parseId(userUri);
             cv.clear();

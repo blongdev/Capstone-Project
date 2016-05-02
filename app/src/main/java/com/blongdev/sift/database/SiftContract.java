@@ -152,6 +152,9 @@ public final class SiftContract {
         public static final String COLUMN_POINTS = "points";
         public static final String COLUMN_DATE_CREATED = "dateCreated";
         public static final String COLUMN_SERVER_ID = "serverId";
+        public static final String COLUMN_LINK_KARMA = "linkKarma";
+        public static final String COLUMN_COMMENT_KARMA = "commentKarma";
+
 
         public static final int USER_TYPE_NEUTRAL = 0;
         public static final int USER_TYPE_FRIEND = 1;
@@ -166,6 +169,8 @@ public final class SiftContract {
                 COLUMN_DATE_CREATED + INTEGER_TYPE + COMMA_SEP +
                 COLUMN_POINTS + INTEGER_TYPE + COMMA_SEP +
                 COLUMN_SERVER_ID + TEXT_TYPE + COMMA_SEP +
+                COLUMN_LINK_KARMA + INTEGER_TYPE + COMMA_SEP +
+                COLUMN_COMMENT_KARMA + INTEGER_TYPE + COMMA_SEP +
                 UNIQUE + "(" + COLUMN_SERVER_ID + ")" + ON_CONFLICT_REPLACE + " )";
 
 
@@ -352,7 +357,8 @@ public final class SiftContract {
 
         public static final String CREATE_VIEW = "CREATE VIEW " + VIEW_NAME + " AS SELECT " + Friends.COLUMN_ACCOUNT_ID + COMMA_SEP +
                 Friends.COLUMN_FRIEND_USER_ID + COMMA_SEP +
-                Users.COLUMN_USERNAME + COMMA_SEP + Users.COLUMN_USER_TYPE + COMMA_SEP + Users.COLUMN_DATE_CREATED + COMMA_SEP + Users.COLUMN_POINTS +
+                Users.COLUMN_USERNAME + COMMA_SEP + Users.COLUMN_USER_TYPE + COMMA_SEP + Users.COLUMN_DATE_CREATED + COMMA_SEP +
+                Users.COLUMN_POINTS + COMMA_SEP + Users.COLUMN_LINK_KARMA + COMMA_SEP + Users.COLUMN_COMMENT_KARMA +
                 " FROM " + Friends.TABLE_NAME + " INNER JOIN " + Users.TABLE_NAME +
                 " WHERE " + Friends.COLUMN_FRIEND_USER_ID + " = " + Users.TABLE_NAME + "." + Users._ID;
 
