@@ -6,6 +6,9 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.AsyncTaskLoader;
+import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
@@ -26,7 +29,7 @@ import net.dean.jraw.models.Captcha;
 import java.net.MalformedURLException;
 import java.net.URL;
 
-public class ComposePostActivity extends BaseActivity {
+public class ComposePostActivity extends BaseActivity implements LoaderManager.LoaderCallbacks<Captcha>{
 
     String mSubredditName;
     Captcha mCaptcha;
@@ -58,7 +61,9 @@ public class ComposePostActivity extends BaseActivity {
             subreddit.setText(mSubredditName);
         }
 
-        new GetCaptchaTask(getApplicationContext()).execute();
+//        new GetCaptchaTask(getApplicationContext()).execute();
+        getSupportLoaderManager().initLoader(1, null, this).forceLoad();
+
 
         mLinkBox.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -115,45 +120,85 @@ public class ComposePostActivity extends BaseActivity {
     }
 
 
-    private final class GetCaptchaTask extends AsyncTask<String, Void, Captcha> {
-
-        Context mContext;
-
-        public GetCaptchaTask(Context context) {
-            mContext = context;
-        }
-
-        @Override
-        protected void onPreExecute() {
-
-        }
-
-        @Override
-        protected Captcha doInBackground(String... params) {
-            Reddit reddit = Reddit.getInstance();
-            if (!reddit.mRedditClient.isAuthenticated()) {
-                return null;
-            }
-
-            try {
-                if (reddit.mRedditClient.needsCaptcha()) {
-                    return reddit.mRedditClient.getNewCaptcha();
-                }
-            } catch (NetworkException | ApiException e) {
-                e.printStackTrace();
-            }
-
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(Captcha captcha) {
-            if (captcha != null) {
-                mCaptcha = captcha;
-                Picasso.with(mContext).load(captcha.getImageUrl().toString()).into(mCaptchaImage);
-                mCaptchaBlock.setVisibility(View.VISIBLE);
-            }
+    public Loader<Captcha> onCreateLoader(int id, Bundle args) {
+        return new CaptchaLoader(getApplicationContext());
+    }
+    @Override
+    public void onLoadFinished(Loader<Captcha> loader, Captcha captcha) {
+        if (captcha != null) {
+            mCaptcha = captcha;
+            Picasso.with(getApplicationContext()).load(captcha.getImageUrl().toString()).into(mCaptchaImage);
+            mCaptchaBlock.setVisibility(View.VISIBLE);
         }
     }
 
+    @Override
+    public void onLoaderReset(Loader<Captcha> loader) {
+        mCaptchaBlock.setVisibility(View.GONE);
+    }
+
+//    private final class GetCaptchaTask extends AsyncTask<String, Void, Captcha> {
+//
+//        Context mContext;
+//
+//        public GetCaptchaTask(Context context) {
+//            mContext = context;
+//        }
+//
+//        @Override
+//        protected void onPreExecute() {
+//
+//        }
+//
+//        @Override
+//        protected Captcha doInBackground(String... params) {
+//            Reddit reddit = Reddit.getInstance();
+//            if (!reddit.mRedditClient.isAuthenticated()) {
+//                return null;
+//            }
+//
+//            try {
+//                if (reddit.mRedditClient.needsCaptcha()) {
+//                    return reddit.mRedditClient.getNewCaptcha();
+//                }
+//            } catch (NetworkException | ApiException e) {
+//                e.printStackTrace();
+//            }
+//
+//            return null;
+//        }
+//
+//        @Override
+//        protected void onPostExecute(Captcha captcha) {
+//            if (captcha != null) {
+//                mCaptcha = captcha;
+//                Picasso.with(mContext).load(captcha.getImageUrl().toString()).into(mCaptchaImage);
+//                mCaptchaBlock.setVisibility(View.VISIBLE);
+//            }
+//        }
+//    }
+
+}
+
+class CaptchaLoader extends AsyncTaskLoader<Captcha> {
+    public CaptchaLoader(Context context) {
+        super(context);
+    }
+    @Override
+    public Captcha loadInBackground() {
+        Reddit reddit = Reddit.getInstance();
+        if (!reddit.mRedditClient.isAuthenticated()) {
+            return null;
+        }
+
+        try {
+            if (reddit.mRedditClient.needsCaptcha()) {
+                return reddit.mRedditClient.getNewCaptcha();
+            }
+        } catch (NetworkException | ApiException e) {
+            e.printStackTrace();
+        }
+
+        return null;
+    }
 }

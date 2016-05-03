@@ -6,10 +6,14 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.database.Cursor;
 import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.AsyncTaskLoader;
+import android.support.v4.content.Loader;
 import android.support.v4.content.LocalBroadcastManager;
 import android.text.TextUtils;
 import android.text.util.Linkify;
@@ -43,7 +47,7 @@ import java.util.List;
 import java.util.Objects;
 
 
-public class CommentsFragment extends Fragment {
+public class CommentsFragment extends Fragment implements LoaderManager.LoaderCallbacks<CommentNode> {
 
     TreeNode mRoot;
     FrameLayout mCommentsContainer;
@@ -58,7 +62,8 @@ public class CommentsFragment extends Fragment {
         @Override
         public void onReceive(Context context, Intent intent) {
             if (!TextUtils.isEmpty(mPostServerId)) {
-                new getCommentsTask().execute();
+//                new getCommentsTask().execute();
+                getActivity().getSupportLoaderManager().initLoader(1, null, CommentsFragment.this).forceLoad();
             }
         }
     };
@@ -92,8 +97,10 @@ public class CommentsFragment extends Fragment {
         }
 
         if (!TextUtils.isEmpty(mPostServerId)) {
-            new getCommentsTask().execute();
+//            new getCommentsTask().execute();
+            getActivity().getSupportLoaderManager().initLoader(1, null, this).forceLoad();
         }
+
 
         return rootView;
     }
@@ -357,7 +364,13 @@ public class CommentsFragment extends Fragment {
         super.onDetach();
     }
 
-    private final class getCommentsTask extends AsyncTask<String, Void, Void> {
+    private final class CopyTreeTask extends AsyncTask<String, Void, Void> {
+
+        CommentNode root;
+
+        CopyTreeTask(Context context, CommentNode node) {
+            root = node;
+        }
 
         @Override
         protected void onPreExecute() {
@@ -366,19 +379,8 @@ public class CommentsFragment extends Fragment {
 
         @Override
         protected Void doInBackground(String... params) {
-
             long startTime = System.currentTimeMillis();
-            Reddit reddit = Reddit.getInstance();
-
-            if (!reddit.mRedditClient.isAuthenticated()) {
-                return null;
-            }
-
-            Submission post = reddit.mRedditClient.getSubmission(mPostServerId);
-            CommentNode root = post.getComments();
-
             mRoot = TreeNode.root();
-
             copyTree(mRoot, root);
 
             long endTime = System.currentTimeMillis();
@@ -419,5 +421,40 @@ public class CommentsFragment extends Fragment {
                 copyTree(child, commentNode);
             }
         }
+    }
+
+    @Override
+    public Loader<CommentNode> onCreateLoader(int id, Bundle args) {
+        return new CommentLoader(getContext(), mPostServerId);
+    }
+    @Override
+    public void onLoadFinished(Loader<CommentNode> loader, CommentNode root) {
+        new CopyTreeTask(getContext(), root).execute();
+    }
+    @Override
+    public void onLoaderReset(Loader<CommentNode> loader) {
+
+    }
+
+}
+
+class CommentLoader extends AsyncTaskLoader<CommentNode> {
+
+    String mPostServerId;
+
+    public CommentLoader(Context context, String postServerId) {
+        super(context);
+        mPostServerId = postServerId;
+    }
+    @Override
+    public CommentNode loadInBackground() {
+        Reddit reddit = Reddit.getInstance();
+
+        if (!reddit.mRedditClient.isAuthenticated()) {
+            return null;
+        }
+
+        Submission post = reddit.mRedditClient.getSubmission(mPostServerId);
+        return post.getComments();
     }
 }

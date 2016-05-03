@@ -73,6 +73,7 @@
 
     <style name="CommentStyle">
         <item name="android:layout_width">match_parent</item>
+        <item name="android:textColor">@android:color/black</item>
     </style>
 
     <style name="CommentInfo" parent="PostText">

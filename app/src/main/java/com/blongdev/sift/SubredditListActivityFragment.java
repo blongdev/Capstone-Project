@@ -9,6 +9,9 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.AsyncTaskLoader;
+import android.support.v4.content.Loader;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -36,7 +39,7 @@ import java.util.List;
 /**
  * A placeholder fragment containing a simple view.
  */
-public class SubredditListActivityFragment extends Fragment {
+public class SubredditListActivityFragment extends Fragment implements LoaderManager.LoaderCallbacks<List<SubredditInfo>>{
 
     ListView mSubredditListView;
     ArrayList<SubredditInfo> mSubreddits;
@@ -68,7 +71,9 @@ public class SubredditListActivityFragment extends Fragment {
             mSearchTerm = args.getString(getString(R.string.search_term));
             if (mSearchTerm != null) {
                 mPaginator = new SubredditSearchPaginator(mReddit.mRedditClient, mSearchTerm);
-                new GetSubredditsTask().execute();
+//                new GetSubredditsTask().execute();
+                getActivity().getSupportLoaderManager().initLoader(1, null, this).forceLoad();
+                mLoadingSpinner.setVisibility(View.VISIBLE);
             }
         } else {
             populateSubreddits();
@@ -111,6 +116,11 @@ public class SubredditListActivityFragment extends Fragment {
         public SubredditAdapter(Context context, ArrayList<SubredditInfo> subreddits) {
             super(context, 0, subreddits);
             mSubreddits = subreddits;
+        }
+
+        public void setData(List<SubredditInfo> data) {
+            mSubreddits.addAll(data);
+            notifyDataSetChanged();
         }
 
         @Override
@@ -171,41 +181,93 @@ public class SubredditListActivityFragment extends Fragment {
         protected TextView mSubscribers;
     }
 
+//
+//    private final class GetSubredditsTask extends AsyncTask<String, Void, ArrayList<SubredditInfo>> {
+//        @Override
+//        protected ArrayList<SubredditInfo> doInBackground(String... params) {
+//            if (mPaginator != null && mPaginator.hasNext()) {
+//                Listing<Subreddit> page = mPaginator.next();
+//                for (Subreddit subreddit : page) {
+//                    SubredditInfo sub = new SubredditInfo();
+//                    sub.mName = subreddit.getDisplayName();
+//                    sub.mServerId = subreddit.getId();
+//                    sub.mDescription = subreddit.getPublicDescription();
+//                    try {
+//                        //bug in jraw library sometimes throws nullpointerexception
+//                        sub.mSubscribers = subreddit.getSubscriberCount();
+//                    } catch (NullPointerException e) {
+//                        e.printStackTrace();
+//                    }
+//                    mSubreddits.add(sub);
+//                }
+//            }
+//
+//            return mSubreddits;
+//        }
+//
+//        @Override
+//        protected void onPreExecute() {
+//            if(mSubreddits.size() == 0) {
+//                mLoadingSpinner.setVisibility(View.VISIBLE);
+//            }
+//        }
+//
+//        @Override
+//        protected void onPostExecute(ArrayList<SubredditInfo> subs) {
+//            mLoadingSpinner.setVisibility(View.GONE);
+//            mSubredditAdapter.refreshWithList(subs);
+//        }
+//    }
 
-    private final class GetSubredditsTask extends AsyncTask<String, Void, ArrayList<SubredditInfo>> {
-        @Override
-        protected ArrayList<SubredditInfo> doInBackground(String... params) {
-            if (mPaginator != null && mPaginator.hasNext()) {
-                Listing<Subreddit> page = mPaginator.next();
-                for (Subreddit subreddit : page) {
-                    SubredditInfo sub = new SubredditInfo();
-                    sub.mName = subreddit.getDisplayName();
-                    sub.mServerId = subreddit.getId();
-                    sub.mDescription = subreddit.getPublicDescription();
-                    try {
-                        //bug in jraw library sometimes throws nullpointerexception
-                        sub.mSubscribers = subreddit.getSubscriberCount();
-                    } catch (NullPointerException e) {
-                        e.printStackTrace();
-                    }
-                    mSubreddits.add(sub);
+
+    @Override
+    public Loader<List<SubredditInfo>> onCreateLoader(int id, Bundle args) {
+        return new SubredditLoader(getContext(), mPaginator);
+    }
+    @Override
+    public void onLoadFinished(Loader<List<SubredditInfo>> loader, List<SubredditInfo> data) {
+        mLoadingSpinner.setVisibility(View.GONE);
+        mSubredditAdapter.setData(data);
+    }
+    @Override
+    public void onLoaderReset(Loader<List<SubredditInfo>> loader) {
+        mSubredditAdapter.setData(new ArrayList<SubredditInfo>());
+    }
+
+}
+
+class SubredditLoader extends AsyncTaskLoader<List<SubredditInfo>> {
+
+    List<SubredditInfo> mSubreddits;
+    Paginator mPaginator;
+
+
+    public SubredditLoader(Context context, Paginator paginator) {
+        super(context);
+        mSubreddits = new ArrayList<SubredditInfo>();
+        mPaginator = paginator;
+    }
+
+    @Override
+    public List<SubredditInfo> loadInBackground() {
+
+        if (mPaginator != null && mPaginator.hasNext()) {
+            Listing<Subreddit> page = mPaginator.next();
+            for (Subreddit subreddit : page) {
+                SubredditInfo sub = new SubredditInfo();
+                sub.mName = subreddit.getDisplayName();
+                sub.mServerId = subreddit.getId();
+                sub.mDescription = subreddit.getPublicDescription();
+                try {
+                    //bug in jraw library sometimes throws nullpointerexception
+                    sub.mSubscribers = subreddit.getSubscriberCount();
+                } catch (NullPointerException e) {
+                    e.printStackTrace();
                 }
-            }
-
-            return mSubreddits;
-        }
-
-        @Override
-        protected void onPreExecute() {
-            if(mSubreddits.size() == 0) {
-                mLoadingSpinner.setVisibility(View.VISIBLE);
+                mSubreddits.add(sub);
             }
         }
 
-        @Override
-        protected void onPostExecute(ArrayList<SubredditInfo> subs) {
-            mLoadingSpinner.setVisibility(View.GONE);
-            mSubredditAdapter.refreshWithList(subs);
-        }
+        return mSubreddits;
     }
 }
