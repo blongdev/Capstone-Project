@@ -15,6 +15,7 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.app.LoaderManager;
+import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.view.ViewPager;
@@ -33,10 +34,14 @@ import net.dean.jraw.models.Subreddit;
 import net.dean.jraw.paginators.SubredditStream;
 
 import java.util.ArrayList;
+import java.util.List;
 
-public class MainActivity extends BaseActivity implements LoaderManager.LoaderCallbacks<Cursor>{
+public class MainActivity extends BaseActivity {
 
     public static final String LOG_TAG = "MainActivity";
+
+    private static final int CURSOR_LOADER_ID = 1;
+    private static final int ASYNCTASK_LOADER_ID = 2;
 
     ViewPager mPager;
     SubredditPagerAdapter mPagerAdapter;
@@ -44,6 +49,63 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
     private ArrayList<SubscriptionInfo> mSubreddits;
     ProgressBar mLoadingSpinner;
     String mCategory = null;
+
+    private LoaderManager.LoaderCallbacks<Cursor> mSubscriptionLoader
+            = new LoaderManager.LoaderCallbacks<Cursor>() {
+        @Override
+        public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+            mLoadingSpinner.setVisibility(View.VISIBLE);
+            return new CursorLoader(getApplicationContext(), SiftContract.Subscriptions.VIEW_URI,
+                    null, null, null, SiftContract.Subreddits.COLUMN_NAME + " COLLATE NOCASE");
+        }
+
+        @Override
+        public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+            mLoadingSpinner.setVisibility(View.GONE);
+            if (data != null) {
+                while (data.moveToNext()) {
+                    SubscriptionInfo sub = new SubscriptionInfo();
+                    sub.mSubredditId = data.getInt(data.getColumnIndex(SiftContract.Subscriptions.COLUMN_SUBREDDIT_ID));
+                    sub.mSubredditName = data.getString(data.getColumnIndex(SiftContract.Subreddits.COLUMN_NAME));
+                    mSubreddits.add(sub);
+                }
+            }
+            mPagerAdapter.swapData(mSubreddits);
+        }
+
+        @Override
+        public void onLoaderReset(Loader<Cursor> loader) {
+
+            mPagerAdapter.swapData(null);
+        }
+    };
+
+    private LoaderManager.LoaderCallbacks<List<SubscriptionInfo>> mPopularSubredditsLoader
+            = new LoaderManager.LoaderCallbacks<List<SubscriptionInfo>>() {
+
+        @Override
+        public Loader<List<SubscriptionInfo>> onCreateLoader(int id, Bundle args) {
+            mLoadingSpinner.setVisibility(View.VISIBLE);
+            if (Utilities.loggedIn(getApplicationContext())) {
+                return new PopularSubredditLoader(getApplicationContext(), false);
+            } else {
+                return new PopularSubredditLoader(getApplicationContext(), true);
+            }
+        }
+
+        @Override
+        public void onLoadFinished(Loader<List<SubscriptionInfo>> loader, List<SubscriptionInfo> data) {
+            mLoadingSpinner.setVisibility(View.GONE);
+            mPagerAdapter.swapData(data);
+        }
+
+        @Override
+        public void onLoaderReset(Loader<List<SubscriptionInfo>> loader) {
+            mPagerAdapter.swapData(new ArrayList<SubscriptionInfo>());
+        }
+
+
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,11 +126,13 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
         }
 
         if (mCategory != null && mReddit.mRedditClient.isAuthenticated()) {
-            new GetSubredditsTask(getApplicationContext()).execute();
+//            new GetSubredditsTask(getApplicationContext()).execute();
+            getSupportLoaderManager().initLoader(ASYNCTASK_LOADER_ID, null, mPopularSubredditsLoader).forceLoad();
         } else if (Utilities.loggedIn(getApplicationContext())){
-            getSupportLoaderManager().initLoader(0, null, this);
+            getSupportLoaderManager().initLoader(CURSOR_LOADER_ID, null, mSubscriptionLoader).forceLoad();
         } else if (mReddit.mRedditClient.isAuthenticated()){
-            new GetSubredditsTask(getApplicationContext()).execute();
+//            new GetSubredditsTask(getApplicationContext()).execute();
+            getSupportLoaderManager().initLoader(ASYNCTASK_LOADER_ID, null, mPopularSubredditsLoader).forceLoad();
         }
 
         mPager = (ViewPager) findViewById(R.id.pager);
@@ -78,7 +142,6 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
 
         TabLayout tabLayout = (TabLayout) findViewById(R.id.subreddit_tabs);
         tabLayout.setupWithViewPager(mPager);
-
 
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
@@ -99,30 +162,7 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
         });
     }
 
-    @Override
-    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        return new CursorLoader(this, SiftContract.Subscriptions.VIEW_URI,
-                null, null, null, SiftContract.Subreddits.COLUMN_NAME + " COLLATE NOCASE");
-    }
 
-    @Override
-    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-        if (data != null) {
-            while (data.moveToNext()) {
-                    SubscriptionInfo sub = new SubscriptionInfo();
-                    sub.mSubredditId = data.getInt(data.getColumnIndex(SiftContract.Subscriptions.COLUMN_SUBREDDIT_ID));
-                    sub.mSubredditName = data.getString(data.getColumnIndex(SiftContract.Subreddits.COLUMN_NAME));
-                    mSubreddits.add(sub);
-                }
-            }
-        mPagerAdapter.swapData(mSubreddits);
-    }
-
-    @Override
-    public void onLoaderReset(Loader<Cursor> loader) {
-
-        mPagerAdapter.swapData(null);
-    }
 
 
 //    @Override
@@ -140,13 +180,13 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
 
     private class SubredditPagerAdapter extends FragmentStatePagerAdapter {
 
-        private ArrayList<SubscriptionInfo> mSubreddits;
+        private List<SubscriptionInfo> mSubreddits;
 
         public SubredditPagerAdapter(FragmentManager fm) {
             super(fm);
         }
 
-        public void swapData(ArrayList<SubscriptionInfo> subreddits) {
+        public void swapData(List<SubscriptionInfo> subreddits) {
             this.mSubreddits = subreddits;
             notifyDataSetChanged();
         }
@@ -188,80 +228,89 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
         super.onRefreshCompleted();
         if (mReddit.mRedditClient.isAuthenticated()) {
             if (!Utilities.loggedIn(getApplicationContext())) {
-                new GetSubredditsTask(getApplicationContext()).execute();
+                //new GetSubredditsTask(getApplicationContext()).execute();
+
+                if (mCategory != null && mReddit.mRedditClient.isAuthenticated()) {
+                    getSupportLoaderManager().initLoader(ASYNCTASK_LOADER_ID, null, mPopularSubredditsLoader).forceLoad();
+                } else if (Utilities.loggedIn(getApplicationContext())){
+                    getSupportLoaderManager().initLoader(CURSOR_LOADER_ID, null, mSubscriptionLoader).forceLoad();
+                } else if (mReddit.mRedditClient.isAuthenticated()){
+                    getSupportLoaderManager().initLoader(ASYNCTASK_LOADER_ID, null, mPopularSubredditsLoader).forceLoad();
+                }
+
             }
             mPager.setAdapter(mPagerAdapter);
         }
     }
+////
+//    private final class GetSubredditsTask extends AsyncTask<String, Void, ArrayList<SubscriptionInfo>> {
 //
-    private final class GetSubredditsTask extends AsyncTask<String, Void, ArrayList<SubscriptionInfo>> {
-
-        Context mContext;
-
-
-        public GetSubredditsTask(Context context) {
-            mContext = context;
-        }
-
-        @Override
-        protected void onPreExecute() {
-            mLoadingSpinner.setVisibility(View.VISIBLE);
-        }
-
-        @Override
-        protected ArrayList<SubscriptionInfo> doInBackground(String... params) {
-            ArrayList<SubscriptionInfo> subredditArray = new ArrayList<SubscriptionInfo>();
-            SubredditStream paginator = new SubredditStream(mReddit.mRedditClient, "popular");
-            if (paginator.hasNext()) {
-                Listing<Subreddit> subs = paginator.next();
-                ContentValues cv = new ContentValues();
-                String selection = SiftContract.Subreddits.COLUMN_SERVER_ID + " =?";
-                String name, serverId, description;
-                long subredditId;
-                long numSubscribers = -1;
-                for (Subreddit subreddit : subs) {
-                    SubscriptionInfo sub = new SubscriptionInfo();
-                    name = subreddit.getDisplayName();
-                    serverId = subreddit.getId();
-
-                    try {
-                        //bug in jraw library sometimes throws nullpointerexception
-                        numSubscribers = subreddit.getSubscriberCount();
-                    } catch (NullPointerException e) {
-                        e.printStackTrace();
-                    }
-
-                    description = subreddit.getPublicDescription();
-                    subredditId = Utilities.getSubredditId(mContext, serverId);
-                    if (subredditId < 0) {
-                        cv.put(SiftContract.Subreddits.COLUMN_NAME, name);
-                        cv.put(SiftContract.Subreddits.COLUMN_SERVER_ID, serverId);
-                        cv.put(SiftContract.Subreddits.COLUMN_DESCRIPTION, description);
-                        cv.put(SiftContract.Subreddits.COLUMN_SUBSCRIBERS, numSubscribers);
-                        Uri uri = mContext.getContentResolver().insert(SiftContract.Subreddits.CONTENT_URI, cv);
-                        subredditId = ContentUris.parseId(uri);
-                        cv.clear();
-                    }
-                    sub.mSubredditId = subredditId;
-                    sub.mSubredditName = name;
-                    sub.mServerId = serverId;
-                    sub.mSubscribers = numSubscribers;
-                    sub.mDescription = description;
-                    subredditArray.add(sub);
-                    mSubreddits.add(sub);
-                    cv.clear();
-                }
-            }
-
-            return subredditArray;
-        }
-
-        @Override
-        protected void onPostExecute(ArrayList<SubscriptionInfo> subs) {
-            mLoadingSpinner.setVisibility(View.GONE);
-            mPagerAdapter.swapData(mSubreddits);
-        }
-    }
+//        Context mContext;
+//
+//
+//        public GetSubredditsTask(Context context) {
+//            mContext = context;
+//        }
+//
+//        @Override
+//        protected void onPreExecute() {
+//            mLoadingSpinner.setVisibility(View.VISIBLE);
+//        }
+//
+//        @Override
+//        protected ArrayList<SubscriptionInfo> doInBackground(String... params) {
+//            ArrayList<SubscriptionInfo> subredditArray = new ArrayList<SubscriptionInfo>();
+//            SubredditStream paginator = new SubredditStream(mReddit.mRedditClient, "popular");
+//            if (paginator.hasNext()) {
+//                Listing<Subreddit> subs = paginator.next();
+//                ContentValues cv = new ContentValues();
+//                String selection = SiftContract.Subreddits.COLUMN_SERVER_ID + " =?";
+//                String name, serverId, description;
+//                long subredditId;
+//                long numSubscribers = -1;
+//                for (Subreddit subreddit : subs) {
+//                    SubscriptionInfo sub = new SubscriptionInfo();
+//                    name = subreddit.getDisplayName();
+//                    serverId = subreddit.getId();
+//
+//                    try {
+//                        //bug in jraw library sometimes throws nullpointerexception
+//                        numSubscribers = subreddit.getSubscriberCount();
+//                    } catch (NullPointerException e) {
+//                        e.printStackTrace();
+//                    }
+//
+//                    description = subreddit.getPublicDescription();
+//                    subredditId = Utilities.getSubredditId(mContext, serverId);
+//                    if (subredditId < 0) {
+//                        cv.put(SiftContract.Subreddits.COLUMN_NAME, name);
+//                        cv.put(SiftContract.Subreddits.COLUMN_SERVER_ID, serverId);
+//                        cv.put(SiftContract.Subreddits.COLUMN_DESCRIPTION, description);
+//                        cv.put(SiftContract.Subreddits.COLUMN_SUBSCRIBERS, numSubscribers);
+//                        Uri uri = mContext.getContentResolver().insert(SiftContract.Subreddits.CONTENT_URI, cv);
+//                        subredditId = ContentUris.parseId(uri);
+//                        cv.clear();
+//                    }
+//                    sub.mSubredditId = subredditId;
+//                    sub.mSubredditName = name;
+//                    sub.mServerId = serverId;
+//                    sub.mSubscribers = numSubscribers;
+//                    sub.mDescription = description;
+//                    subredditArray.add(sub);
+//                    mSubreddits.add(sub);
+//                    cv.clear();
+//                }
+//            }
+//
+//            return subredditArray;
+//        }
+//
+//        @Override
+//        protected void onPostExecute(ArrayList<SubscriptionInfo> subs) {
+//            mLoadingSpinner.setVisibility(View.GONE);
+//            mPagerAdapter.swapData(mSubreddits);
+//        }
+//    }
 
     @Override
     public void onResume() {
@@ -271,4 +320,73 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
         GoogleAnalytics.getInstance(this).dispatchLocalHits();
     }
 
+}
+
+
+class PopularSubredditLoader extends AsyncTaskLoader<List<SubscriptionInfo>> {
+
+    Context mContext;
+    boolean addFrontPage;
+
+    public PopularSubredditLoader(Context context, boolean frontpage) {
+        super(context);
+        mContext = context;
+        addFrontPage = frontpage;
+    }
+
+    @Override
+    public List<SubscriptionInfo> loadInBackground() {
+        Reddit reddit = Reddit.getInstance();
+        ArrayList<SubscriptionInfo> subredditArray = new ArrayList<SubscriptionInfo>();
+
+        if(addFrontPage) {
+            SubscriptionInfo frontpage = new SubscriptionInfo();
+            frontpage.mSubredditId = -1;
+            frontpage.mSubredditName = mContext.getString(R.string.frontPage);
+            subredditArray.add(frontpage);
+        }
+
+        SubredditStream paginator = new SubredditStream(reddit.mRedditClient, "popular");
+        if (paginator.hasNext()) {
+            Listing<Subreddit> subs = paginator.next();
+            ContentValues cv = new ContentValues();
+            String selection = SiftContract.Subreddits.COLUMN_SERVER_ID + " =?";
+            String name, serverId, description;
+            long subredditId;
+            long numSubscribers = -1;
+            for (Subreddit subreddit : subs) {
+                SubscriptionInfo sub = new SubscriptionInfo();
+                name = subreddit.getDisplayName();
+                serverId = subreddit.getId();
+
+                try {
+                    //bug in jraw library sometimes throws nullpointerexception
+                    numSubscribers = subreddit.getSubscriberCount();
+                } catch (NullPointerException e) {
+                    e.printStackTrace();
+                }
+
+                description = subreddit.getPublicDescription();
+                subredditId = Utilities.getSubredditId(mContext, serverId);
+                if (subredditId < 0) {
+                    cv.put(SiftContract.Subreddits.COLUMN_NAME, name);
+                    cv.put(SiftContract.Subreddits.COLUMN_SERVER_ID, serverId);
+                    cv.put(SiftContract.Subreddits.COLUMN_DESCRIPTION, description);
+                    cv.put(SiftContract.Subreddits.COLUMN_SUBSCRIBERS, numSubscribers);
+                    Uri uri = mContext.getContentResolver().insert(SiftContract.Subreddits.CONTENT_URI, cv);
+                    subredditId = ContentUris.parseId(uri);
+                    cv.clear();
+                }
+                sub.mSubredditId = subredditId;
+                sub.mSubredditName = name;
+                sub.mServerId = serverId;
+                sub.mSubscribers = numSubscribers;
+                sub.mDescription = description;
+                subredditArray.add(sub);
+                cv.clear();
+            }
+        }
+
+        return subredditArray;
+    }
 }
