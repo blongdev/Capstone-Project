@@ -31,6 +31,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.blongdev.sift.database.SiftContract;
+import com.squareup.okhttp.internal.Util;
 import com.unnamed.b.atv.model.TreeNode;
 import com.unnamed.b.atv.view.AndroidTreeView;
 
@@ -216,6 +217,9 @@ public class CommentsFragment extends Fragment implements LoaderManager.LoaderCa
             mReplyText = (EditText) view.findViewById(R.id.reply_text);
             mCommentArea = (LinearLayout) view.findViewById(R.id.comment_area);
             mSendComment = (ImageView) view.findViewById(R.id.send);
+            TextView age =(TextView) view.findViewById(R.id.comment_age);
+            TextView replies = (TextView) view.findViewById(R.id.comment_replies);
+
 
             if (mIsReply) {
                 mCommentArea.setVisibility(View.VISIBLE);
@@ -287,6 +291,8 @@ public class CommentsFragment extends Fragment implements LoaderManager.LoaderCa
             mBody.setText(value.mBody);
             username.setText(value.mUsername);
             mPoints.setText(String.valueOf(value.mPoints));
+            age.setText(Utilities.getAgeString(value.mAge));
+            replies.setText(value.mComments + " " + getContext().getString(R.string.replies));
 
             Linkify.addLinks(mBody, Linkify.ALL);
 
@@ -417,6 +423,8 @@ public class CommentsFragment extends Fragment implements LoaderManager.LoaderCa
                 commentInfo.mBody = comment.getBody();
                 commentInfo.mPoints = comment.getScore();
                 commentInfo.mJrawComment = comment;
+                commentInfo.mComments = commentNode.getImmediateSize();
+                commentInfo.mAge = comment.getCreatedUtc().getTime();
                 TreeNode child = createCommentNode(commentInfo);
                 parent.addChild(child);
                 copyTree(child, commentNode);

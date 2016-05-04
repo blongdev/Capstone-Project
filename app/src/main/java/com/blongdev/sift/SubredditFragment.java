@@ -68,7 +68,7 @@ public class SubredditFragment extends Fragment implements LoaderManager.LoaderC
     private ContentResolver mContentResolver;
     private ProgressBar mLoadingSpinner;
     private Context mContext;
-//    private ContributionLoader mContributionLoader;
+    private ContributionLoader mContributionLoader;
 
     private Reddit mReddit;
     private Paginator mPaginator;
@@ -80,12 +80,44 @@ public class SubredditFragment extends Fragment implements LoaderManager.LoaderC
     private String mUsername;
     private String mCategory;
 
-    private static final int PAGE_SIZE = 25;
+    protected static final int PAGE_SIZE = 25;
     private boolean savePosts;
 
     private TextView mEmptyText;
 
     private int mRefreshPoint = 0;
+
+    private static final int CURSOR_LOADER_ID = 1;
+    private static final int ASYNCTASK_LOADER_ID = 2;
+
+    private LoaderManager.LoaderCallbacks<List<ContributionInfo>> mPostsLoaderCallbacks
+            = new LoaderManager.LoaderCallbacks<List<ContributionInfo>>() {
+
+        @Override
+        public Loader<List<ContributionInfo>> onCreateLoader(int id, Bundle args) {
+            mLoadingSpinner.setVisibility(View.VISIBLE);
+//            if (mContributionLoader == null) {
+//                mContributionLoader = new ContributionLoader(getContext(), mPaginator);
+//            }
+//            return mContributionLoader;
+            return new ContributionLoader(getContext(), mPaginator, savePosts, mSubredditId);
+        }
+
+        @Override
+        public void onLoadFinished(Loader<List<ContributionInfo>> loader, List<ContributionInfo> data) {
+            mLoadingSpinner.setVisibility(View.GONE);
+            mPostListAdapter.refreshWithList(data);
+            if (data.size() >= PAGE_SIZE) {
+                mRefreshPoint = data.size() - PAGE_SIZE;
+            }
+        }
+
+        @Override
+        public void onLoaderReset(Loader<List<ContributionInfo>> loader) {
+            mPostListAdapter.refreshWithList(new ArrayList<ContributionInfo>());
+        }
+
+    };
 
     public SubredditFragment() {
     }
@@ -141,15 +173,18 @@ public class SubredditFragment extends Fragment implements LoaderManager.LoaderC
         }
         mPaginator.setLimit(PAGE_SIZE);
 
+//        mContributionLoader = new ContributionLoader(getContext(), mPaginator);
+
         if (savePosts) {
-            getLoaderManager().initLoader(0, null, this);
+            getLoaderManager().initLoader(CURSOR_LOADER_ID, null, this);
         }
 
         //RACE CONDITION WITH AUTHENTICATION IN MAIN ACTIVITY
         // resetting the viewpager adapter in main activity as workaround
         if (Utilities.connectedToNetwork(mContext)) {
             if (mReddit.mRedditClient.isAuthenticated()) {
-                new GetPostsTask().execute();
+//                new GetPostsTask().execute();
+                getLoaderManager().initLoader(ASYNCTASK_LOADER_ID, null, mPostsLoaderCallbacks).forceLoad();
             } else {
                 //Base Activity is authenticating. add spinner until authenticated
                 mLoadingSpinner.setVisibility(View.VISIBLE);
@@ -177,7 +212,8 @@ public class SubredditFragment extends Fragment implements LoaderManager.LoaderC
                 if (dy > 0 && mLayoutManager.findLastVisibleItemPosition() >= mRefreshPoint && !mLoading) {
                     if (Utilities.connectedToNetwork(mContext)) {
                         if (mReddit.mRedditClient.isAuthenticated()) {
-                            new GetPostsTask().execute();
+//                            new GetPostsTask().execute();
+                            getLoaderManager().initLoader(ASYNCTASK_LOADER_ID, null, mPostsLoaderCallbacks).forceLoad();
                         }
                     }
                 }
@@ -186,169 +222,171 @@ public class SubredditFragment extends Fragment implements LoaderManager.LoaderC
 
         return rootView;
     }
+//
+//    private void getPostsFromDb() {
+//        Cursor cursor = null;
+//        try {
+//            String selection = SiftContract.Posts.COLUMN_SUBREDDIT_ID + " = ?";
+//            String[] selectionArgs = new String[]{String.valueOf(mSubredditId)};
+//            cursor = getContext().getContentResolver().query(SiftContract.Posts.CONTENT_URI, null, selection, selectionArgs, null, null);
+//            if (cursor != null) {
+//                while (cursor.moveToNext()) {
+//                    PostInfo post = new PostInfo();
+//                    post.mId = cursor.getInt(cursor.getColumnIndex(SiftContract.Posts._ID));
+//                    post.mTitle = cursor.getString(cursor.getColumnIndex(SiftContract.Posts.COLUMN_TITLE));
+//                    post.mUsername = cursor.getString(cursor.getColumnIndex(SiftContract.Posts.COLUMN_OWNER_USERNAME));
+//                    post.mUserId = cursor.getInt(cursor.getColumnIndex(SiftContract.Posts.COLUMN_OWNER_ID));
+//                    post.mSubreddit = cursor.getString(cursor.getColumnIndex(SiftContract.Posts.COLUMN_SUBREDDIT_NAME));
+//                    post.mSubredditId = cursor.getInt(cursor.getColumnIndex(SiftContract.Posts.COLUMN_SUBREDDIT_ID));
+//                    post.mPoints = cursor.getInt(cursor.getColumnIndex(SiftContract.Posts.COLUMN_POINTS));
+//                    post.mImageUrl = cursor.getString(cursor.getColumnIndex(SiftContract.Posts.COLUMN_IMAGE_URL));
+//                    post.mUrl = cursor.getString(cursor.getColumnIndex(SiftContract.Posts.COLUMN_URL));
+//                    post.mComments = cursor.getInt(cursor.getColumnIndex(SiftContract.Posts.COLUMN_NUM_COMMENTS));
+//                    post.mAge= cursor.getInt(cursor.getColumnIndex(SiftContract.Posts.COLUMN_DATE_CREATED));
+//                    post.mFavorited = cursor.getInt(cursor.getColumnIndex(SiftContract.Posts.COLUMN_FAVORITED)) == 1 ? true : false;
+//                    post.mBody = cursor.getString(cursor.getColumnIndex(SiftContract.Posts.COLUMN_BODY));
+//                    post.mDomain = cursor.getString(cursor.getColumnIndex(SiftContract.Posts.COLUMN_DOMAIN));
+//                    mPosts.add(post);
+//                }
+//            }
+//        } finally {
+//            if (cursor != null) {
+//                cursor.close();
+//            }
+//        }
+//    }
 
-    private void getPostsFromDb() {
-        Cursor cursor = null;
-        try {
-            String selection = SiftContract.Posts.COLUMN_SUBREDDIT_ID + " = ?";
-            String[] selectionArgs = new String[]{String.valueOf(mSubredditId)};
-            cursor = getContext().getContentResolver().query(SiftContract.Posts.CONTENT_URI, null, selection, selectionArgs, null, null);
-            if (cursor != null) {
-                while (cursor.moveToNext()) {
-                    PostInfo post = new PostInfo();
-                    post.mId = cursor.getInt(cursor.getColumnIndex(SiftContract.Posts._ID));
-                    post.mTitle = cursor.getString(cursor.getColumnIndex(SiftContract.Posts.COLUMN_TITLE));
-                    post.mUsername = cursor.getString(cursor.getColumnIndex(SiftContract.Posts.COLUMN_OWNER_USERNAME));
-                    post.mUserId = cursor.getInt(cursor.getColumnIndex(SiftContract.Posts.COLUMN_OWNER_ID));
-                    post.mSubreddit = cursor.getString(cursor.getColumnIndex(SiftContract.Posts.COLUMN_SUBREDDIT_NAME));
-                    post.mSubredditId = cursor.getInt(cursor.getColumnIndex(SiftContract.Posts.COLUMN_SUBREDDIT_ID));
-                    post.mPoints = cursor.getInt(cursor.getColumnIndex(SiftContract.Posts.COLUMN_POINTS));
-                    post.mImageUrl = cursor.getString(cursor.getColumnIndex(SiftContract.Posts.COLUMN_IMAGE_URL));
-                    post.mUrl = cursor.getString(cursor.getColumnIndex(SiftContract.Posts.COLUMN_URL));
-                    post.mComments = cursor.getInt(cursor.getColumnIndex(SiftContract.Posts.COLUMN_NUM_COMMENTS));
-                    post.mAge= cursor.getInt(cursor.getColumnIndex(SiftContract.Posts.COLUMN_DATE_CREATED));
-                    post.mFavorited = cursor.getInt(cursor.getColumnIndex(SiftContract.Posts.COLUMN_FAVORITED)) == 1 ? true : false;
-                    post.mBody = cursor.getString(cursor.getColumnIndex(SiftContract.Posts.COLUMN_BODY));
-                    post.mDomain = cursor.getString(cursor.getColumnIndex(SiftContract.Posts.COLUMN_DOMAIN));
-                    mPosts.add(post);
-                }
-            }
-        } finally {
-            if (cursor != null) {
-                cursor.close();
-            }
-        }
-    }
 
-    private final class GetPostsTask extends AsyncTask<String, Void, ArrayList<ContributionInfo>> {
-        @Override
-        protected ArrayList<ContributionInfo> doInBackground(String... params) {
-            ArrayList<ContributionInfo> newPostArray = new ArrayList<ContributionInfo>();
-            try {
-                if (mReddit.mRedditClient.isAuthenticated() && mPaginator != null && mPaginator.hasNext()) {
-                    Listing<Contribution> page = mPaginator.next();
-                    int i = 0;
-                    for (Contribution contribution : page) {
-                        if (contribution instanceof Comment) {
-                            Comment comment = (Comment) contribution;
-                            CommentInfo commentInfo = new CommentInfo();
-                            commentInfo.mUsername = comment.getAuthor();
-                            commentInfo.mPoints = comment.getScore();
-//                        commentInfo.mComments = comment.getReplies();
-                            commentInfo.mBody = comment.getBody();
-                            commentInfo.mAge = comment.getCreatedUtc().getTime();
-                            commentInfo.mContributionType = ContributionInfo.CONTRIBUTION_COMMENT;
-                            commentInfo.mVote = comment.getVote().getValue();
-                            commentInfo.mJrawComment = comment;
-                            commentInfo.mPostServerId = Utilities.getServerIdFromFullName(comment.getSubmissionId());
-                            newPostArray.add(commentInfo);
-                            mPosts.add(commentInfo);
-                        } else {
-                            Submission submission = (Submission) contribution;
-                            PostInfo post = new PostInfo();
-                            post.mServerId = submission.getId();
-                            post.mTitle = submission.getTitle();
-                            post.mUsername = submission.getAuthor();
-                            post.mSubreddit = submission.getSubredditName();
-                            post.mPoints = submission.getScore();
-                            post.mUrl = submission.getUrl();
-                            post.mImageUrl = Reddit.getImageUrl(submission);
-                            post.mComments = submission.getCommentCount();
-                            post.mBody = submission.getSelftext();
-                            post.mDomain = submission.getDomain();
-                            post.mAge = submission.getCreatedUtc().getTime();
-                            post.mPosition = ((mPaginator.getPageIndex() - 1) * PAGE_SIZE) + i;
-                            post.mContributionType = ContributionInfo.CONTRIBUTION_POST;
-                            post.mVote = submission.getVote().getValue();
-                            post.mFavorited = submission.isSaved();
-                            newPostArray.add(post);
-                            mPosts.add(post);
-                        }
-                        i++;
-                    }
-                    mRefreshPoint = ((mPaginator.getPageIndex() - 1) * PAGE_SIZE);
-                }
-            } catch (NetworkException e) {
-                e.printStackTrace();
-            }
+//
+//    private final class GetPostsTask extends AsyncTask<String, Void, ArrayList<ContributionInfo>> {
+//        @Override
+//        protected ArrayList<ContributionInfo> doInBackground(String... params) {
+//            ArrayList<ContributionInfo> newPostArray = new ArrayList<ContributionInfo>();
+//            try {
+//                if (mReddit.mRedditClient.isAuthenticated() && mPaginator != null && mPaginator.hasNext()) {
+//                    Listing<Contribution> page = mPaginator.next();
+//                    int i = 0;
+//                    for (Contribution contribution : page) {
+//                        if (contribution instanceof Comment) {
+//                            Comment comment = (Comment) contribution;
+//                            CommentInfo commentInfo = new CommentInfo();
+//                            commentInfo.mUsername = comment.getAuthor();
+//                            commentInfo.mPoints = comment.getScore();
+////                        commentInfo.mComments = comment.getReplies();
+//                            commentInfo.mBody = comment.getBody();
+//                            commentInfo.mAge = comment.getCreatedUtc().getTime();
+//                            commentInfo.mContributionType = ContributionInfo.CONTRIBUTION_COMMENT;
+//                            commentInfo.mVote = comment.getVote().getValue();
+//                            commentInfo.mJrawComment = comment;
+//                            commentInfo.mPostServerId = Utilities.getServerIdFromFullName(comment.getSubmissionId());
+//                            newPostArray.add(commentInfo);
+//                            mPosts.add(commentInfo);
+//                        } else {
+//                            Submission submission = (Submission) contribution;
+//                            PostInfo post = new PostInfo();
+//                            post.mServerId = submission.getId();
+//                            post.mTitle = submission.getTitle();
+//                            post.mUsername = submission.getAuthor();
+//                            post.mSubreddit = submission.getSubredditName();
+//                            post.mPoints = submission.getScore();
+//                            post.mUrl = submission.getUrl();
+//                            post.mImageUrl = Reddit.getImageUrl(submission);
+//                            post.mComments = submission.getCommentCount();
+//                            post.mBody = submission.getSelftext();
+//                            post.mDomain = submission.getDomain();
+//                            post.mAge = submission.getCreatedUtc().getTime();
+//                            post.mPosition = ((mPaginator.getPageIndex() - 1) * PAGE_SIZE) + i;
+//                            post.mContributionType = ContributionInfo.CONTRIBUTION_POST;
+//                            post.mVote = submission.getVote().getValue();
+//                            post.mFavorited = submission.isSaved();
+//                            newPostArray.add(post);
+//                            mPosts.add(post);
+//                        }
+//                        i++;
+//                    }
+//                    mRefreshPoint = ((mPaginator.getPageIndex() - 1) * PAGE_SIZE);
+//                }
+//            } catch (NetworkException e) {
+//                e.printStackTrace();
+//            }
+//
+//            return newPostArray;
+//        }
+//
+//        @Override
+//        protected void onPreExecute() {
+//            mLoading = true;
+//
+//            if(mPosts.size() == 0) {
+//                mLoadingSpinner.setVisibility(View.VISIBLE);
+//            }
+//        }
+//
+//        @Override
+//        protected void onPostExecute(ArrayList<ContributionInfo> posts) {
+//            mLoading = false;
+//            mLoadingSpinner.setVisibility(View.GONE);
+//            //mPostListAdapter.refreshWithList(mPosts);
+//
+//            if (mPosts.size() == 0) {
+//                mEmptyText.setVisibility(View.VISIBLE);
+//            }
+//
+//            if(savePosts) {
+//                new AddPostsToDbTask(posts).execute();
+//            } else {
+//                mPostListAdapter.refreshWithList(mPosts);
+//            }
+//        }
+//
+//    }
 
-            return newPostArray;
-        }
-
-        @Override
-        protected void onPreExecute() {
-            mLoading = true;
-
-            if(mPosts.size() == 0) {
-                mLoadingSpinner.setVisibility(View.VISIBLE);
-            }
-        }
-
-        @Override
-        protected void onPostExecute(ArrayList<ContributionInfo> posts) {
-            mLoading = false;
-            mLoadingSpinner.setVisibility(View.GONE);
-            //mPostListAdapter.refreshWithList(mPosts);
-
-            if (mPosts.size() == 0) {
-                mEmptyText.setVisibility(View.VISIBLE);
-            }
-
-            if(savePosts) {
-                new AddPostsToDbTask(posts).execute();
-            } else {
-                mPostListAdapter.refreshWithList(mPosts);
-            }
-        }
-
-    }
-
-    private final class AddPostsToDbTask extends AsyncTask<String, Void, Void> {
-
-        private ArrayList<ContributionInfo> mNewPosts;
-
-        public AddPostsToDbTask(ArrayList<ContributionInfo> posts) {
-            mNewPosts = posts;
-        }
-
-        @Override
-        protected Void doInBackground(String... params) {
-            //add to db
-            for (ContributionInfo post : mNewPosts) {
-                if (post.mContributionType != ContributionInfo.CONTRIBUTION_COMMENT) {
-                    addPostToDb((PostInfo) post);
-                }
-            }
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(Void nothing) {
-
-        }
-
-        //TODO batch insert
-        private void addPostToDb(PostInfo post) {
-            ContentValues cv = new ContentValues();
-            cv.put(SiftContract.Posts.COLUMN_OWNER_USERNAME, post.mUsername);
-            cv.put(SiftContract.Posts.COLUMN_SERVER_ID, post.mServerId);
-            cv.put(SiftContract.Posts.COLUMN_NUM_COMMENTS, post.mComments);
-            cv.put(SiftContract.Posts.COLUMN_POINTS, post.mPoints);
-            cv.put(SiftContract.Posts.COLUMN_SUBREDDIT_ID, mSubredditId);
-            cv.put(SiftContract.Posts.COLUMN_SUBREDDIT_NAME, post.mSubreddit);
-            cv.put(SiftContract.Posts.COLUMN_URL, post.mUrl);
-            cv.put(SiftContract.Posts.COLUMN_IMAGE_URL, post.mImageUrl);
-            cv.put(SiftContract.Posts.COLUMN_TITLE, post.mTitle);
-            cv.put(SiftContract.Posts.COLUMN_BODY, post.mBody);
-            cv.put(SiftContract.Posts.COLUMN_DATE_CREATED, post.mAge);
-            cv.put(SiftContract.Posts.COLUMN_DOMAIN, post.mDomain);
-            cv.put(SiftContract.Posts.COLUMN_POSITION, post.mPosition);
-            cv.put(SiftContract.Posts.COLUMN_SERVER_ID, post.mServerId);
-            cv.put(SiftContract.Posts.COLUMN_VOTE, post.mVote);
-            cv.put(SiftContract.Posts.COLUMN_FAVORITED, post.mFavorited);
-            mContentResolver.insert(SiftContract.Posts.CONTENT_URI, cv);
-        }
-    }
+//    private final class AddPostsToDbTask extends AsyncTask<String, Void, Void> {
+//
+//        private ArrayList<ContributionInfo> mNewPosts;
+//
+//        public AddPostsToDbTask(ArrayList<ContributionInfo> posts) {
+//            mNewPosts = posts;
+//        }
+//
+//        @Override
+//        protected Void doInBackground(String... params) {
+//            //add to db
+//            for (ContributionInfo post : mNewPosts) {
+//                if (post.mContributionType != ContributionInfo.CONTRIBUTION_COMMENT) {
+//                    addPostToDb((PostInfo) post);
+//                }
+//            }
+//            return null;
+//        }
+//
+//        @Override
+//        protected void onPostExecute(Void nothing) {
+//
+//        }
+//
+//        //TODO batch insert
+//        private void addPostToDb(PostInfo post) {
+//            ContentValues cv = new ContentValues();
+//            cv.put(SiftContract.Posts.COLUMN_OWNER_USERNAME, post.mUsername);
+//            cv.put(SiftContract.Posts.COLUMN_SERVER_ID, post.mServerId);
+//            cv.put(SiftContract.Posts.COLUMN_NUM_COMMENTS, post.mComments);
+//            cv.put(SiftContract.Posts.COLUMN_POINTS, post.mPoints);
+//            cv.put(SiftContract.Posts.COLUMN_SUBREDDIT_ID, mSubredditId);
+//            cv.put(SiftContract.Posts.COLUMN_SUBREDDIT_NAME, post.mSubreddit);
+//            cv.put(SiftContract.Posts.COLUMN_URL, post.mUrl);
+//            cv.put(SiftContract.Posts.COLUMN_IMAGE_URL, post.mImageUrl);
+//            cv.put(SiftContract.Posts.COLUMN_TITLE, post.mTitle);
+//            cv.put(SiftContract.Posts.COLUMN_BODY, post.mBody);
+//            cv.put(SiftContract.Posts.COLUMN_DATE_CREATED, post.mAge);
+//            cv.put(SiftContract.Posts.COLUMN_DOMAIN, post.mDomain);
+//            cv.put(SiftContract.Posts.COLUMN_POSITION, post.mPosition);
+//            cv.put(SiftContract.Posts.COLUMN_SERVER_ID, post.mServerId);
+//            cv.put(SiftContract.Posts.COLUMN_VOTE, post.mVote);
+//            cv.put(SiftContract.Posts.COLUMN_FAVORITED, post.mFavorited);
+//            mContentResolver.insert(SiftContract.Posts.CONTENT_URI, cv);
+//        }
+//    }
 
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
         String selection = SiftContract.Posts.COLUMN_SUBREDDIT_ID + " = ?";
@@ -414,66 +452,129 @@ public class SubredditFragment extends Fragment implements LoaderManager.LoaderC
 
 
 }
-//
-//class ContributionLoader extends AsyncTaskLoader<List<ContributionInfo>> {
-//
-//    Paginator paginator;
-//    ArrayList<ContributionInfo> posts;
-//
-//
-//    public ContributionLoader(Context context, Paginator p) {
-//        super(context);
-//        paginator = p;
-//    }
-//
-//    @Override
-//    public List<ContributionInfo> loadInBackground() {
-//        Reddit reddit = Reddit.getInstance();
-//        ArrayList<ContributionInfo> newPostArray = new ArrayList<ContributionInfo>();
-//        if (reddit.mRedditClient.isAuthenticated() && paginator != null && paginator.hasNext()) {
-//            Listing<Contribution> page = paginator.next();
-//            int i = 0;
-//            for (Contribution contribution : page) {
-//                if (contribution instanceof Comment) {
-//                    Comment comment = (Comment) contribution;
-//                    CommentInfo commentInfo = new CommentInfo();
-//                    commentInfo.mUsername = comment.getAuthor();
-//                    commentInfo.mPoints = comment.getScore();
-////                        commentInfo.mComments = comment.getReplies();
-//                    commentInfo.mBody = comment.getBody();
-//                    commentInfo.mAge = comment.getCreatedUtc().getTime();
-//                    commentInfo.mContributionType = ContributionInfo.CONTRIBUTION_COMMENT;
-//                    commentInfo.mVote = comment.getVote().getValue();
-//                    commentInfo.mJrawComment = comment;
-//                    commentInfo.mPostServerId = Utilities.getServerIdFromFullName(comment.getSubmissionId());
-//                    newPostArray.add(commentInfo);
-//                    mPosts.add(commentInfo);
-//                } else {
-//                    Submission submission = (Submission) contribution;
-//                    PostInfo post = new PostInfo();
-//                    post.mServerId = submission.getId();
-//                    post.mTitle = submission.getTitle();
-//                    post.mUsername = submission.getAuthor();
-//                    post.mSubreddit = submission.getSubredditName();
-//                    post.mPoints = submission.getScore();
-//                    post.mUrl = submission.getUrl();
-//                    post.mImageUrl = Reddit.getImageUrl(submission);
-//                    post.mComments = submission.getCommentCount();
-//                    post.mBody = submission.getSelftext();
-//                    post.mDomain = submission.getDomain();
-//                    post.mAge = submission.getCreatedUtc().getTime();
-//                    post.mPosition = ((paginator.getPageIndex() - 1) * PAGE_SIZE) + i;
-//                    post.mContributionType = ContributionInfo.CONTRIBUTION_POST;
-//                    post.mVote = submission.getVote().getValue();
-//                    post.mFavorited = submission.isSaved();
-//                    newPostArray.add(post);
-//                    mPosts.add(post);
-//                }
-//                i++;
-//            }
+
+
+
+class ContributionLoader extends AsyncTaskLoader<List<ContributionInfo>> {
+
+    Context mContext;
+    public Paginator paginator;
+    ArrayList<ContributionInfo> posts;
+    boolean savePosts;
+    long subredditId;
+
+
+    public ContributionLoader(Context context, Paginator p, boolean save, long subId) {
+        super(context);
+        mContext = context;
+        paginator = p;
+        savePosts = save;
+        subredditId = subId;
+        posts = new ArrayList<ContributionInfo>();
+    }
+
+    @Override
+    public List<ContributionInfo> loadInBackground() {
+        Reddit reddit = Reddit.getInstance();
+        ArrayList<ContributionInfo> newPostArray = new ArrayList<ContributionInfo>();
+        if (reddit.mRedditClient.isAuthenticated() && paginator != null && paginator.hasNext()) {
+            Listing<Contribution> page = paginator.next();
+            int i = 0;
+            for (Contribution contribution : page) {
+                if (contribution instanceof Comment) {
+                    Comment comment = (Comment) contribution;
+                    CommentInfo commentInfo = new CommentInfo();
+                    commentInfo.mUsername = comment.getAuthor();
+                    commentInfo.mPoints = comment.getScore();
+//                        commentInfo.mComments = comment.getReplies();
+                    commentInfo.mBody = comment.getBody();
+                    commentInfo.mAge = comment.getCreatedUtc().getTime();
+                    commentInfo.mContributionType = ContributionInfo.CONTRIBUTION_COMMENT;
+                    commentInfo.mVote = comment.getVote().getValue();
+                    commentInfo.mJrawComment = comment;
+                    commentInfo.mPostServerId = Utilities.getServerIdFromFullName(comment.getSubmissionId());
+                    newPostArray.add(commentInfo);
+                    posts.add(commentInfo);
+                } else {
+                    Submission submission = (Submission) contribution;
+                    PostInfo post = new PostInfo();
+                    post.mServerId = submission.getId();
+                    post.mTitle = submission.getTitle();
+                    post.mUsername = submission.getAuthor();
+                    post.mSubreddit = submission.getSubredditName();
+                    post.mSubredditId = subredditId;
+                    post.mPoints = submission.getScore();
+                    post.mUrl = submission.getUrl();
+                    post.mImageUrl = Reddit.getImageUrl(submission);
+                    post.mComments = submission.getCommentCount();
+                    post.mBody = submission.getSelftext();
+                    post.mDomain = submission.getDomain();
+                    post.mAge = submission.getCreatedUtc().getTime();
+                    post.mPosition = ((paginator.getPageIndex() - 1) * SubredditFragment.PAGE_SIZE) + i;
+                    post.mContributionType = ContributionInfo.CONTRIBUTION_POST;
+                    post.mVote = submission.getVote().getValue();
+                    post.mFavorited = submission.isSaved();
+                    newPostArray.add(post);
+                    posts.add(post);
+                }
+                i++;
+            }
 //            mRefreshPoint = ((paginator.getPageIndex() -1) * PAGE_SIZE);
-//        }
-//
-//        return newPostArray;
-//    }
-//}
+        }
+
+        if(savePosts) {
+            new AddPostsToDbTask(mContext, newPostArray).execute();
+        }
+
+        return posts;
+    }
+}
+
+final class AddPostsToDbTask extends AsyncTask<String, Void, Void> {
+
+    private ArrayList<ContributionInfo> mNewPosts;
+    Context mContext;
+
+    public AddPostsToDbTask(Context context, ArrayList<ContributionInfo> posts) {
+        mContext = context;
+        mNewPosts = posts;
+    }
+
+    @Override
+    protected Void doInBackground(String... params) {
+        //add to db
+        for (ContributionInfo post : mNewPosts) {
+            if (post.mContributionType != ContributionInfo.CONTRIBUTION_COMMENT) {
+                addPostToDb((PostInfo) post);
+            }
+        }
+        return null;
+    }
+
+    @Override
+    protected void onPostExecute(Void nothing) {
+
+    }
+
+    //TODO batch insert
+    private void addPostToDb(PostInfo post) {
+        ContentValues cv = new ContentValues();
+        cv.put(SiftContract.Posts.COLUMN_OWNER_USERNAME, post.mUsername);
+        cv.put(SiftContract.Posts.COLUMN_SERVER_ID, post.mServerId);
+        cv.put(SiftContract.Posts.COLUMN_NUM_COMMENTS, post.mComments);
+        cv.put(SiftContract.Posts.COLUMN_POINTS, post.mPoints);
+        cv.put(SiftContract.Posts.COLUMN_SUBREDDIT_ID, post.mSubredditId);
+        cv.put(SiftContract.Posts.COLUMN_SUBREDDIT_NAME, post.mSubreddit);
+        cv.put(SiftContract.Posts.COLUMN_URL, post.mUrl);
+        cv.put(SiftContract.Posts.COLUMN_IMAGE_URL, post.mImageUrl);
+        cv.put(SiftContract.Posts.COLUMN_TITLE, post.mTitle);
+        cv.put(SiftContract.Posts.COLUMN_BODY, post.mBody);
+        cv.put(SiftContract.Posts.COLUMN_DATE_CREATED, post.mAge);
+        cv.put(SiftContract.Posts.COLUMN_DOMAIN, post.mDomain);
+        cv.put(SiftContract.Posts.COLUMN_POSITION, post.mPosition);
+        cv.put(SiftContract.Posts.COLUMN_SERVER_ID, post.mServerId);
+        cv.put(SiftContract.Posts.COLUMN_VOTE, post.mVote);
+        cv.put(SiftContract.Posts.COLUMN_FAVORITED, post.mFavorited);
+        mContext.getContentResolver().insert(SiftContract.Posts.CONTENT_URI, cv);
+    }
+}

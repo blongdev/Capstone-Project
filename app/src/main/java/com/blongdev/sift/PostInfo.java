@@ -6,7 +6,7 @@ package com.blongdev.sift;
 public class PostInfo extends ContributionInfo {
     public int mId;
     public String mSubreddit;
-    public int mSubredditId;
+    public long mSubredditId;
     public String mTitle;
     public String mUrl;
     public long mAge;

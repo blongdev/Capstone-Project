@@ -21,20 +21,6 @@ import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import com.blongdev.sift.database.SiftContract;
-import com.squareup.okhttp.internal.Util;
-import com.squareup.picasso.Picasso;
-import com.unnamed.b.atv.model.TreeNode;
-import com.unnamed.b.atv.view.AndroidTreeView;
-
-import net.dean.jraw.models.Comment;
-import net.dean.jraw.models.CommentNode;
-import net.dean.jraw.models.Submission;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-
 
 public class PostDetailFragment extends Fragment {
 
@@ -115,7 +101,6 @@ public class PostDetailFragment extends Fragment {
             mPostId = args.getInt(getString(R.string.post_id));
             mPostServerId = args.getString(getString(R.string.server_id));
         }
-
 
 
 
