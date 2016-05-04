@@ -230,7 +230,7 @@ public class Reddit {
                     if (mRedditClient.isAuthenticated()) {
                         Log.v(LOG_TAG, "Authenticated");
                     }
-                } catch (OAuthException e) {
+                } catch (OAuthException | NetworkException e) {
                     e.printStackTrace();
                 }
             }
@@ -272,7 +272,7 @@ public class Reddit {
                 if (mRedditClient.isAuthenticated()) {
                     Log.v(LOG_TAG, "Authenticated");
                 }
-            } catch (OAuthException e) {
+            } catch (OAuthException | NetworkException e) {
                 e.printStackTrace();
             }
 
@@ -392,6 +392,8 @@ public class Reddit {
                         }
                     }
                 }
+            } catch (NetworkException e) {
+                e.printStackTrace();
             } finally {
                 if (cursor != null) {
                     cursor.close();
@@ -463,7 +465,7 @@ public class Reddit {
                 int count = mContext.getContentResolver().update(SiftContract.Posts.CONTENT_URI, cv, selection, selectionArgs);
                 Log.v("Reddit", count + " vote updated");
 
-            } catch (ApiException e) {
+            } catch (ApiException | NetworkException e) {
                 e.printStackTrace();
             }
 
@@ -523,7 +525,7 @@ public class Reddit {
                         break;
                 }
 
-            } catch (ApiException e) {
+            } catch (ApiException | NetworkException e) {
                 e.printStackTrace();
             }
 
@@ -562,42 +564,48 @@ public class Reddit {
                 return null;
             }
 
-            Subreddit subreddit  = instance.mRedditClient.getSubreddit(mName);
+            try {
+                Subreddit subreddit = instance.mRedditClient.getSubreddit(mName);
 
-            //TODO rather then not sending archived comments, hide vote arrows
-            if (subreddit == null) {
-                return null;
-            }
-
-            net.dean.jraw.managers.AccountManager accountManager = new net.dean.jraw.managers.AccountManager(instance.mRedditClient);
-            accountManager.subscribe(subreddit);
-
-            ContentValues cv = new ContentValues();
-            long subredditId = Utilities.getSubredditId(mContext, subreddit.getId());
-            if (subredditId <= 0) {
-                cv.put(SiftContract.Subreddits.COLUMN_NAME, subreddit.getDisplayName());
-                cv.put(SiftContract.Subreddits.COLUMN_SERVER_ID, subreddit.getId());
-                cv.put(SiftContract.Subreddits.COLUMN_DESCRIPTION, subreddit.getPublicDescription());
-
-                try {
-                    //bug in jraw library sometimes throws nullpointerexception
-                    cv.put(SiftContract.Subreddits.COLUMN_SUBSCRIBERS, subreddit.getSubscriberCount());
-                } catch (NullPointerException e) {
-                    e.printStackTrace();
+                //TODO rather then not sending archived comments, hide vote arrows
+                if (subreddit == null) {
+                    return null;
                 }
 
-                Uri subredditUri = mContext.getContentResolver().insert(SiftContract.Subreddits.CONTENT_URI, cv);
-                subredditId = ContentUris.parseId(subredditUri);
-                cv.clear();
-            }
+                net.dean.jraw.managers.AccountManager accountManager = new net.dean.jraw.managers.AccountManager(instance.mRedditClient);
+                accountManager.subscribe(subreddit);
 
-            //add subscription
-            long accountId = Utilities.getAccountId(mContext, instance.mRedditClient);
-            if (accountId > 0) {
-                cv.put(SiftContract.Subscriptions.COLUMN_ACCOUNT_ID, accountId);
-                cv.put(SiftContract.Subscriptions.COLUMN_SUBREDDIT_ID, subredditId);
-                mContext.getContentResolver().insert(SiftContract.Subscriptions.CONTENT_URI, cv);
-                cv.clear();
+                ContentValues cv = new ContentValues();
+                long subredditId = Utilities.getSubredditId(mContext, subreddit.getId());
+                if (subredditId <= 0) {
+                    cv.put(SiftContract.Subreddits.COLUMN_NAME, subreddit.getDisplayName());
+                    cv.put(SiftContract.Subreddits.COLUMN_SERVER_ID, subreddit.getId());
+                    cv.put(SiftContract.Subreddits.COLUMN_DESCRIPTION, subreddit.getPublicDescription());
+
+                    try {
+                        //bug in jraw library sometimes throws nullpointerexception
+                        cv.put(SiftContract.Subreddits.COLUMN_SUBSCRIBERS, subreddit.getSubscriberCount());
+                    } catch (NullPointerException e) {
+                        e.printStackTrace();
+                    }
+
+                    Uri subredditUri = mContext.getContentResolver().insert(SiftContract.Subreddits.CONTENT_URI, cv);
+                    subredditId = ContentUris.parseId(subredditUri);
+                    cv.clear();
+                }
+
+
+                //add subscription
+                long accountId = Utilities.getAccountId(mContext, instance.mRedditClient);
+                if (accountId > 0) {
+                    cv.put(SiftContract.Subscriptions.COLUMN_ACCOUNT_ID, accountId);
+                    cv.put(SiftContract.Subscriptions.COLUMN_SUBREDDIT_ID, subredditId);
+                    mContext.getContentResolver().insert(SiftContract.Subscriptions.CONTENT_URI, cv);
+                    cv.clear();
+                }
+
+            } catch (NetworkException e) {
+                e.printStackTrace();
             }
 
             Log.v("Reddit", "Subscribed");
@@ -637,22 +645,28 @@ public class Reddit {
                 return null;
             }
 
-            Subreddit subreddit  = instance.mRedditClient.getSubreddit(mName);
+            try {
 
-            //TODO rather then not sending archived comments, hide vote arrows
-            if (subreddit == null) {
-                return null;
+                Subreddit subreddit = instance.mRedditClient.getSubreddit(mName);
+
+                //TODO rather then not sending archived comments, hide vote arrows
+                if (subreddit == null) {
+                    return null;
+                }
+
+                net.dean.jraw.managers.AccountManager accountManager = new net.dean.jraw.managers.AccountManager(instance.mRedditClient);
+                accountManager.unsubscribe(subreddit);
+
+                long subredditId = Utilities.getSubredditId(mContext, subreddit.getId());
+
+                String selection = SiftContract.Subscriptions.COLUMN_SUBREDDIT_ID + " = ?";
+                String[] selectionArgs = new String[]{String.valueOf(subredditId)};
+                int count = mContext.getContentResolver().delete(SiftContract.Subscriptions.CONTENT_URI, selection, selectionArgs);
+                Log.v("Reddit", "Unsubscribed");
+
+            } catch (NetworkException e) {
+                e.printStackTrace();
             }
-
-            net.dean.jraw.managers.AccountManager accountManager = new net.dean.jraw.managers.AccountManager(instance.mRedditClient);
-            accountManager.unsubscribe(subreddit);
-
-            long subredditId = Utilities.getSubredditId(mContext, subreddit.getId());
-
-            String selection = SiftContract.Subscriptions.COLUMN_SUBREDDIT_ID + " = ?";
-            String[] selectionArgs = new String[]{String.valueOf(subredditId)};
-            int count = mContext.getContentResolver().delete(SiftContract.Subscriptions.CONTENT_URI, selection, selectionArgs);
-            Log.v("Reddit", "Unsubscribed");
 
             return null;
         }
@@ -689,13 +703,14 @@ public class Reddit {
                 return null;
             }
 
-            Submission sub = instance.mRedditClient.getSubmission(mServerId);
-            if (sub == null) {
-                return null;
-            }
-
-            net.dean.jraw.managers.AccountManager accountManager = new net.dean.jraw.managers.AccountManager(instance.mRedditClient);
             try {
+                Submission sub = instance.mRedditClient.getSubmission(mServerId);
+                if (sub == null) {
+                    return null;
+                }
+
+                net.dean.jraw.managers.AccountManager accountManager = new net.dean.jraw.managers.AccountManager(instance.mRedditClient);
+
                 accountManager.save(sub);
 
                 ContentValues cv = new ContentValues();
@@ -721,7 +736,7 @@ public class Reddit {
                 cv.put(SiftContract.Favorites.COLUMN_POST_ID, postId);
                 mContext.getContentResolver().insert(SiftContract.Favorites.CONTENT_URI, cv);
 
-            } catch (ApiException e) {
+            } catch (ApiException | NetworkException e) {
                 e.printStackTrace();
             }
 
@@ -764,13 +779,14 @@ public class Reddit {
                 return null;
             }
 
-            Submission sub = instance.mRedditClient.getSubmission(mServerId);
-            if (sub == null) {
-                return null;
-            }
-
-            net.dean.jraw.managers.AccountManager accountManager = new net.dean.jraw.managers.AccountManager(instance.mRedditClient);
             try {
+                Submission sub = instance.mRedditClient.getSubmission(mServerId);
+                if (sub == null) {
+                    return null;
+                }
+
+                net.dean.jraw.managers.AccountManager accountManager = new net.dean.jraw.managers.AccountManager(instance.mRedditClient);
+
                 accountManager.unsave(sub);
 
                 long postId = Utilities.getSavedPostId(mContext, mServerId);
@@ -783,7 +799,7 @@ public class Reddit {
 
                 }
 
-            } catch (ApiException e) {
+            } catch (ApiException | NetworkException e) {
                 e.printStackTrace();
             }
 
@@ -825,15 +841,17 @@ public class Reddit {
                 return null;
             }
 
-            Submission sub = instance.mRedditClient.getSubmission(mServerId);
-            if (sub == null) {
-                return null;
-            }
-
-            net.dean.jraw.managers.AccountManager accountManager = new net.dean.jraw.managers.AccountManager(instance.mRedditClient);
             try {
+
+                Submission sub = instance.mRedditClient.getSubmission(mServerId);
+                if (sub == null) {
+                    return null;
+                }
+
+                net.dean.jraw.managers.AccountManager accountManager = new net.dean.jraw.managers.AccountManager(instance.mRedditClient);
+
                 accountManager.reply(sub, mComment);
-            } catch (ApiException e) {
+            } catch (ApiException | NetworkException e) {
                 e.printStackTrace();
             }
 
@@ -874,11 +892,12 @@ public class Reddit {
                 return null;
             }
 
-            net.dean.jraw.managers.AccountManager accountManager = new net.dean.jraw.managers.AccountManager(instance.mRedditClient);
             try {
+                net.dean.jraw.managers.AccountManager accountManager = new net.dean.jraw.managers.AccountManager(instance.mRedditClient);
+
                 accountManager.reply(mComment, mReply);
 
-            } catch (ApiException e) {
+            } catch (ApiException | NetworkException e) {
                 e.printStackTrace();
             }
 
@@ -917,28 +936,34 @@ public class Reddit {
             if (!instance.mRedditClient.isAuthenticated() || !instance.mRedditClient.hasActiveUserContext()) {
                 return null;
             }
-            net.dean.jraw.models.Account user = instance.mRedditClient.getUser(mUsername);
 
-            if (!user.isFriend()) {
-                net.dean.jraw.managers.AccountManager accountManager = new net.dean.jraw.managers.AccountManager(instance.mRedditClient);
-                accountManager.updateFriend(mUsername);
+            try {
+
+                net.dean.jraw.models.Account user = instance.mRedditClient.getUser(mUsername);
+
+                if (!user.isFriend()) {
+                    net.dean.jraw.managers.AccountManager accountManager = new net.dean.jraw.managers.AccountManager(instance.mRedditClient);
+                    accountManager.updateFriend(mUsername);
+                }
+
+                ContentValues cv = new ContentValues();
+                cv.put(SiftContract.Users.COLUMN_SERVER_ID, user.getId());
+                cv.put(SiftContract.Users.COLUMN_USERNAME, mUsername);
+                cv.put(SiftContract.Users.COLUMN_DATE_CREATED, user.getCreatedUtc().getTime());
+                cv.put(SiftContract.Users.COLUMN_COMMENT_KARMA, user.getCommentKarma());
+                cv.put(SiftContract.Users.COLUMN_LINK_KARMA, user.getLinkKarma());
+                Uri userUri = mContext.getContentResolver().insert(SiftContract.Users.CONTENT_URI, cv);
+                long userId = ContentUris.parseId(userUri);
+                cv.clear();
+
+                //add friend
+                long accountId = Utilities.getAccountId(mContext, instance.mRedditClient);
+                cv.put(SiftContract.Friends.COLUMN_ACCOUNT_ID, accountId);
+                cv.put(SiftContract.Friends.COLUMN_FRIEND_USER_ID, userId);
+                mContext.getContentResolver().insert(SiftContract.Friends.CONTENT_URI, cv);
+            } catch (NetworkException e) {
+                e.printStackTrace();
             }
-
-            ContentValues cv = new ContentValues();
-            cv.put(SiftContract.Users.COLUMN_SERVER_ID, user.getId());
-            cv.put(SiftContract.Users.COLUMN_USERNAME, mUsername);
-            cv.put(SiftContract.Users.COLUMN_DATE_CREATED, user.getCreatedUtc().getTime());
-            cv.put(SiftContract.Users.COLUMN_COMMENT_KARMA, user.getCommentKarma());
-            cv.put(SiftContract.Users.COLUMN_LINK_KARMA, user.getLinkKarma());
-            Uri userUri = mContext.getContentResolver().insert(SiftContract.Users.CONTENT_URI, cv);
-            long userId = ContentUris.parseId(userUri);
-            cv.clear();
-
-            //add friend
-            long accountId = Utilities.getAccountId(mContext, instance.mRedditClient);
-            cv.put(SiftContract.Friends.COLUMN_ACCOUNT_ID, accountId);
-            cv.put(SiftContract.Friends.COLUMN_FRIEND_USER_ID, userId);
-            mContext.getContentResolver().insert(SiftContract.Friends.CONTENT_URI, cv);
 
             return null;
         }
@@ -975,20 +1000,25 @@ public class Reddit {
             if (!instance.mRedditClient.isAuthenticated() || !instance.mRedditClient.hasActiveUserContext()) {
                 return null;
             }
-            net.dean.jraw.models.Account user = instance.mRedditClient.getUser(mUsername);
-            if (user.isFriend()) {
-                net.dean.jraw.managers.AccountManager accountManager = new net.dean.jraw.managers.AccountManager(instance.mRedditClient);
-                accountManager.deleteFriend(mUsername);
-            }
 
-            long userId = Utilities.getSavedUserId(mContext, mUsername);
+            try {
+                net.dean.jraw.models.Account user = instance.mRedditClient.getUser(mUsername);
+                if (user.isFriend()) {
+                    net.dean.jraw.managers.AccountManager accountManager = new net.dean.jraw.managers.AccountManager(instance.mRedditClient);
+                    accountManager.deleteFriend(mUsername);
+                }
 
-            if (userId > 0) {
-                String selection = SiftContract.Friends.COLUMN_FRIEND_USER_ID + " = ?";
-                String[] selectionArgs = new String[]{String.valueOf(userId)};
-                int count = mContext.getContentResolver().delete(SiftContract.Friends.CONTENT_URI, selection, selectionArgs);
-                Log.v("Reddit", count + " Removed");
+                long userId = Utilities.getSavedUserId(mContext, mUsername);
 
+                if (userId > 0) {
+                    String selection = SiftContract.Friends.COLUMN_FRIEND_USER_ID + " = ?";
+                    String[] selectionArgs = new String[]{String.valueOf(userId)};
+                    int count = mContext.getContentResolver().delete(SiftContract.Friends.CONTENT_URI, selection, selectionArgs);
+                    Log.v("Reddit", count + " Removed");
+
+                }
+            } catch (NetworkException e) {
+                e.printStackTrace();
             }
 
 

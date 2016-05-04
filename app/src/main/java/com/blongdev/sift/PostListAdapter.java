@@ -30,6 +30,7 @@ import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
 
 import net.dean.jraw.ApiException;
+import net.dean.jraw.http.NetworkException;
 import net.dean.jraw.managers.AccountManager;
 import net.dean.jraw.models.Comment;
 import net.dean.jraw.models.Contribution;
@@ -390,8 +391,13 @@ public class PostListAdapter extends RecyclerView.Adapter<PostListAdapter.PostVi
 
             @Override
             protected Submission doInBackground(String... params) {
-                Reddit reddit = Reddit.getInstance();
-                return reddit.mRedditClient.getSubmission(mSubmissionServerId);
+                try {
+                    Reddit reddit = Reddit.getInstance();
+                    return reddit.mRedditClient.getSubmission(mSubmissionServerId);
+                } catch (NetworkException e) {
+                    e.printStackTrace();
+                }
+                return null;
             }
 
             @Override

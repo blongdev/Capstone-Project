@@ -29,6 +29,7 @@ import com.google.android.gms.analytics.GoogleAnalytics;
 import com.google.android.gms.analytics.HitBuilders;
 import com.google.android.gms.analytics.Tracker;
 
+import net.dean.jraw.http.NetworkException;
 import net.dean.jraw.models.Listing;
 import net.dean.jraw.models.Subreddit;
 import net.dean.jraw.paginators.SubredditStream;
@@ -346,45 +347,49 @@ class PopularSubredditLoader extends AsyncTaskLoader<List<SubscriptionInfo>> {
             subredditArray.add(frontpage);
         }
 
-        SubredditStream paginator = new SubredditStream(reddit.mRedditClient, "popular");
-        if (paginator.hasNext()) {
-            Listing<Subreddit> subs = paginator.next();
-            ContentValues cv = new ContentValues();
-            String selection = SiftContract.Subreddits.COLUMN_SERVER_ID + " =?";
-            String name, serverId, description;
-            long subredditId;
-            long numSubscribers = -1;
-            for (Subreddit subreddit : subs) {
-                SubscriptionInfo sub = new SubscriptionInfo();
-                name = subreddit.getDisplayName();
-                serverId = subreddit.getId();
+        try {
+            SubredditStream paginator = new SubredditStream(reddit.mRedditClient, "popular");
+            if (paginator.hasNext()) {
+                Listing<Subreddit> subs = paginator.next();
+                ContentValues cv = new ContentValues();
+                String selection = SiftContract.Subreddits.COLUMN_SERVER_ID + " =?";
+                String name, serverId, description;
+                long subredditId;
+                long numSubscribers = -1;
+                for (Subreddit subreddit : subs) {
+                    SubscriptionInfo sub = new SubscriptionInfo();
+                    name = subreddit.getDisplayName();
+                    serverId = subreddit.getId();
 
-                try {
-                    //bug in jraw library sometimes throws nullpointerexception
-                    numSubscribers = subreddit.getSubscriberCount();
-                } catch (NullPointerException e) {
-                    e.printStackTrace();
-                }
+                    try {
+                        //bug in jraw library sometimes throws nullpointerexception
+                        numSubscribers = subreddit.getSubscriberCount();
+                    } catch (NullPointerException e) {
+                        e.printStackTrace();
+                    }
 
-                description = subreddit.getPublicDescription();
-                subredditId = Utilities.getSubredditId(mContext, serverId);
-                if (subredditId < 0) {
-                    cv.put(SiftContract.Subreddits.COLUMN_NAME, name);
-                    cv.put(SiftContract.Subreddits.COLUMN_SERVER_ID, serverId);
-                    cv.put(SiftContract.Subreddits.COLUMN_DESCRIPTION, description);
-                    cv.put(SiftContract.Subreddits.COLUMN_SUBSCRIBERS, numSubscribers);
-                    Uri uri = mContext.getContentResolver().insert(SiftContract.Subreddits.CONTENT_URI, cv);
-                    subredditId = ContentUris.parseId(uri);
+                    description = subreddit.getPublicDescription();
+                    subredditId = Utilities.getSubredditId(mContext, serverId);
+                    if (subredditId < 0) {
+                        cv.put(SiftContract.Subreddits.COLUMN_NAME, name);
+                        cv.put(SiftContract.Subreddits.COLUMN_SERVER_ID, serverId);
+                        cv.put(SiftContract.Subreddits.COLUMN_DESCRIPTION, description);
+                        cv.put(SiftContract.Subreddits.COLUMN_SUBSCRIBERS, numSubscribers);
+                        Uri uri = mContext.getContentResolver().insert(SiftContract.Subreddits.CONTENT_URI, cv);
+                        subredditId = ContentUris.parseId(uri);
+                        cv.clear();
+                    }
+                    sub.mSubredditId = subredditId;
+                    sub.mSubredditName = name;
+                    sub.mServerId = serverId;
+                    sub.mSubscribers = numSubscribers;
+                    sub.mDescription = description;
+                    subredditArray.add(sub);
                     cv.clear();
                 }
-                sub.mSubredditId = subredditId;
-                sub.mSubredditName = name;
-                sub.mServerId = serverId;
-                sub.mSubscribers = numSubscribers;
-                sub.mDescription = description;
-                subredditArray.add(sub);
-                cv.clear();
             }
+        } catch (NetworkException e) {
+            e.printStackTrace();
         }
 
         return subredditArray;

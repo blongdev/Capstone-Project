@@ -32,6 +32,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.squareup.okhttp.internal.Util;
 import com.squareup.picasso.Picasso;
 
+import net.dean.jraw.http.NetworkException;
 import net.dean.jraw.http.oauth.OAuthData;
 import net.dean.jraw.http.oauth.OAuthException;
 import net.dean.jraw.models.Comment;
@@ -223,48 +224,52 @@ public class SubredditFragment extends Fragment implements LoaderManager.LoaderC
         @Override
         protected ArrayList<ContributionInfo> doInBackground(String... params) {
             ArrayList<ContributionInfo> newPostArray = new ArrayList<ContributionInfo>();
-            if (mReddit.mRedditClient.isAuthenticated() && mPaginator != null && mPaginator.hasNext()) {
-                Listing<Contribution> page = mPaginator.next();
-                int i = 0;
-                for (Contribution contribution : page) {
-                    if (contribution instanceof Comment) {
-                        Comment comment = (Comment) contribution;
-                        CommentInfo commentInfo = new CommentInfo();
-                        commentInfo.mUsername = comment.getAuthor();
-                        commentInfo.mPoints = comment.getScore();
+            try {
+                if (mReddit.mRedditClient.isAuthenticated() && mPaginator != null && mPaginator.hasNext()) {
+                    Listing<Contribution> page = mPaginator.next();
+                    int i = 0;
+                    for (Contribution contribution : page) {
+                        if (contribution instanceof Comment) {
+                            Comment comment = (Comment) contribution;
+                            CommentInfo commentInfo = new CommentInfo();
+                            commentInfo.mUsername = comment.getAuthor();
+                            commentInfo.mPoints = comment.getScore();
 //                        commentInfo.mComments = comment.getReplies();
-                        commentInfo.mBody = comment.getBody();
-                        commentInfo.mAge = comment.getCreatedUtc().getTime();
-                        commentInfo.mContributionType = ContributionInfo.CONTRIBUTION_COMMENT;
-                        commentInfo.mVote = comment.getVote().getValue();
-                        commentInfo.mJrawComment = comment;
-                        commentInfo.mPostServerId = Utilities.getServerIdFromFullName(comment.getSubmissionId());
-                        newPostArray.add(commentInfo);
-                        mPosts.add(commentInfo);
-                    } else {
-                        Submission submission = (Submission) contribution;
-                        PostInfo post = new PostInfo();
-                        post.mServerId = submission.getId();
-                        post.mTitle = submission.getTitle();
-                        post.mUsername = submission.getAuthor();
-                        post.mSubreddit = submission.getSubredditName();
-                        post.mPoints = submission.getScore();
-                        post.mUrl = submission.getUrl();
-                        post.mImageUrl = Reddit.getImageUrl(submission);
-                        post.mComments = submission.getCommentCount();
-                        post.mBody = submission.getSelftext();
-                        post.mDomain = submission.getDomain();
-                        post.mAge = submission.getCreatedUtc().getTime();
-                        post.mPosition = ((mPaginator.getPageIndex() - 1) * PAGE_SIZE) + i;
-                        post.mContributionType = ContributionInfo.CONTRIBUTION_POST;
-                        post.mVote = submission.getVote().getValue();
-                        post.mFavorited = submission.isSaved();
-                        newPostArray.add(post);
-                        mPosts.add(post);
+                            commentInfo.mBody = comment.getBody();
+                            commentInfo.mAge = comment.getCreatedUtc().getTime();
+                            commentInfo.mContributionType = ContributionInfo.CONTRIBUTION_COMMENT;
+                            commentInfo.mVote = comment.getVote().getValue();
+                            commentInfo.mJrawComment = comment;
+                            commentInfo.mPostServerId = Utilities.getServerIdFromFullName(comment.getSubmissionId());
+                            newPostArray.add(commentInfo);
+                            mPosts.add(commentInfo);
+                        } else {
+                            Submission submission = (Submission) contribution;
+                            PostInfo post = new PostInfo();
+                            post.mServerId = submission.getId();
+                            post.mTitle = submission.getTitle();
+                            post.mUsername = submission.getAuthor();
+                            post.mSubreddit = submission.getSubredditName();
+                            post.mPoints = submission.getScore();
+                            post.mUrl = submission.getUrl();
+                            post.mImageUrl = Reddit.getImageUrl(submission);
+                            post.mComments = submission.getCommentCount();
+                            post.mBody = submission.getSelftext();
+                            post.mDomain = submission.getDomain();
+                            post.mAge = submission.getCreatedUtc().getTime();
+                            post.mPosition = ((mPaginator.getPageIndex() - 1) * PAGE_SIZE) + i;
+                            post.mContributionType = ContributionInfo.CONTRIBUTION_POST;
+                            post.mVote = submission.getVote().getValue();
+                            post.mFavorited = submission.isSaved();
+                            newPostArray.add(post);
+                            mPosts.add(post);
+                        }
+                        i++;
                     }
-                    i++;
+                    mRefreshPoint = ((mPaginator.getPageIndex() - 1) * PAGE_SIZE);
                 }
-                mRefreshPoint = ((mPaginator.getPageIndex() -1) * PAGE_SIZE);
+            } catch (NetworkException e) {
+                e.printStackTrace();
             }
 
             return newPostArray;

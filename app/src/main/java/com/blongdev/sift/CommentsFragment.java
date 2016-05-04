@@ -34,6 +34,7 @@ import com.blongdev.sift.database.SiftContract;
 import com.unnamed.b.atv.model.TreeNode;
 import com.unnamed.b.atv.view.AndroidTreeView;
 
+import net.dean.jraw.http.NetworkException;
 import net.dean.jraw.models.Comment;
 import net.dean.jraw.models.CommentNode;
 import net.dean.jraw.models.Submission;
@@ -454,7 +455,12 @@ class CommentLoader extends AsyncTaskLoader<CommentNode> {
             return null;
         }
 
-        Submission post = reddit.mRedditClient.getSubmission(mPostServerId);
-        return post.getComments();
+        try {
+            Submission post = reddit.mRedditClient.getSubmission(mPostServerId);
+            return post.getComments();
+        } catch (NetworkException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 }

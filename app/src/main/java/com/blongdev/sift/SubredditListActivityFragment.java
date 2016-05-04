@@ -26,6 +26,7 @@ import com.blongdev.sift.database.SiftContract;
 import com.blongdev.sift.database.SiftDbHelper;
 import com.fasterxml.jackson.databind.JsonNode;
 
+import net.dean.jraw.http.NetworkException;
 import net.dean.jraw.models.Listing;
 import net.dean.jraw.models.Submission;
 import net.dean.jraw.models.Subreddit;
@@ -293,23 +294,27 @@ class SubredditLoader extends AsyncTaskLoader<List<SubredditInfo>> {
     @Override
     public List<SubredditInfo> loadInBackground() {
 
-        if (mPaginator != null && mPaginator.hasNext()) {
-            Listing<Subreddit> page = mPaginator.next();
-            for (Subreddit subreddit : page) {
-                SubredditInfo sub = new SubredditInfo();
-                sub.mName = subreddit.getDisplayName();
-                sub.mServerId = subreddit.getId();
-                sub.mDescription = subreddit.getPublicDescription();
-                try {
-                    //bug in jraw library sometimes throws nullpointerexception
-                    sub.mSubscribers = subreddit.getSubscriberCount();
-                } catch (NullPointerException e) {
-                    e.printStackTrace();
+        try {
+            if (mPaginator != null && mPaginator.hasNext()) {
+                Listing<Subreddit> page = mPaginator.next();
+                for (Subreddit subreddit : page) {
+                    SubredditInfo sub = new SubredditInfo();
+                    sub.mName = subreddit.getDisplayName();
+                    sub.mServerId = subreddit.getId();
+                    sub.mDescription = subreddit.getPublicDescription();
+                    try {
+                        //bug in jraw library sometimes throws nullpointerexception
+                        sub.mSubscribers = subreddit.getSubscriberCount();
+                    } catch (NullPointerException e) {
+                        e.printStackTrace();
+                    }
+                    mSubreddits.add(sub);
                 }
-                mSubreddits.add(sub);
             }
-        }
 
+        } catch (NetworkException e) {
+            e.printStackTrace();
+        }
         return mSubreddits;
     }
 }
