@@ -10,6 +10,7 @@ import android.os.Debug;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
 import android.support.v4.app.LoaderManager;
+import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.view.PagerAdapter;
@@ -66,6 +67,7 @@ public class SubredditFragment extends Fragment implements LoaderManager.LoaderC
     private ContentResolver mContentResolver;
     private ProgressBar mLoadingSpinner;
     private Context mContext;
+//    private ContributionLoader mContributionLoader;
 
     private Reddit mReddit;
     private Paginator mPaginator;
@@ -407,3 +409,66 @@ public class SubredditFragment extends Fragment implements LoaderManager.LoaderC
 
 
 }
+//
+//class ContributionLoader extends AsyncTaskLoader<List<ContributionInfo>> {
+//
+//    Paginator paginator;
+//    ArrayList<ContributionInfo> posts;
+//
+//
+//    public ContributionLoader(Context context, Paginator p) {
+//        super(context);
+//        paginator = p;
+//    }
+//
+//    @Override
+//    public List<ContributionInfo> loadInBackground() {
+//        Reddit reddit = Reddit.getInstance();
+//        ArrayList<ContributionInfo> newPostArray = new ArrayList<ContributionInfo>();
+//        if (reddit.mRedditClient.isAuthenticated() && paginator != null && paginator.hasNext()) {
+//            Listing<Contribution> page = paginator.next();
+//            int i = 0;
+//            for (Contribution contribution : page) {
+//                if (contribution instanceof Comment) {
+//                    Comment comment = (Comment) contribution;
+//                    CommentInfo commentInfo = new CommentInfo();
+//                    commentInfo.mUsername = comment.getAuthor();
+//                    commentInfo.mPoints = comment.getScore();
+////                        commentInfo.mComments = comment.getReplies();
+//                    commentInfo.mBody = comment.getBody();
+//                    commentInfo.mAge = comment.getCreatedUtc().getTime();
+//                    commentInfo.mContributionType = ContributionInfo.CONTRIBUTION_COMMENT;
+//                    commentInfo.mVote = comment.getVote().getValue();
+//                    commentInfo.mJrawComment = comment;
+//                    commentInfo.mPostServerId = Utilities.getServerIdFromFullName(comment.getSubmissionId());
+//                    newPostArray.add(commentInfo);
+//                    mPosts.add(commentInfo);
+//                } else {
+//                    Submission submission = (Submission) contribution;
+//                    PostInfo post = new PostInfo();
+//                    post.mServerId = submission.getId();
+//                    post.mTitle = submission.getTitle();
+//                    post.mUsername = submission.getAuthor();
+//                    post.mSubreddit = submission.getSubredditName();
+//                    post.mPoints = submission.getScore();
+//                    post.mUrl = submission.getUrl();
+//                    post.mImageUrl = Reddit.getImageUrl(submission);
+//                    post.mComments = submission.getCommentCount();
+//                    post.mBody = submission.getSelftext();
+//                    post.mDomain = submission.getDomain();
+//                    post.mAge = submission.getCreatedUtc().getTime();
+//                    post.mPosition = ((paginator.getPageIndex() - 1) * PAGE_SIZE) + i;
+//                    post.mContributionType = ContributionInfo.CONTRIBUTION_POST;
+//                    post.mVote = submission.getVote().getValue();
+//                    post.mFavorited = submission.isSaved();
+//                    newPostArray.add(post);
+//                    mPosts.add(post);
+//                }
+//                i++;
+//            }
+//            mRefreshPoint = ((paginator.getPageIndex() -1) * PAGE_SIZE);
+//        }
+//
+//        return newPostArray;
+//    }
+//}

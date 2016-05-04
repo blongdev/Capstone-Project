@@ -5,6 +5,9 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.CursorLoader;
+import android.support.v4.content.Loader;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,13 +25,14 @@ import java.util.ArrayList;
 /**
  * A placeholder fragment containing a simple view.
  */
-public class FriendsListActivityFragment extends Fragment {
+public class FriendsListActivityFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
 
     ListView mFriendsListView;
     FriendsAdapter mFriendsAdapter;
     ArrayList<UserInfo> mFriends;
 
     public FriendsListActivityFragment() {
+
     }
 
     @Override
@@ -37,7 +41,9 @@ public class FriendsListActivityFragment extends Fragment {
         View rootView = inflater.inflate(R.layout.fragment_friends_list, container, false);
 
         mFriends = new ArrayList<UserInfo>();
-        populateFriends();
+        //populateFriends();
+        getLoaderManager().initLoader(0, null, this);
+
 
         mFriendsListView = (ListView) rootView.findViewById(R.id.friends_list);
         mFriendsAdapter = new FriendsAdapter(getActivity(), mFriends);
@@ -50,39 +56,41 @@ public class FriendsListActivityFragment extends Fragment {
                 Intent intent = new Intent(getContext(), UserInfoActivity.class);
                 intent.putExtra(getString(R.string.username), user.mUsername);
                 startActivity(intent);
-
             }
         });
 
         return rootView;
     }
 
-    public void populateFriends() {
-        String selection = SiftContract.Friends.COLUMN_ACCOUNT_ID + " = ?";
-        Cursor cursor = getContext().getContentResolver().query(SiftContract.Friends.VIEW_URI, null, null, null, null);
-        if (cursor != null) {
-            while (cursor.moveToNext()) {
-                UserInfo friend = new UserInfo();
-                friend.mUsername = cursor.getString(cursor.getColumnIndex(SiftContract.Users.COLUMN_USERNAME));
-                friend.mPoints = cursor.getInt(cursor.getColumnIndex(SiftContract.Users.COLUMN_POINTS));
-                friend.mAge = cursor.getInt(cursor.getColumnIndex(SiftContract.Users.COLUMN_DATE_CREATED));
-                mFriends.add(friend);
-            }
-        }
-
-//        for (int i = 1; i<=10; i++) {
-//            UserInfo user = new UserInfo();
-//            user.mUsername = "Username" + i;
-//            user.mPoints = (int )(Math.random() * 300);
-//            user.mAge = (int )(Math.random() * 300);
-//            mFriends.add(user);
+//
+//    public void populateFriends() {
+//        String selection = SiftContract.Friends.COLUMN_ACCOUNT_ID + " = ?";
+//        Cursor cursor = getContext().getContentResolver().query(SiftContract.Friends.VIEW_URI, null, null, null, null);
+//        if (cursor != null) {
+//            while (cursor.moveToNext()) {
+//                UserInfo friend = new UserInfo();
+//                friend.mUsername = cursor.getString(cursor.getColumnIndex(SiftContract.Users.COLUMN_USERNAME));
+//                friend.mPoints = cursor.getInt(cursor.getColumnIndex(SiftContract.Users.COLUMN_POINTS));
+//                friend.mAge = cursor.getInt(cursor.getColumnIndex(SiftContract.Users.COLUMN_DATE_CREATED));
+//                mFriends.add(friend);
+//            }
 //        }
-    }
+
+//    }
 
 
-    public class FriendsAdapter extends ArrayAdapter<UserInfo> {
+    class FriendsAdapter extends ArrayAdapter<UserInfo> {
+
+        private ArrayList<UserInfo> mFriendsList;
+
         public FriendsAdapter(Context context, ArrayList<UserInfo> users) {
             super(context, 0, users);
+            mFriendsList = users;
+        }
+
+        public void swapData(ArrayList<UserInfo> friendList) {
+            this.mFriendsList = friendList;
+            notifyDataSetChanged();
         }
 
         @Override
@@ -100,10 +108,10 @@ public class FriendsListActivityFragment extends Fragment {
                 viewHolder = (UserViewHolder) view.getTag();
             }
 
-            UserInfo user = mFriends.get(position);
+            UserInfo user = mFriendsList.get(position);
             if(user != null) {
                 viewHolder.mUsername.setText(user.mUsername);
-                Picasso.with(getContext()).load(R.drawable.ic_account_circle_24dp).placeholder(R.drawable.ic_account_circle_24dp).into(viewHolder.mImage);
+//                Picasso.with(getContext()).load(R.drawable.ic_account_circle_24dp).placeholder(R.drawable.ic_account_circle_24dp).into(viewHolder.mImage);
             }
 
             return view;
@@ -116,5 +124,30 @@ public class FriendsListActivityFragment extends Fragment {
         protected TextView mPoints;
         protected TextView mAge;
         protected ImageView mImage;
+    }
+
+
+    @Override
+    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+        return new CursorLoader(getContext(), SiftContract.Friends.VIEW_URI, null, null, null, null);
+    }
+
+    @Override
+    public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
+        if (cursor != null) {
+            while (cursor.moveToNext()) {
+                UserInfo friend = new UserInfo();
+                friend.mUsername = cursor.getString(cursor.getColumnIndex(SiftContract.Users.COLUMN_USERNAME));
+                friend.mPoints = cursor.getInt(cursor.getColumnIndex(SiftContract.Users.COLUMN_POINTS));
+                friend.mAge = cursor.getInt(cursor.getColumnIndex(SiftContract.Users.COLUMN_DATE_CREATED));
+                mFriends.add(friend);
+            }
+            mFriendsAdapter.swapData(mFriends);
+        }
+    }
+
+    @Override
+    public void onLoaderReset(Loader<Cursor> loader) {
+        mFriendsAdapter.swapData(null);
     }
 }

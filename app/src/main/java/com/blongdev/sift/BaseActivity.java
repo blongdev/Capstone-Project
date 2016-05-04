@@ -207,10 +207,10 @@ public class BaseActivity extends AppCompatActivity implements Reddit.OnRefreshC
                     AlertDialog subredditDialog = subredditBuilder.create();
                     subredditDialog.show();
                     return true;
-                case R.id.nav_settings:
-                    intent = new Intent(getApplicationContext(), SettingsActivity.class);
-                    startActivity(intent);
-                    return true;
+//                case R.id.nav_settings:
+//                    intent = new Intent(getApplicationContext(), SettingsActivity.class);
+//                    startActivity(intent);
+//                    return true;
                 default:
                     return true;
             }

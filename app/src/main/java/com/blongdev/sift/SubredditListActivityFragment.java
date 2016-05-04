@@ -11,6 +11,7 @@ import android.support.v4.app.Fragment;
 import android.os.Bundle;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.AsyncTaskLoader;
+import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -39,7 +40,7 @@ import java.util.List;
 /**
  * A placeholder fragment containing a simple view.
  */
-public class SubredditListActivityFragment extends Fragment implements LoaderManager.LoaderCallbacks<List<SubredditInfo>>{
+public class SubredditListActivityFragment extends Fragment {
 
     ListView mSubredditListView;
     ArrayList<SubredditInfo> mSubreddits;
@@ -50,6 +51,61 @@ public class SubredditListActivityFragment extends Fragment implements LoaderMan
     String mSearchTerm;
 
     ProgressBar mLoadingSpinner;
+
+    private static final int CURSOR_LOADER_ID = 1;
+    private static final int ASYNCTASK_LOADER_ID = 2;
+
+    private LoaderManager.LoaderCallbacks<Cursor> mSubscriptionLoader
+            = new LoaderManager.LoaderCallbacks<Cursor>() {
+        @Override
+        public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+            mLoadingSpinner.setVisibility(View.VISIBLE);
+            return new CursorLoader(getContext(), SiftContract.Subscriptions.VIEW_URI,
+                    null, null, null, SiftContract.Subreddits.COLUMN_NAME + " COLLATE NOCASE");
+        }
+
+        @Override
+        public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
+            mLoadingSpinner.setVisibility(View.GONE);
+            if (cursor != null) {
+                while (cursor.moveToNext()) {
+                    SubredditInfo sub = new SubredditInfo();
+                    sub.mId = cursor.getLong(cursor.getColumnIndex(SiftContract.Subscriptions.COLUMN_SUBREDDIT_ID));
+                    sub.mName = cursor.getString(cursor.getColumnIndex(SiftContract.Subreddits.COLUMN_NAME));
+                    sub.mDescription = cursor.getString(cursor.getColumnIndex(SiftContract.Subreddits.COLUMN_DESCRIPTION));
+                    sub.mSubscribers = cursor.getLong(cursor.getColumnIndex(SiftContract.Subreddits.COLUMN_SUBSCRIBERS));
+                    mSubreddits.add(sub);
+                }
+            }
+            mSubredditAdapter.setData(mSubreddits);
+        }
+
+        @Override
+        public void onLoaderReset(Loader<Cursor> loader) {
+            mSubredditAdapter.setData(null);
+        }
+    };
+
+    private LoaderManager.LoaderCallbacks<List<SubredditInfo>> mSearchSubredditsLoader
+            = new LoaderManager.LoaderCallbacks<List<SubredditInfo>>() {
+
+        @Override
+        public Loader<List<SubredditInfo>> onCreateLoader(int id, Bundle args) {
+            return new SubredditLoader(getContext(), mPaginator);
+        }
+
+        @Override
+        public void onLoadFinished(Loader<List<SubredditInfo>> loader, List<SubredditInfo> data) {
+            mLoadingSpinner.setVisibility(View.GONE);
+            mSubredditAdapter.setData(data);
+        }
+
+        @Override
+        public void onLoaderReset(Loader<List<SubredditInfo>> loader) {
+            mSubredditAdapter.setData(new ArrayList<SubredditInfo>());
+        }
+
+    };
 
 
     public SubredditListActivityFragment() {
@@ -72,11 +128,12 @@ public class SubredditListActivityFragment extends Fragment implements LoaderMan
             if (mSearchTerm != null) {
                 mPaginator = new SubredditSearchPaginator(mReddit.mRedditClient, mSearchTerm);
 //                new GetSubredditsTask().execute();
-                getActivity().getSupportLoaderManager().initLoader(1, null, this).forceLoad();
+                getActivity().getSupportLoaderManager().initLoader(ASYNCTASK_LOADER_ID, null, mSearchSubredditsLoader).forceLoad();
                 mLoadingSpinner.setVisibility(View.VISIBLE);
             }
         } else {
-            populateSubreddits();
+//            populateSubreddits();
+            getActivity().getSupportLoaderManager().initLoader(CURSOR_LOADER_ID, null, mSubscriptionLoader).forceLoad();
         }
 
         mSubredditAdapter = new SubredditAdapter(getActivity(), mSubreddits);
@@ -218,21 +275,6 @@ public class SubredditListActivityFragment extends Fragment implements LoaderMan
 //            mSubredditAdapter.refreshWithList(subs);
 //        }
 //    }
-
-
-    @Override
-    public Loader<List<SubredditInfo>> onCreateLoader(int id, Bundle args) {
-        return new SubredditLoader(getContext(), mPaginator);
-    }
-    @Override
-    public void onLoadFinished(Loader<List<SubredditInfo>> loader, List<SubredditInfo> data) {
-        mLoadingSpinner.setVisibility(View.GONE);
-        mSubredditAdapter.setData(data);
-    }
-    @Override
-    public void onLoaderReset(Loader<List<SubredditInfo>> loader) {
-        mSubredditAdapter.setData(new ArrayList<SubredditInfo>());
-    }
 
 }
 

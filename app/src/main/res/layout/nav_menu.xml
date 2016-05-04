@@ -53,11 +53,11 @@
             android:icon="@drawable/ic_arrow_forward_24dp"
             android:title="@string/nav_go_to_subreddit"/>
 
-        <item
-            android:id="@+id/nav_settings"
-            android:checked="false"
-            android:icon="@drawable/ic_settings_24dp"
-            android:title="@string/nav_settings" />
+        <!--<item-->
+            <!--android:id="@+id/nav_settings"-->
+            <!--android:checked="false"-->
+            <!--android:icon="@drawable/ic_settings_24dp"-->
+            <!--android:title="@string/nav_settings" />-->
 
     </group>
 </menu>
