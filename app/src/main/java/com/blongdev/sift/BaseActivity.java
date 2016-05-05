@@ -11,6 +11,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.database.Cursor;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Debug;
 import android.support.annotation.LayoutRes;
@@ -164,6 +165,7 @@ public class BaseActivity extends AppCompatActivity implements Reddit.OnRefreshC
 
                     final EditText userInput = new EditText(BaseActivity.this);
                     userInput.setInputType(InputType.TYPE_CLASS_TEXT);
+                    userInput.setTextColor(Color.BLACK);
                     userBuilder.setView(userInput);
 
                     userBuilder.setMessage(getString(R.string.nav_go_to_user))
@@ -188,6 +190,7 @@ public class BaseActivity extends AppCompatActivity implements Reddit.OnRefreshC
 
                     final EditText subredditInput = new EditText(BaseActivity.this);
                     subredditInput.setInputType(InputType.TYPE_CLASS_TEXT);
+                    subredditInput.setTextColor(Color.BLACK);
                     subredditBuilder.setView(subredditInput);
 
                     subredditBuilder.setMessage(getString(R.string.nav_go_to_subreddit))

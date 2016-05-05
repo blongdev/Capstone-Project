@@ -277,22 +277,30 @@ public class CommentsFragment extends Fragment implements LoaderManager.LoaderCa
 
             if (mVote == SiftContract.Posts.UPVOTE) {
                 mUpvote.setImageDrawable(SiftApplication.getContext().getResources().getDrawable(R.drawable.ic_up_arrow_filled_24dp));
-                mDownvote.setImageDrawable(SiftApplication.getContext().getResources().getDrawable(R.drawable.ic_down_arrow_24dp));
+                mDownvote.setImageDrawable(SiftApplication.getContext().getResources().getDrawable(R.drawable.ic_down_arrow_white_24dp));
                 mPoints.setTextColor(SiftApplication.getContext().getResources().getColor(R.color.upvote));
             } else if (mVote == SiftContract.Posts.DOWNVOTE) {
                 mDownvote.setImageDrawable(SiftApplication.getContext().getResources().getDrawable(R.drawable.ic_down_arrow_filled_24dp));
-                mUpvote.setImageDrawable(SiftApplication.getContext().getResources().getDrawable(R.drawable.ic_up_arrow_24dp));
+                mUpvote.setImageDrawable(SiftApplication.getContext().getResources().getDrawable(R.drawable.ic_up_arrow_white_24dp));
                 mPoints.setTextColor(SiftApplication.getContext().getResources().getColor(R.color.downvote));
             } else {
-                mUpvote.setImageDrawable(SiftApplication.getContext().getResources().getDrawable(R.drawable.ic_up_arrow_24dp));
-                mDownvote.setImageDrawable(SiftApplication.getContext().getResources().getDrawable(R.drawable.ic_down_arrow_24dp));
-                mPoints.setTextColor(Color.BLACK);
+                mUpvote.setImageDrawable(SiftApplication.getContext().getResources().getDrawable(R.drawable.ic_up_arrow_white_24dp));
+                mDownvote.setImageDrawable(SiftApplication.getContext().getResources().getDrawable(R.drawable.ic_down_arrow_white_24dp));
+                mPoints.setTextColor(Color.WHITE);
             }
             mBody.setText(value.mBody);
             username.setText(value.mUsername);
             mPoints.setText(String.valueOf(value.mPoints));
             age.setText(Utilities.getAgeString(value.mAge));
-            replies.setText(value.mComments + " " + getContext().getString(R.string.replies));
+            if(value.mComments > 0) {
+                if (value.mComments == 1) {
+                    replies.setText(value.mComments + " " + getContext().getString(R.string.reply));
+                } else {
+                    replies.setText(value.mComments + " " + getContext().getString(R.string.replies));
+                }
+            } else {
+                replies.setVisibility(View.GONE);
+            }
 
             Linkify.addLinks(mBody, Linkify.ALL);
 
@@ -307,20 +315,20 @@ public class CommentsFragment extends Fragment implements LoaderManager.LoaderCa
 
             if (mVote == SiftContract.Posts.UPVOTE) {
                 mVote = SiftContract.Posts.NO_VOTE;
-                mUpvote.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_up_arrow_24dp));
-                mDownvote.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_down_arrow_24dp));
-                mPoints.setTextColor(Color.BLACK);
+                mUpvote.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_up_arrow_white_24dp));
+                mDownvote.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_down_arrow_white_24dp));
+                mPoints.setTextColor(Color.WHITE);
                 mPoints.setText(String.valueOf(Integer.valueOf(mPoints.getText().toString()) - 1));
             } else if(mVote == SiftContract.Posts.DOWNVOTE) {
                 mVote = SiftContract.Posts.UPVOTE;
                 mUpvote.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_up_arrow_filled_24dp));
-                mDownvote.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_down_arrow_24dp));
+                mDownvote.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_down_arrow_white_24dp));
                 mPoints.setTextColor(context.getResources().getColor(R.color.upvote));
                 mPoints.setText(String.valueOf(Integer.valueOf(mPoints.getText().toString()) + 2));
             } else {
                 mVote = SiftContract.Posts.UPVOTE;
                 mUpvote.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_up_arrow_filled_24dp));
-                mDownvote.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_down_arrow_24dp));
+                mDownvote.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_down_arrow_white_24dp));
                 mPoints.setTextColor(context.getResources().getColor(R.color.upvote));
                 mPoints.setText(String.valueOf(Integer.valueOf(mPoints.getText().toString()) + 1));
             }
@@ -336,20 +344,20 @@ public class CommentsFragment extends Fragment implements LoaderManager.LoaderCa
 
             if (mVote == SiftContract.Posts.DOWNVOTE) {
                 mVote = SiftContract.Posts.NO_VOTE;
-                mDownvote.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_down_arrow_24dp));
-                mUpvote.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_up_arrow_24dp));
-                mPoints.setTextColor(Color.BLACK);
+                mDownvote.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_down_arrow_white_24dp));
+                mUpvote.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_up_arrow_white_24dp));
+                mPoints.setTextColor(Color.WHITE);
                 mPoints.setText(String.valueOf(Integer.valueOf(mPoints.getText().toString()) + 1));
             } else if (mVote == SiftContract.Posts.UPVOTE) {
                 mVote = SiftContract.Posts.DOWNVOTE;
                 mDownvote.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_down_arrow_filled_24dp));
-                mUpvote.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_up_arrow_24dp));
+                mUpvote.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_up_arrow_white_24dp));
                 mPoints.setTextColor(context.getResources().getColor(R.color.downvote));
                 mPoints.setText(String.valueOf(Integer.valueOf(mPoints.getText().toString()) - 2));
             } else {
                 mVote = SiftContract.Posts.DOWNVOTE;
                 mDownvote.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_down_arrow_filled_24dp));
-                mUpvote.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_up_arrow_24dp));
+                mUpvote.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_up_arrow_white_24dp));
                 mPoints.setTextColor(context.getResources().getColor(R.color.downvote));
                 mPoints.setText(String.valueOf(Integer.valueOf(mPoints.getText().toString()) - 1));
             }
@@ -357,7 +365,6 @@ public class CommentsFragment extends Fragment implements LoaderManager.LoaderCa
             Reddit.voteComment(context, mComment, mVote);
 
         }
-
     }
 
 

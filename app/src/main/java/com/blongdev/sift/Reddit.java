@@ -1060,7 +1060,7 @@ public class Reddit {
             try {
                 instance.mRedditClient.getUser(mUsername);
                 mUserFound = true;
-            } catch (NetworkException e) {
+            } catch (NetworkException | IllegalArgumentException e) {
                 e.printStackTrace();
             }
 
@@ -1111,7 +1111,7 @@ public class Reddit {
             try {
                 instance.mRedditClient.getSubreddit(mSubreddit);
                 mSubredditFound = true;
-            } catch (NetworkException e) {
+            } catch (NetworkException | IllegalArgumentException e) {
                 e.printStackTrace();
             }
 

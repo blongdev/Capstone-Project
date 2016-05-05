@@ -1,7 +1,9 @@
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_height="match_parent"
-    android:layout_width="match_parent">
+    android:layout_width="match_parent"
+    android:background="@color/background"
+    >
 
     <RelativeLayout
         android:layout_width="match_parent"
@@ -19,6 +21,7 @@
             android:textSize="24sp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:textColor="@android:color/white"
             android:layout_centerHorizontal="true"/>
 
         <RelativeLayout
@@ -32,12 +35,14 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textSize="16sp"
+                android:textColor="@android:color/white"
                 android:text="@string/message_subject"/>
 
             <EditText
                 android:id="@+id/subject_text"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:textColor="@android:color/white"
                 android:layout_below="@id/subject_label"/>
         </RelativeLayout>
 
@@ -53,10 +58,12 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textSize="16sp"
+                android:textColor="@android:color/white"
                 android:text="@string/message_body"/>
 
             <EditText
                 android:id="@+id/body_text"
+                android:textColor="@android:color/white"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_below="@id/body_label"/>

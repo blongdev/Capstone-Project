@@ -10,6 +10,7 @@
     android:layout_marginRight="12dp"
     android:layout_marginTop="8dp"
     android:layout_marginBottom="0dp"
+    card_view:cardBackgroundColor="@color/background"
     card_view:cardCornerRadius="4dp">
 
 
@@ -89,7 +90,7 @@
                     android:layout_height="wrap_content"
                     android:padding="8dp"
                     android:background="@android:color/transparent"
-                    android:src="@drawable/ic_up_arrow_24dp" />
+                    android:src="@drawable/ic_up_arrow_white_24dp" />
 
                 <ImageView
                     android:id="@+id/downvote"
@@ -97,7 +98,7 @@
                     android:layout_height="wrap_content"
                     android:padding="8dp"
                     android:background="@android:color/transparent"
-                    android:src="@drawable/ic_down_arrow_24dp" />
+                    android:src="@drawable/ic_down_arrow_white_24dp" />
 
             </LinearLayout>
 

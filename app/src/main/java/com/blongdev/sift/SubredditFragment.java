@@ -68,7 +68,6 @@ public class SubredditFragment extends Fragment implements LoaderManager.LoaderC
     private ContentResolver mContentResolver;
     private ProgressBar mLoadingSpinner;
     private Context mContext;
-    private ContributionLoader mContributionLoader;
 
     private Reddit mReddit;
     private Paginator mPaginator;
@@ -109,6 +108,10 @@ public class SubredditFragment extends Fragment implements LoaderManager.LoaderC
             mPostListAdapter.refreshWithList(data);
             if (data.size() >= PAGE_SIZE) {
                 mRefreshPoint = data.size() - PAGE_SIZE;
+            }
+
+            if (data.size() == 0) {
+                mEmptyText.setVisibility(View.VISIBLE);
             }
         }
 

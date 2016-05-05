@@ -13,7 +13,8 @@
         android:layout_height="match_parent"
         android:gravity="center"
         android:id="@+id/comment_block"
-        android:background="@drawable/comment_border">
+        android:background="@drawable/comment_border"
+        android:padding="@dimen/content_spacer">
 
         <LinearLayout
             android:orientation="vertical"
@@ -32,7 +33,6 @@
                     android:layout_height="wrap_content"
                     style="@style/CommentInfo"
                     android:id="@+id/comment_username"
-                    android:textColor="@android:color/black"
                     android:text="Username" />
 
                 <TextView
@@ -41,7 +41,6 @@
                     style="@style/CommentInfo"
                     android:layout_toRightOf="@id/comment_username"
                     android:id="@+id/comment_points"
-                    android:textColor="@android:color/black"
                     android:text="Points" />
 
                 <TextView
@@ -50,17 +49,14 @@
                     style="@style/CommentInfo"
                     android:layout_toRightOf="@id/comment_points"
                     android:id="@+id/comment_age"
-                    android:textColor="@android:color/black"
                     android:text="Age" />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     style="@style/CommentInfo"
-                    android:layout_toRightOf="@id/comment_age"
                     android:layout_alignParentRight="true"
                     android:id="@+id/comment_replies"
-                    android:textColor="@android:color/black"
                     android:text="Replies" />
 
             </RelativeLayout>
@@ -73,7 +69,6 @@
                 android:layout_gravity="start|top"
                 android:padding="4dp"
                 android:paddingTop="0dp"
-                android:textColor="@android:color/black"
                 />
 
             <LinearLayout
@@ -89,7 +84,6 @@
                     android:layout_width="0dp"
                     android:layout_weight="1"
                     android:layout_height="wrap_content"
-                    android:textColor="@android:color/black"
                     />
 
                 <ImageView
@@ -116,7 +110,7 @@
                     android:layout_height="wrap_content"
                     android:padding="8dp"
                     android:background="@android:color/transparent"
-                    android:src="@drawable/ic_up_arrow_24dp" />
+                    android:src="@drawable/ic_up_arrow_white_24dp" />
 
                 <ImageView
                     android:id="@+id/downvote"
@@ -125,7 +119,7 @@
                     android:layout_height="wrap_content"
                     android:padding="8dp"
                     android:background="@android:color/transparent"
-                    android:src="@drawable/ic_down_arrow_24dp" />
+                    android:src="@drawable/ic_down_arrow_white_24dp" />
 
                 <ImageView
                     android:id="@+id/reply_to_comment"

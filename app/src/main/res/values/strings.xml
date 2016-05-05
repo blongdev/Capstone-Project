@@ -87,6 +87,7 @@
     <string name="initial_sync">initialSync</string>
 
     <string name="replies">Replies</string>
+    <string name="reply">Reply</string>
     <string name="comment_posted">Comment Posted</string>
     <string name="friend_added">Friend Added</string>
     <string name="friend_removed">Friend Removed</string>

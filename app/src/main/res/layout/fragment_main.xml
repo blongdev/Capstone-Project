@@ -11,7 +11,7 @@
         android:id="@+id/cardList"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/background"
+        android:background="@color/lightBackground"
         app:layout_behavior="@string/appbar_scrolling_view_behavior"  />
 
     <ProgressBar
@@ -28,7 +28,7 @@
         android:layout_height="match_parent"
         android:visibility="gone"
         android:textSize="20dp"
-        android:textColor="@android:color/black"
+        android:textColor="@android:color/white"
         android:id="@+id/empty"
         android:text="@string/empty"
         android:gravity="center" />

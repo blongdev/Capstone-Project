@@ -38,9 +38,7 @@ import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * A placeholder fragment containing a simple view.
- */
+
 public class SubredditListActivityFragment extends Fragment {
 
     ListView mSubredditListView;
@@ -83,7 +81,7 @@ public class SubredditListActivityFragment extends Fragment {
 
         @Override
         public void onLoaderReset(Loader<Cursor> loader) {
-            mSubredditAdapter.setData(null);
+            mSubredditAdapter.setData(new ArrayList<SubredditInfo>());
         }
     };
 
@@ -210,28 +208,21 @@ public class SubredditListActivityFragment extends Fragment {
             return view;
         }
 
-        public void refreshWithList(List<SubredditInfo> subList) {
-            this.mSubreddits = subList;
-            notifyDataSetChanged();
-        }
-
-
     }
 
-    public void populateSubreddits() {
-        Cursor cursor = getContext().getContentResolver().query(SiftContract.Subscriptions.VIEW_URI, null, null, null, null);
-        if (cursor != null) {
-                while (cursor.moveToNext()) {
-                    SubredditInfo sub = new SubredditInfo();
-                    sub.mId = cursor.getLong(cursor.getColumnIndex(SiftContract.Subscriptions.COLUMN_SUBREDDIT_ID));
-                    sub.mName = cursor.getString(cursor.getColumnIndex(SiftContract.Subreddits.COLUMN_NAME));
-                    sub.mDescription = cursor.getString(cursor.getColumnIndex(SiftContract.Subreddits.COLUMN_DESCRIPTION));
-                    sub.mSubscribers = cursor.getLong(cursor.getColumnIndex(SiftContract.Subreddits.COLUMN_SUBSCRIBERS));
-                    mSubreddits.add(sub);
-                }
-        }
-
-    }
+//    public void populateSubreddits() {
+//        Cursor cursor = getContext().getContentResolver().query(SiftContract.Subscriptions.VIEW_URI, null, null, null, null);
+//        if (cursor != null) {
+//                while (cursor.moveToNext()) {
+//                    SubredditInfo sub = new SubredditInfo();
+//                    sub.mId = cursor.getLong(cursor.getColumnIndex(SiftContract.Subscriptions.COLUMN_SUBREDDIT_ID));
+//                    sub.mName = cursor.getString(cursor.getColumnIndex(SiftContract.Subreddits.COLUMN_NAME));
+//                    sub.mDescription = cursor.getString(cursor.getColumnIndex(SiftContract.Subreddits.COLUMN_DESCRIPTION));
+//                    sub.mSubscribers = cursor.getLong(cursor.getColumnIndex(SiftContract.Subreddits.COLUMN_SUBSCRIBERS));
+//                    mSubreddits.add(sub);
+//                }
+//        }
+//    }
 
     public static class SubredditViewHolder {
         protected TextView mName;

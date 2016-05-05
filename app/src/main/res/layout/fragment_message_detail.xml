@@ -16,6 +16,7 @@
         android:id="@+id/message_detail_title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:textColor="@android:color/white"
         android:textSize="24sp"
         />
 
@@ -26,6 +27,7 @@
             android:id="@+id/message_detail_body"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:textColor="@android:color/white"
             android:textSize="14sp"/>
     </ScrollView>
 

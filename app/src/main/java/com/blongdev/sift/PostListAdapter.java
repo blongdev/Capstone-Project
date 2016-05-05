@@ -107,16 +107,16 @@ public class PostListAdapter extends RecyclerView.Adapter<PostListAdapter.PostVi
 
             if (post.mVote == SiftContract.Posts.UPVOTE) {
                 postViewHolder.mUpvote.setImageDrawable(SiftApplication.getContext().getResources().getDrawable(R.drawable.ic_up_arrow_filled_24dp));
-                postViewHolder.mDownvote.setImageDrawable(SiftApplication.getContext().getResources().getDrawable(R.drawable.ic_down_arrow_24dp));
+                postViewHolder.mDownvote.setImageDrawable(SiftApplication.getContext().getResources().getDrawable(R.drawable.ic_down_arrow_white_24dp));
                 postViewHolder.mPoints.setTextColor(SiftApplication.getContext().getResources().getColor(R.color.upvote));
             } else if (post.mVote == SiftContract.Posts.DOWNVOTE) {
                 postViewHolder.mDownvote.setImageDrawable(SiftApplication.getContext().getResources().getDrawable(R.drawable.ic_down_arrow_filled_24dp));
-                postViewHolder.mUpvote.setImageDrawable(SiftApplication.getContext().getResources().getDrawable(R.drawable.ic_up_arrow_24dp));
+                postViewHolder.mUpvote.setImageDrawable(SiftApplication.getContext().getResources().getDrawable(R.drawable.ic_up_arrow_white_24dp));
                 postViewHolder.mPoints.setTextColor(SiftApplication.getContext().getResources().getColor(R.color.downvote));
             } else {
-                postViewHolder.mUpvote.setImageDrawable(SiftApplication.getContext().getResources().getDrawable(R.drawable.ic_up_arrow_24dp));
-                postViewHolder.mDownvote.setImageDrawable(SiftApplication.getContext().getResources().getDrawable(R.drawable.ic_down_arrow_24dp));
-                postViewHolder.mPoints.setTextColor(Color.BLACK);
+                postViewHolder.mUpvote.setImageDrawable(SiftApplication.getContext().getResources().getDrawable(R.drawable.ic_up_arrow_white_24dp));
+                postViewHolder.mDownvote.setImageDrawable(SiftApplication.getContext().getResources().getDrawable(R.drawable.ic_down_arrow_white_24dp));
+                postViewHolder.mPoints.setTextColor(Color.WHITE);
             }
 
             //picasso needs to be passed null to prevent listview from displaying incorrectly cached images
@@ -281,20 +281,20 @@ public class PostListAdapter extends RecyclerView.Adapter<PostListAdapter.PostVi
 
                 if (mVote == SiftContract.Posts.UPVOTE) {
                     mVote = SiftContract.Posts.NO_VOTE;
-                    mUpvote.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_up_arrow_24dp));
-                    mDownvote.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_down_arrow_24dp));
-                    mPoints.setTextColor(Color.BLACK);
+                    mUpvote.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_up_arrow_white_24dp));
+                    mDownvote.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_down_arrow_white_24dp));
+                    mPoints.setTextColor(Color.WHITE);
                     mPoints.setText(String.valueOf(Integer.valueOf(mPoints.getText().toString()) - 1));
                 } else if(mVote == SiftContract.Posts.DOWNVOTE) {
                     mVote = SiftContract.Posts.UPVOTE;
                     mUpvote.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_up_arrow_filled_24dp));
-                    mDownvote.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_down_arrow_24dp));
+                    mDownvote.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_down_arrow_white_24dp));
                     mPoints.setTextColor(context.getResources().getColor(R.color.upvote));
                     mPoints.setText(String.valueOf(Integer.valueOf(mPoints.getText().toString()) + 2));
                 } else {
                     mVote = SiftContract.Posts.UPVOTE;
                     mUpvote.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_up_arrow_filled_24dp));
-                    mDownvote.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_down_arrow_24dp));
+                    mDownvote.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_down_arrow_white_24dp));
                     mPoints.setTextColor(context.getResources().getColor(R.color.upvote));
                     mPoints.setText(String.valueOf(Integer.valueOf(mPoints.getText().toString()) + 1));
                 }
@@ -314,20 +314,20 @@ public class PostListAdapter extends RecyclerView.Adapter<PostListAdapter.PostVi
 
                 if (mVote == SiftContract.Posts.DOWNVOTE) {
                     mVote = SiftContract.Posts.NO_VOTE;
-                    mDownvote.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_down_arrow_24dp));
-                    mUpvote.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_up_arrow_24dp));
-                    mPoints.setTextColor(Color.BLACK);
+                    mDownvote.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_down_arrow_white_24dp));
+                    mUpvote.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_up_arrow_white_24dp));
+                    mPoints.setTextColor(Color.WHITE);
                     mPoints.setText(String.valueOf(Integer.valueOf(mPoints.getText().toString()) + 1));
                 } else if (mVote == SiftContract.Posts.UPVOTE) {
                     mVote = SiftContract.Posts.DOWNVOTE;
                     mDownvote.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_down_arrow_filled_24dp));
-                    mUpvote.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_up_arrow_24dp));
+                    mUpvote.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_up_arrow_white_24dp));
                     mPoints.setTextColor(context.getResources().getColor(R.color.downvote));
                     mPoints.setText(String.valueOf(Integer.valueOf(mPoints.getText().toString()) - 2));
                 } else {
                     mVote = SiftContract.Posts.DOWNVOTE;
                     mDownvote.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_down_arrow_filled_24dp));
-                    mUpvote.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_up_arrow_24dp));
+                    mUpvote.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_up_arrow_white_24dp));
                     mPoints.setTextColor(context.getResources().getColor(R.color.downvote));
                     mPoints.setText(String.valueOf(Integer.valueOf(mPoints.getText().toString()) - 1));
                 }

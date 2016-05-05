@@ -1,6 +1,7 @@
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_height="match_parent"
+    android:background="@color/background"
     android:layout_width="match_parent">
 
     <RelativeLayout
@@ -20,6 +21,7 @@
             android:textSize="24sp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:textColor="@android:color/white"
             android:layout_centerHorizontal="true"/>
 
         <RelativeLayout
@@ -34,12 +36,14 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textSize="16sp"
+                android:textColor="@android:color/white"
                 android:text="@string/compose_title"/>
 
             <EditText
                 android:id="@+id/title_text"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:textColor="@android:color/white"
                 android:layout_below="@id/title_label"/>
         </RelativeLayout>
 
@@ -55,6 +59,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textSize="16sp"
+                android:textColor="@android:color/white"
                 android:text="@string/compose_text"/>
 
             <CheckBox
@@ -62,14 +67,15 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_below="@id/body_label"
+                android:textColor="@android:color/white"
                 android:text="@string/link" />
 
             <EditText
                 android:id="@+id/body_text"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:textColor="@android:color/white"
                 android:layout_below="@id/link"/>
-
 
 
         </RelativeLayout>
@@ -94,6 +100,7 @@
                 android:id="@+id/captcha_text"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:textColor="@android:color/white"
                 android:layout_below="@id/captcha_image"
                 android:layout_alignLeft="@id/captcha_image"
                 android:layout_alignRight="@id/captcha_image"/>
