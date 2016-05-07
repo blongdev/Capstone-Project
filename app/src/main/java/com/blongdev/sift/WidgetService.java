@@ -38,7 +38,6 @@ public class WidgetService extends RemoteViewsService {
         return (new ListProvider(this.getApplicationContext(), intent));
     }
 
-
     public class ListProvider implements RemoteViewsService.RemoteViewsFactory {
         private ArrayList<PostInfo> mList = new ArrayList<PostInfo>();
         private Context context = null;
@@ -125,7 +124,7 @@ public class WidgetService extends RemoteViewsService {
             intent.putExtra(context.getString(R.string.title), post.mTitle);
             intent.putExtra(context.getString(R.string.username), post.mUsername);
             intent.putExtra(context.getString(R.string.subreddit), post.mSubreddit);
-            intent.putExtra(context.getString(R.string.points), post.mPoints);
+            intent.putExtra(context.getString(R.string.points), String.valueOf(post.mPoints));
             intent.putExtra(context.getString(R.string.comments), post.mComments);
             intent.putExtra(context.getString(R.string.url), post.mUrl);
             intent.putExtra(context.getString(R.string.age), Utilities.getAgeString(post.mAge));
@@ -163,6 +162,7 @@ public class WidgetService extends RemoteViewsService {
 
         @Override
         public void onDataSetChanged() {
+            mList = getPosts(context);
         }
 
         @Override

@@ -41,9 +41,7 @@ public class FriendsListActivityFragment extends Fragment implements LoaderManag
         View rootView = inflater.inflate(R.layout.fragment_friends_list, container, false);
 
         mFriends = new ArrayList<UserInfo>();
-        //populateFriends();
         getLoaderManager().initLoader(0, null, this);
-
 
         mFriendsListView = (ListView) rootView.findViewById(R.id.friends_list);
         mFriendsAdapter = new FriendsAdapter(getActivity(), mFriends);
@@ -61,23 +59,6 @@ public class FriendsListActivityFragment extends Fragment implements LoaderManag
 
         return rootView;
     }
-
-//
-//    public void populateFriends() {
-//        String selection = SiftContract.Friends.COLUMN_ACCOUNT_ID + " = ?";
-//        Cursor cursor = getContext().getContentResolver().query(SiftContract.Friends.VIEW_URI, null, null, null, null);
-//        if (cursor != null) {
-//            while (cursor.moveToNext()) {
-//                UserInfo friend = new UserInfo();
-//                friend.mUsername = cursor.getString(cursor.getColumnIndex(SiftContract.Users.COLUMN_USERNAME));
-//                friend.mPoints = cursor.getInt(cursor.getColumnIndex(SiftContract.Users.COLUMN_POINTS));
-//                friend.mAge = cursor.getInt(cursor.getColumnIndex(SiftContract.Users.COLUMN_DATE_CREATED));
-//                mFriends.add(friend);
-//            }
-//        }
-
-//    }
-
 
     class FriendsAdapter extends ArrayAdapter<UserInfo> {
 
@@ -102,7 +83,6 @@ public class FriendsListActivityFragment extends Fragment implements LoaderManag
                 view = LayoutInflater.from(getContext()).inflate(R.layout.friend, parent, false);
                 viewHolder = new UserViewHolder();
                 viewHolder.mUsername = (TextView) view.findViewById(R.id.friend_username);
-                viewHolder.mImage = (ImageView) view.findViewById(R.id.friend_icon);
                 view.setTag(viewHolder);
             } else {
                 viewHolder = (UserViewHolder) view.getTag();

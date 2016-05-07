@@ -153,6 +153,39 @@ public class PostDetailActivity extends BaseActivity {
         }
 
 
+        mTitle.setText(title);
+        mUsername.setText(username);
+        mSubreddit.setText(subreddit);
+        mPoints.setText(points);
+        mComments.setText(comments);
+        mUrl.setText(domain);
+        mAge.setText(age);
+
+
+        mUsername.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String username = mUsername.getText().toString();
+
+                Intent intent = new Intent(v.getContext(), UserInfoActivity.class);
+                intent.putExtra(v.getContext().getString(R.string.username), username);
+
+                v.getContext().startActivity(intent);
+            }
+        });
+
+        mSubreddit.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String subreddit = mSubreddit.getText().toString();
+
+                Intent intent = new Intent(v.getContext(), SubredditActivity.class);
+                intent.putExtra(v.getContext().getString(R.string.subreddit_name), subreddit);
+
+                v.getContext().startActivity(intent);
+            }
+        });
+
         mUpvote.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -211,13 +244,6 @@ public class PostDetailActivity extends BaseActivity {
 //            }
 //        });
 
-        mTitle.setText(title);
-        mUsername.setText(username);
-        mSubreddit.setText(subreddit);
-        mPoints.setText(points);
-        mComments.setText(comments);
-        mUrl.setText(domain);
-        mAge.setText(age);
         //mBody.setText(body);
 
         if (mVote == SiftContract.Posts.UPVOTE) {

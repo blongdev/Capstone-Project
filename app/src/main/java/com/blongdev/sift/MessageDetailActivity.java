@@ -35,8 +35,10 @@ public class MessageDetailActivity extends BaseActivity {
             ActionBar toolbar = getSupportActionBar();
             if (toolbar != null) {
                 toolbar.setTitle(mUsername);
+//                toolbar.setDisplayHomeAsUpEnabled(true);
             }
         }
+
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -60,4 +62,10 @@ public class MessageDetailActivity extends BaseActivity {
         }
     }
 
+
+//    @Override
+//    public boolean onOptionsItemSelected(MenuItem item) {
+//        this.finish();
+//        return true;
+//    }
 }

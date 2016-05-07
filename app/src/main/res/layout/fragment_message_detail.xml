@@ -27,7 +27,7 @@
             android:id="@+id/message_detail_body"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:textColor="@android:color/white"
+            android:textColor="@color/secondary_text"
             android:textSize="14sp"/>
     </ScrollView>
 

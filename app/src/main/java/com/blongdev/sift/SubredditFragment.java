@@ -435,7 +435,7 @@ public class SubredditFragment extends Fragment implements LoaderManager.LoaderC
         // This is called when the last Cursor provided to onLoadFinished()
         // above is about to be closed.  We need to make sure we are no
         // longer using it.
-        mPostListAdapter.refreshWithList(null);
+        mPostListAdapter.refreshWithList(new ArrayList<ContributionInfo>());
     }
 
     @Override
@@ -455,7 +455,6 @@ public class SubredditFragment extends Fragment implements LoaderManager.LoaderC
 
 
 }
-
 
 
 class ContributionLoader extends AsyncTaskLoader<List<ContributionInfo>> {
@@ -480,49 +479,51 @@ class ContributionLoader extends AsyncTaskLoader<List<ContributionInfo>> {
     public List<ContributionInfo> loadInBackground() {
         Reddit reddit = Reddit.getInstance();
         ArrayList<ContributionInfo> newPostArray = new ArrayList<ContributionInfo>();
-        if (reddit.mRedditClient.isAuthenticated() && paginator != null && paginator.hasNext()) {
-            Listing<Contribution> page = paginator.next();
-            int i = 0;
-            for (Contribution contribution : page) {
-                if (contribution instanceof Comment) {
-                    Comment comment = (Comment) contribution;
-                    CommentInfo commentInfo = new CommentInfo();
-                    commentInfo.mUsername = comment.getAuthor();
-                    commentInfo.mPoints = comment.getScore();
-//                        commentInfo.mComments = comment.getReplies();
-                    commentInfo.mBody = comment.getBody();
-                    commentInfo.mAge = comment.getCreatedUtc().getTime();
-                    commentInfo.mContributionType = ContributionInfo.CONTRIBUTION_COMMENT;
-                    commentInfo.mVote = comment.getVote().getValue();
-                    commentInfo.mJrawComment = comment;
-                    commentInfo.mPostServerId = Utilities.getServerIdFromFullName(comment.getSubmissionId());
-                    newPostArray.add(commentInfo);
-                    posts.add(commentInfo);
-                } else {
-                    Submission submission = (Submission) contribution;
-                    PostInfo post = new PostInfo();
-                    post.mServerId = submission.getId();
-                    post.mTitle = submission.getTitle();
-                    post.mUsername = submission.getAuthor();
-                    post.mSubreddit = submission.getSubredditName();
-                    post.mSubredditId = subredditId;
-                    post.mPoints = submission.getScore();
-                    post.mUrl = submission.getUrl();
-                    post.mImageUrl = Reddit.getImageUrl(submission);
-                    post.mComments = submission.getCommentCount();
-                    post.mBody = submission.getSelftext();
-                    post.mDomain = submission.getDomain();
-                    post.mAge = submission.getCreatedUtc().getTime();
-                    post.mPosition = ((paginator.getPageIndex() - 1) * SubredditFragment.PAGE_SIZE) + i;
-                    post.mContributionType = ContributionInfo.CONTRIBUTION_POST;
-                    post.mVote = submission.getVote().getValue();
-                    post.mFavorited = submission.isSaved();
-                    newPostArray.add(post);
-                    posts.add(post);
+        try {
+            if (reddit.mRedditClient.isAuthenticated() && paginator != null && paginator.hasNext()) {
+                Listing<Contribution> page = paginator.next();
+                int i = 0;
+                for (Contribution contribution : page) {
+                    if (contribution instanceof Comment) {
+                        Comment comment = (Comment) contribution;
+                        CommentInfo commentInfo = new CommentInfo();
+                        commentInfo.mUsername = comment.getAuthor();
+                        commentInfo.mPoints = comment.getScore();
+                        commentInfo.mBody = comment.getBody();
+                        commentInfo.mAge = comment.getCreatedUtc().getTime();
+                        commentInfo.mContributionType = ContributionInfo.CONTRIBUTION_COMMENT;
+                        commentInfo.mVote = comment.getVote().getValue();
+                        commentInfo.mJrawComment = comment;
+                        commentInfo.mPostServerId = Utilities.getServerIdFromFullName(comment.getSubmissionId());
+                        newPostArray.add(commentInfo);
+                        posts.add(commentInfo);
+                    } else {
+                        Submission submission = (Submission) contribution;
+                        PostInfo post = new PostInfo();
+                        post.mServerId = submission.getId();
+                        post.mTitle = submission.getTitle();
+                        post.mUsername = submission.getAuthor();
+                        post.mSubreddit = submission.getSubredditName();
+                        post.mSubredditId = subredditId;
+                        post.mPoints = submission.getScore();
+                        post.mUrl = submission.getUrl();
+                        post.mImageUrl = Reddit.getImageUrl(submission);
+                        post.mComments = submission.getCommentCount();
+                        post.mBody = submission.getSelftext();
+                        post.mDomain = submission.getDomain();
+                        post.mAge = submission.getCreatedUtc().getTime();
+                        post.mPosition = ((paginator.getPageIndex() - 1) * SubredditFragment.PAGE_SIZE) + i;
+                        post.mContributionType = ContributionInfo.CONTRIBUTION_POST;
+                        post.mVote = submission.getVote().getValue();
+                        post.mFavorited = submission.isSaved();
+                        newPostArray.add(post);
+                        posts.add(post);
+                    }
+                    i++;
                 }
-                i++;
             }
-//            mRefreshPoint = ((paginator.getPageIndex() -1) * PAGE_SIZE);
+        } catch (NetworkException e) {
+            e.printStackTrace();
         }
 
         if(savePosts) {

@@ -39,6 +39,7 @@
 
     <string name="category">category</string>
     <string name="must_log_in">You must be logged in to perform this action</string>
+    <string name="logged_in">Logged in</string>
 
     <string name="vote">vote</string>
     <string name="body">body</string>
@@ -93,6 +94,9 @@
     <string name="friend_removed">Friend Removed</string>
     <string name="user_not_found">User not found</string>
     <string name="subreddit_not_found">Subreddit not found</string>
+    <string name="sift">Sift</string>
+    <string name="new_message">You have %1$d new message</string>
+    <string name="new_messages">You have %1$d new messages</string>
 
 
     <!-- Strings related to Settings -->

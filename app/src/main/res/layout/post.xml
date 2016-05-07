@@ -47,17 +47,20 @@
                     <TextView
                         android:id="@+id/post_points"
                         style="@style/PostPoints"
+                        android:textColor="@color/secondary_text"
                         android:text="Points"/>
 
                     <TextView
                         android:id="@+id/post_username"
                         android:layout_toRightOf="@id/post_points"
                         style="@style/PostUsername"
+                        android:textColor="@color/secondary_text"
                         android:text="Username"/>
 
                     <TextView
                         android:id="@+id/post_subreddit"
                         style="@style/PostSubreddit"
+                        android:textColor="@color/secondary_text"
                         android:layout_toRightOf="@id/post_username"
                         android:text="Subreddit"/>
                 </RelativeLayout>
@@ -76,18 +79,21 @@
                     <TextView
                         android:id="@+id/post_comments"
                         style="@style/PostComments"
+                        android:textColor="@color/secondary_text"
                         android:text="Comments"/>
 
                     <TextView
                         android:id="@+id/post_url"
                         style="@style/PostUrl"
                         android:layout_toRightOf="@id/post_comments"
+                        android:textColor="@color/secondary_text"
                         android:text="Url"/>
 
                     <TextView
                         android:id="@+id/post_age"
                         style="@style/PostAge"
                         android:layout_toRightOf="@id/post_url"
+                        android:textColor="@color/secondary_text"
                         android:text="Age"/>
 
                 </RelativeLayout>

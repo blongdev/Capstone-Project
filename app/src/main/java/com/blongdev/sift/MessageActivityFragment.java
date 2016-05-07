@@ -116,28 +116,29 @@ public class MessageActivityFragment extends Fragment implements LoaderManager.L
 
             MessageInfo msg = mMessages.get(position);
             if(msg != null) {
-                viewHolder.mBody.setText(msg.mFrom);
+                viewHolder.mTitle.setText(msg.mTitle);
+                viewHolder.mBody.setText(msg.mBody);
                 //Picasso.with(getContext()).load(R.drawable.ic_account_circle_24dp).placeholder(R.drawable.ic_account_circle_24dp).into(viewHolder.mImage);
             }
 
             return view;
         }
     }
-
-    public void populateMessages() {
-        String selection = SiftContract.Messages.COLUMN_ACCOUNT_ID + " = ?";
-        Cursor cursor = getContext().getContentResolver().query(SiftContract.Messages.CONTENT_URI, null, null, null, null);
-        if (cursor != null) {
-            while (cursor.moveToNext()) {
-                MessageInfo msg = new MessageInfo();
-                msg.mFrom = cursor.getString(cursor.getColumnIndex(SiftContract.Messages.COLUMN_USER_FROM));
-                msg.mTo = cursor.getString(cursor.getColumnIndex(SiftContract.Messages.COLUMN_USER_TO));
-                msg.mTitle = cursor.getString(cursor.getColumnIndex(SiftContract.Messages.COLUMN_TITLE));
-                msg.mBody = cursor.getString(cursor.getColumnIndex(SiftContract.Messages.COLUMN_BODY));
-                msg.mDate = cursor.getInt(cursor.getColumnIndex(SiftContract.Messages.COLUMN_DATE));
-                mMessages.add(msg);
-            }
-        }
+//
+//    public void populateMessages() {
+//        String selection = SiftContract.Messages.COLUMN_ACCOUNT_ID + " = ?";
+//        Cursor cursor = getContext().getContentResolver().query(SiftContract.Messages.CONTENT_URI, null, null, null, null);
+//        if (cursor != null) {
+//            while (cursor.moveToNext()) {
+//                MessageInfo msg = new MessageInfo();
+//                msg.mFrom = cursor.getString(cursor.getColumnIndex(SiftContract.Messages.COLUMN_USER_FROM));
+//                msg.mTo = cursor.getString(cursor.getColumnIndex(SiftContract.Messages.COLUMN_USER_TO));
+//                msg.mTitle = cursor.getString(cursor.getColumnIndex(SiftContract.Messages.COLUMN_TITLE));
+//                msg.mBody = cursor.getString(cursor.getColumnIndex(SiftContract.Messages.COLUMN_BODY));
+//                msg.mDate = cursor.getInt(cursor.getColumnIndex(SiftContract.Messages.COLUMN_DATE));
+//                mMessages.add(msg);
+//            }
+//        }
 
 //        for (int i = 1; i<=15; i++) {
 //            MessageInfo msg = new MessageInfo();
@@ -148,7 +149,7 @@ public class MessageActivityFragment extends Fragment implements LoaderManager.L
 //            msg.mDate = 12;
 //            mMessages.add(msg);
 //        }
-    }
+//    }
 
     public static class MessageViewHolder {
         protected TextView mTo;

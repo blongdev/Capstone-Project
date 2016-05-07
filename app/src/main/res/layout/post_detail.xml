@@ -28,12 +28,14 @@
                 <TextView
                     android:id="@+id/post_username"
                     style="@style/PostDetailUsername"
+                    android:textColor="@color/secondary_text"
                     android:text="Username"/>
 
                 <TextView
                     android:id="@+id/post_subreddit"
                     style="@style/PostDetailSubreddit"
                     android:layout_toRightOf="@id/post_username"
+                    android:textColor="@color/secondary_text"
                     android:text="Subreddit"/>
 
             </RelativeLayout>
@@ -52,23 +54,27 @@
                 <TextView
                     android:id="@+id/post_points"
                     style="@style/PostDetailPoints"
+                    android:textColor="@color/secondary_text"
                     android:text="Points"/>
 
                 <TextView
                     android:id="@+id/post_comments"
                     style="@style/PostDetailComments"
+                    android:textColor="@color/secondary_text"
                     android:layout_toRightOf="@id/post_points"
                     android:text="Comments"/>
 
                 <TextView
                     android:id="@+id/post_url"
                     style="@style/PostDetailUrl"
+                    android:textColor="@color/secondary_text"
                     android:layout_toRightOf="@id/post_comments"
                     android:text="Url"/>
 
                 <TextView
                     android:id="@+id/post_age"
                     style="@style/PostDetailAge"
+                    android:textColor="@color/secondary_text"
                     android:layout_toRightOf="@id/post_url"
                     android:text="Age"/>
 
@@ -76,31 +82,6 @@
 
         </LinearLayout>
 
-        <!--<LinearLayout-->
-            <!--android:orientation="horizontal"-->
-            <!--android:layout_width="wrap_content"-->
-            <!--android:layout_height="?attr/actionBarSize"-->
-            <!--app:layout_scrollFlags="scroll"-->
-            <!--app:layout_collapseMode="pin"-->
-            <!--android:gravity="center_vertical">-->
-
-            <!--<android.support.v7.widget.AppCompatImageButton-->
-                <!--android:layout_width="wrap_content"-->
-                <!--android:layout_height="wrap_content"-->
-                <!--android:padding="8dp"-->
-                <!--android:background="@android:color/transparent"-->
-                <!--android:src="@drawable/ic_up_arrow_24dp"-->
-                <!--/>-->
-
-            <!--<android.support.v7.widget.AppCompatImageButton-->
-                <!--android:layout_width="wrap_content"-->
-                <!--android:layout_height="wrap_content"-->
-                <!--android:padding="8dp"-->
-                <!--android:background="@android:color/transparent"-->
-                <!--android:src="@drawable/ic_down_arrow_24dp"-->
-                <!--/>-->
-
-        <!--</LinearLayout>-->
 
     </LinearLayout>
 

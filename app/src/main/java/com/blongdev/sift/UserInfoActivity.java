@@ -91,6 +91,11 @@ public class UserInfoActivity extends BaseActivity {
             }
         });
 
+        if (mReddit.mRedditClient.isAuthenticated() && mReddit.mRedditClient.hasActiveUserContext()) {
+            if (TextUtils.equals(mReddit.mRedditClient.getAuthenticatedUser(), mUsername)) {
+                fab.setVisibility(View.GONE);
+            }
+        }
     }
 
 

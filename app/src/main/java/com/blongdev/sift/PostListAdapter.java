@@ -78,7 +78,6 @@ public class PostListAdapter extends RecyclerView.Adapter<PostListAdapter.PostVi
             CommentInfo comment = (CommentInfo) mPostList.get(i);
             postViewHolder.mUsername.setText(comment.mUsername);
             postViewHolder.mPoints.setText(String.valueOf(comment.mPoints));
-//            postViewHolder.mComments.setText(comment.mComments + " Replies");
             postViewHolder.mAge.setText(Utilities.getAgeString(comment.mAge));
             postViewHolder.mPostId = comment.mPost;
             postViewHolder.mServerId = comment.mServerId;
@@ -87,6 +86,21 @@ public class PostListAdapter extends RecyclerView.Adapter<PostListAdapter.PostVi
             postViewHolder.mContributionType = comment.mContributionType;
             postViewHolder.mVote = comment.mVote;
             postViewHolder.mJrawComment = comment.mJrawComment;
+
+            if (comment.mVote == SiftContract.Posts.UPVOTE) {
+                postViewHolder.mUpvote.setImageDrawable(SiftApplication.getContext().getResources().getDrawable(R.drawable.ic_up_arrow_filled_24dp));
+                postViewHolder.mDownvote.setImageDrawable(SiftApplication.getContext().getResources().getDrawable(R.drawable.ic_down_arrow_white_24dp));
+                postViewHolder.mPoints.setTextColor(SiftApplication.getContext().getResources().getColor(R.color.upvote));
+            } else if (comment.mVote == SiftContract.Posts.DOWNVOTE) {
+                postViewHolder.mDownvote.setImageDrawable(SiftApplication.getContext().getResources().getDrawable(R.drawable.ic_down_arrow_filled_24dp));
+                postViewHolder.mUpvote.setImageDrawable(SiftApplication.getContext().getResources().getDrawable(R.drawable.ic_up_arrow_white_24dp));
+                postViewHolder.mPoints.setTextColor(SiftApplication.getContext().getResources().getColor(R.color.downvote));
+            } else {
+                postViewHolder.mUpvote.setImageDrawable(SiftApplication.getContext().getResources().getDrawable(R.drawable.ic_up_arrow_white_24dp));
+                postViewHolder.mDownvote.setImageDrawable(SiftApplication.getContext().getResources().getDrawable(R.drawable.ic_down_arrow_white_24dp));
+                postViewHolder.mPoints.setTextColor(Color.WHITE);
+            }
+
         } else {
             //TODO just have postViewHolder with a reference to a PostInfo object rather than copying all of its fields
             PostInfo post = (PostInfo) mPostList.get(i);
@@ -224,6 +238,7 @@ public class PostListAdapter extends RecyclerView.Adapter<PostListAdapter.PostVi
                 mTitle.setOnClickListener(mOnClickListener);
                 mUsername.setOnClickListener(mOnClickListener);
                 mImage.setOnClickListener(mOnClickListener);
+                mSubreddit.setOnClickListener(mOnClickListener);
 
                 mTarget = new Target() {
                     @Override
@@ -258,6 +273,8 @@ public class PostListAdapter extends RecyclerView.Adapter<PostListAdapter.PostVi
                     goToPostDetail(v);
                 } else if (v == mUsername) {
                     goToUserInfo(v);
+                } else if (v == mSubreddit) {
+                    goToSubreddit(v);
                 } else if (v == mUpvote) {
                     upvote(v.getContext());
                 } else if(v == mDownvote) {
@@ -378,6 +395,16 @@ public class PostListAdapter extends RecyclerView.Adapter<PostListAdapter.PostVi
 
                 v.getContext().startActivity(intent);
             }
+
+            private void goToSubreddit(View v) {
+                String subreddit = mSubreddit.getText().toString();
+
+                Intent intent = new Intent(v.getContext(), SubredditActivity.class);
+                intent.putExtra(v.getContext().getString(R.string.subreddit_name), subreddit);
+
+                v.getContext().startActivity(intent);
+            }
+
         });
 
         private final class GetPostTask extends AsyncTask<String, Void, Submission> {

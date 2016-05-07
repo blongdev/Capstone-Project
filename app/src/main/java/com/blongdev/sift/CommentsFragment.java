@@ -174,6 +174,7 @@ public class CommentsFragment extends Fragment implements LoaderManager.LoaderCa
         ImageView mSendComment;
         LinearLayout mCommentArea;
         boolean mIsReply;
+        LinearLayout mCommentActions;
 
         public CommentViewHolder(Context context, boolean isReply) {
             super(context);
@@ -195,6 +196,27 @@ public class CommentsFragment extends Fragment implements LoaderManager.LoaderCa
 
             LinearLayout commentView = (LinearLayout) view.findViewById(R.id.comment_view);
             commentView.setPadding(padding_left, 0, padding, 0);
+
+            mCommentActions = (LinearLayout) view.findViewById(R.id.comment_actions);
+
+            commentView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+
+                    if (mCommentActions.getVisibility() == View.GONE) {
+                        mCommentActions.setVisibility(View.VISIBLE);
+
+                    } else {
+                        mCommentActions.setVisibility(View.GONE);
+                    }
+
+                    if (node.isExpanded()) {
+                        mTreeView.collapseNode(node);
+                    } else {
+                        mTreeView.expandNode(node);
+                    }
+                }
+            });
 
             if (!mIsReply) {
                 mComment = value.mJrawComment;
@@ -226,6 +248,7 @@ public class CommentsFragment extends Fragment implements LoaderManager.LoaderCa
                 mReplyText.requestFocus();
                 mBody.setVisibility(View.GONE);
                 mReply.setVisibility(View.GONE);
+                age.setVisibility(View.GONE);
             }
 
             mUpvote.setOnClickListener(new View.OnClickListener() {
@@ -423,6 +446,7 @@ public class CommentsFragment extends Fragment implements LoaderManager.LoaderCa
         }
 
         public void copyTree(TreeNode parent, CommentNode commentParent) {
+            if (commentParent == null) return;
             for (CommentNode commentNode : commentParent.getChildren()) {
                 Comment comment = commentNode.getComment();
                 CommentInfo commentInfo = new CommentInfo();

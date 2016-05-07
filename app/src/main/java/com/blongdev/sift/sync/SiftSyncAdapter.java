@@ -1,6 +1,8 @@
 package com.blongdev.sift.sync;
 
 import android.accounts.Account;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;
 import android.content.AbstractThreadedSyncAdapter;
 import android.content.BroadcastReceiver;
@@ -16,11 +18,13 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.RemoteException;
+import android.support.v4.app.NotificationCompat;
 import android.text.TextUtils;
 import android.util.Log;
 
 import com.blongdev.sift.AccountInfo;
 import com.blongdev.sift.ContributionInfo;
+import com.blongdev.sift.MessageActivity;
 import com.blongdev.sift.R;
 import com.blongdev.sift.Reddit;
 import com.blongdev.sift.SiftApplication;
@@ -50,6 +54,7 @@ import net.dean.jraw.paginators.UserContributionPaginator;
 import net.dean.jraw.paginators.UserSubredditsPaginator;
 
 import java.net.NetworkInterface;
+import java.net.URI;
 import java.util.ArrayList;
 
 /**
@@ -297,7 +302,7 @@ public class SiftSyncAdapter extends AbstractThreadedSyncAdapter {
                 String fullname = u.getFullName();
                 net.dean.jraw.models.Account user = redditClient.getUser(fullname);
 
-                cv.put(SiftContract.Users.COLUMN_SERVER_ID, u.getId());
+                cv.put(SiftContract.Users.COLUMN_SERVER_ID, user.getId());
                 cv.put(SiftContract.Users.COLUMN_USERNAME, fullname);
                 cv.put(SiftContract.Users.COLUMN_DATE_CREATED, user.getCreatedUtc().getTime());
                 cv.put(SiftContract.Users.COLUMN_COMMENT_KARMA, user.getCommentKarma());
@@ -314,6 +319,8 @@ public class SiftSyncAdapter extends AbstractThreadedSyncAdapter {
             }
         }
 
+        int newMessages = 0;
+
         //messages
         InboxPaginator inbox = new InboxPaginator(redditClient, SiftApplication.getContext().getString(R.string.inbox));
         inbox.setLimit(Integer.MAX_VALUE);
@@ -328,7 +335,11 @@ public class SiftSyncAdapter extends AbstractThreadedSyncAdapter {
                 cv.put(SiftContract.Messages.COLUMN_ACCOUNT_ID, accountId);
                 cv.put(SiftContract.Messages.COLUMN_READ, m.isRead());
                 cv.put(SiftContract.Messages.COLUMN_MAILBOX_TYPE, SiftContract.Messages.MAILBOX_TYPE_INBOX);
-                mContentResolver.insert(SiftContract.Messages.CONTENT_URI, cv);
+                Uri messageUri = mContentResolver.insert(SiftContract.Messages.CONTENT_URI, cv);
+                long messageId = ContentUris.parseId(messageUri);
+                if (messageId > 0 && !m.isRead()) {
+                    newMessages++;
+                }
                 cv.clear();
             }
         }
@@ -366,6 +377,28 @@ public class SiftSyncAdapter extends AbstractThreadedSyncAdapter {
                 mContentResolver.insert(SiftContract.Messages.CONTENT_URI, cv);
                 cv.clear();
             }
+        }
+
+        if (newMessages > 0) {
+            NotificationCompat.Builder mBuilder =
+                    new NotificationCompat.Builder(mContext)
+                            .setSmallIcon(R.drawable.notification_icon)
+                            .setContentTitle(mContext.getString(R.string.sift));
+            if (newMessages == 1) {
+                mBuilder.setContentText(mContext.getString(R.string.new_message, newMessages));
+            } else {
+                mBuilder.setContentText(mContext.getString(R.string.new_messages, newMessages));
+            }
+
+            Intent resultIntent = new Intent(mContext, MessageActivity.class);
+            PendingIntent resultPendingIntent =
+                    PendingIntent.getActivity(mContext, 0, resultIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+            mBuilder.setContentIntent(resultPendingIntent);
+
+            int mNotificationId = 001;
+            NotificationManager mNotifyMgr = (NotificationManager) mContext.getSystemService(mContext.NOTIFICATION_SERVICE);
+            mNotifyMgr.notify(mNotificationId, mBuilder.build());
         }
 
     }

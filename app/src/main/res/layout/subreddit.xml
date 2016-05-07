@@ -7,16 +7,17 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textSize="24sp"
+        android:textSize="18sp"
         android:textColor="@android:color/white"
+        android:paddingBottom="@dimen/content_spacer"
         android:id="@+id/subreddit_name"/>
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@id/subreddit_name"
-        android:textSize="16sp"
-        android:textColor="@android:color/white"
+        android:textSize="14sp"
+        android:textColor="@color/secondary_text"
         android:id="@+id/subreddit_description"/>
 
     <TextView
@@ -24,7 +25,7 @@
         android:layout_height="wrap_content"
         android:textSize="14sp"
         android:layout_alignParentRight="true"
-        android:textColor="@android:color/white"
+        android:textColor="@color/secondary_text"
         android:id="@+id/subreddit_subscribers"/>
 
 </RelativeLayout>

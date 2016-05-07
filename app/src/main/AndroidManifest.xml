@@ -83,6 +83,7 @@
         <provider
             android:name=".database.SiftProvider"
             android:authorities="com.blongdev.sift.database.SiftProvider"
+            android:exported="true"
             android:label="SiftProvider"
             android:syncable="true" />
 

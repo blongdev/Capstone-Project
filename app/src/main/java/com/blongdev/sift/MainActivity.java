@@ -19,6 +19,7 @@ import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.view.ViewPager;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.ProgressBar;
@@ -50,6 +51,8 @@ public class MainActivity extends BaseActivity {
     private ArrayList<SubscriptionInfo> mSubreddits;
     ProgressBar mLoadingSpinner;
     String mCategory = null;
+
+    FloatingActionButton mFab;
 
     private LoaderManager.LoaderCallbacks<Cursor> mSubscriptionLoader
             = new LoaderManager.LoaderCallbacks<Cursor>() {
@@ -90,6 +93,8 @@ public class MainActivity extends BaseActivity {
             if (Utilities.loggedIn(getApplicationContext())) {
                 return new PopularSubredditLoader(getApplicationContext(), false);
             } else {
+                //hide fab from frontpage
+                mFab.hide();
                 return new PopularSubredditLoader(getApplicationContext(), true);
             }
         }
@@ -121,32 +126,8 @@ public class MainActivity extends BaseActivity {
         frontpage.mSubredditName = getString(R.string.frontPage);
         mSubreddits.add(frontpage);
 
-        Intent intent = getIntent();
-        if (intent != null) {
-            mCategory = intent.getStringExtra(getString(R.string.category));
-        }
-
-        if (mCategory != null && mReddit.mRedditClient.isAuthenticated()) {
-//            new GetSubredditsTask(getApplicationContext()).execute();
-            getSupportLoaderManager().initLoader(ASYNCTASK_LOADER_ID, null, mPopularSubredditsLoader).forceLoad();
-        } else if (Utilities.loggedIn(getApplicationContext())){
-            getSupportLoaderManager().initLoader(CURSOR_LOADER_ID, null, mSubscriptionLoader).forceLoad();
-        } else if (mReddit.mRedditClient.isAuthenticated()){
-//            new GetSubredditsTask(getApplicationContext()).execute();
-            getSupportLoaderManager().initLoader(ASYNCTASK_LOADER_ID, null, mPopularSubredditsLoader).forceLoad();
-        }
-
-        mPager = (ViewPager) findViewById(R.id.pager);
-        mPagerAdapter = new SubredditPagerAdapter(getSupportFragmentManager());
-        mPager.setAdapter(mPagerAdapter);
-
-
-        TabLayout tabLayout = (TabLayout) findViewById(R.id.subreddit_tabs);
-        tabLayout.setupWithViewPager(mPager);
-
-
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
+        mFab = (FloatingActionButton) findViewById(R.id.fab);
+        mFab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 if (!Utilities.loggedIn(getApplicationContext())) {
@@ -161,6 +142,54 @@ public class MainActivity extends BaseActivity {
 //                        .setAction("Action", null).show();
             }
         });
+
+        Intent intent = getIntent();
+        if (intent != null) {
+            mCategory = intent.getStringExtra(getString(R.string.category));
+        }
+
+        if (mCategory != null && mReddit.mRedditClient.isAuthenticated()) {
+//            new GetSubredditsTask(getApplicationContext()).execute();
+            getSupportLoaderManager().initLoader(ASYNCTASK_LOADER_ID, null, mPopularSubredditsLoader).forceLoad();
+        } else if (Utilities.loggedIn(getApplicationContext())){
+            getSupportLoaderManager().initLoader(CURSOR_LOADER_ID, null, mSubscriptionLoader).forceLoad();
+            //hide fab on frontpage
+            mFab.hide();
+        } else if (mReddit.mRedditClient.isAuthenticated()){
+//            new GetSubredditsTask(getApplicationContext()).execute();
+            getSupportLoaderManager().initLoader(ASYNCTASK_LOADER_ID, null, mPopularSubredditsLoader).forceLoad();
+        }
+
+        mPager = (ViewPager) findViewById(R.id.pager);
+        mPagerAdapter = new SubredditPagerAdapter(getSupportFragmentManager());
+        mPager.setAdapter(mPagerAdapter);
+
+
+        TabLayout tabLayout = (TabLayout) findViewById(R.id.subreddit_tabs);
+        tabLayout.setupWithViewPager(mPager);
+
+
+        mPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+            @Override
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+
+            }
+
+            @Override
+            public void onPageSelected(int position) {
+                if (TextUtils.equals(mPagerAdapter.getPageTitle(mPager.getCurrentItem()), getString(R.string.frontPage))) {
+                    mFab.hide();
+                } else {
+                    mFab.show();
+                }
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int state) {
+
+            }
+        });
+
     }
 
 

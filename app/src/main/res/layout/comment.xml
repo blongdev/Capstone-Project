@@ -33,12 +33,14 @@
                     android:layout_height="wrap_content"
                     style="@style/CommentInfo"
                     android:id="@+id/comment_username"
+                    android:textColor="@color/secondary_text"
                     android:text="Username" />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     style="@style/CommentInfo"
+                    android:textColor="@color/secondary_text"
                     android:layout_toRightOf="@id/comment_username"
                     android:id="@+id/comment_points"
                     android:text="Points" />
@@ -47,6 +49,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     style="@style/CommentInfo"
+                    android:textColor="@color/secondary_text"
                     android:layout_toRightOf="@id/comment_points"
                     android:id="@+id/comment_age"
                     android:text="Age" />
@@ -55,6 +58,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     style="@style/CommentInfo"
+                    android:textColor="@color/secondary_text"
                     android:layout_alignParentRight="true"
                     android:id="@+id/comment_replies"
                     android:text="Replies" />
@@ -98,10 +102,12 @@
             </LinearLayout>
 
             <LinearLayout
+                android:id="@+id/comment_actions"
                 android:orientation="horizontal"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:gravity="center_vertical">
+                android:gravity="center_vertical"
+                android:visibility="gone">
 
                 <ImageView
                     android:id="@+id/upvote"
