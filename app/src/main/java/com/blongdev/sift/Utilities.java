@@ -239,4 +239,24 @@ public class Utilities {
         }
         return null;
     }
+
+    public static int getVoteValue(Context context, String postServerId) {
+        Cursor cursor = null;
+        try {
+            String[] projection = new String[] {SiftContract.Posts.COLUMN_VOTE};
+            String selection = SiftContract.Posts.COLUMN_SERVER_ID + " = ?";
+            String[] selectionArgs = new String[]{postServerId};
+            cursor = context.getContentResolver().query(SiftContract.Posts.CONTENT_URI, projection, selection, selectionArgs, null);
+            if (cursor != null && cursor.moveToFirst()) {
+                return cursor.getInt(0);
+            }
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
+        }
+
+        return SiftContract.Posts.NO_VOTE;
+    }
+
 }

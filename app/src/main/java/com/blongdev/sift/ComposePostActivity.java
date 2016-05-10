@@ -31,6 +31,13 @@ import java.net.URL;
 
 public class ComposePostActivity extends BaseActivity implements LoaderManager.LoaderCallbacks<Captcha>{
 
+    private static final String BODY = "body";
+    private static final String TITLE = "title";
+    private static final String CAPTCHA = "captcha";
+    private static final String LINK = "link";
+
+
+
     String mSubredditName;
     Captcha mCaptcha;
     ImageView mCaptchaImage;
@@ -54,6 +61,8 @@ public class ComposePostActivity extends BaseActivity implements LoaderManager.L
         mBody = (EditText) findViewById(R.id.body_text);
         mCaptchaText = (EditText) findViewById(R.id.captcha_text);
         mCaptchaBlock = findViewById(R.id.captcha_block);
+
+        mTitle.requestFocus();
 
         Intent intent = getIntent();
         if (intent != null) {
@@ -177,6 +186,26 @@ public class ComposePostActivity extends BaseActivity implements LoaderManager.L
 //            }
 //        }
 //    }
+
+
+
+    @Override
+    public void onSaveInstanceState(Bundle savedInstanceState) {
+        savedInstanceState.putString(BODY, mBody.getText().toString());
+        savedInstanceState.putString(TITLE, mTitle.getText().toString());
+        savedInstanceState.putString(CAPTCHA, mCaptchaText.getText().toString());
+        savedInstanceState.putBoolean(LINK, mLinkBox.isChecked());
+        super.onSaveInstanceState(savedInstanceState);
+    }
+
+    @Override
+    public void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        mTitle.setText(savedInstanceState.getString(TITLE));
+        mBody.setText(savedInstanceState.getString(BODY));
+        mCaptchaText.setText(savedInstanceState.getString(CAPTCHA));
+        mLinkBox.setChecked(savedInstanceState.getBoolean(LINK));
+    }
 
 }
 

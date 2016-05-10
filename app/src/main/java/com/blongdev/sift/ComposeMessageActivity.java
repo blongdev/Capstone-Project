@@ -12,9 +12,15 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.blongdev.sift.database.SiftContract;
+
 import org.w3c.dom.Text;
 
 public class ComposeMessageActivity extends BaseActivity {
+
+    private static final String BODY = "body";
+    private static final String SUBJECT = "subject";
+
 
     String mUserTo;
     TextView mTo;
@@ -30,6 +36,8 @@ public class ComposeMessageActivity extends BaseActivity {
         mSubject = (EditText) findViewById(R.id.subject_text);
         mBody = (EditText) findViewById(R.id.body_text);
 
+        mSubject.requestFocus();
+
         Intent intent = getIntent();
         if (intent != null) {
             mUserTo = intent.getStringExtra(getString(R.string.username));
@@ -37,6 +45,7 @@ public class ComposeMessageActivity extends BaseActivity {
             String subject = intent.getStringExtra(getString(R.string.title));
             if (!TextUtils.isEmpty(subject)) {
                 mSubject.setText(subject);
+                mBody.requestFocus();
             }
         }
 
@@ -66,4 +75,17 @@ public class ComposeMessageActivity extends BaseActivity {
         });
     }
 
+    @Override
+    public void onSaveInstanceState(Bundle savedInstanceState) {
+        savedInstanceState.putString(BODY, mBody.getText().toString());
+        savedInstanceState.putString(SUBJECT, mSubject.getText().toString());
+        super.onSaveInstanceState(savedInstanceState);
+    }
+
+    @Override
+    public void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        mSubject.setText(savedInstanceState.getString(SUBJECT));
+        mBody.setText(savedInstanceState.getString(BODY));
+    }
 }

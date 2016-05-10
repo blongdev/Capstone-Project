@@ -45,6 +45,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:textColor="@android:color/white"
+                android:backgroundTint="@android:color/white"
                 android:layout_below="@id/title_label"/>
         </RelativeLayout>
 
@@ -69,6 +70,7 @@
                 android:layout_height="wrap_content"
                 android:layout_below="@id/body_label"
                 android:textColor="@android:color/white"
+                android:buttonTint="@android:color/white"
                 android:text="@string/link" />
 
             <EditText
@@ -76,6 +78,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:textColor="@android:color/white"
+                android:backgroundTint="@android:color/white"
                 android:layout_below="@id/link"/>
 
 
@@ -102,6 +105,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:textColor="@android:color/white"
+                android:backgroundTint="@android:color/white"
                 android:layout_below="@id/captcha_image"
                 android:layout_alignLeft="@id/captcha_image"
                 android:layout_alignRight="@id/captcha_image"/>

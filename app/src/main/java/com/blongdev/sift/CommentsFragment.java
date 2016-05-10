@@ -122,13 +122,14 @@ public class CommentsFragment extends Fragment implements LoaderManager.LoaderCa
         super.onPause();
     }
 
-    public void replyToPost(){
+    public TreeNode replyToPost(){
         if(mTreeView != null) {
-            addReplyNode(getContext(), mRoot);
+            return addReplyNode(getContext(), mRoot);
         }
+        return null;
     }
 
-    private void addReplyNode(Context context, TreeNode node) {
+    private TreeNode addReplyNode(Context context, TreeNode node) {
         String username = Utilities.getLoggedInUsername(context);
         CommentInfo commentInfo = new CommentInfo();
         commentInfo.mUsername = username;
@@ -136,6 +137,7 @@ public class CommentsFragment extends Fragment implements LoaderManager.LoaderCa
         TreeNode child = createReplyNode(commentInfo);
         mTreeView.addNode(node, child);
         mTreeView.expandNode(node);
+        return child;
 //        int bottom = child.getViewHolder().getView().getBottom();
 //        mTree.scrollTo(0, bottom);
     }
@@ -175,6 +177,7 @@ public class CommentsFragment extends Fragment implements LoaderManager.LoaderCa
         LinearLayout mCommentArea;
         boolean mIsReply;
         LinearLayout mCommentActions;
+        TreeNode mReplyNode;
 
         public CommentViewHolder(Context context, boolean isReply) {
             super(context);
@@ -244,7 +247,6 @@ public class CommentsFragment extends Fragment implements LoaderManager.LoaderCa
 
             if (mIsReply) {
                 mCommentArea.setVisibility(View.VISIBLE);
-                mReplyText.requestFocus();
                 mBody.setVisibility(View.GONE);
                 mReply.setVisibility(View.GONE);
                 age.setVisibility(View.GONE);
@@ -272,7 +274,15 @@ public class CommentsFragment extends Fragment implements LoaderManager.LoaderCa
                         return;
                     }
 
-                    addReplyNode(context, node);
+                    if(mReplyNode == null) {
+                        mReplyNode = addReplyNode(context, node);
+                        mReply.setImageResource(R.drawable.ic_clear_24dp);
+                        focusOnReply(mReplyNode);
+                    } else {
+                        removeReply(mReplyNode);
+                        mReply.setImageResource(R.drawable.ic_reply_24dp);
+                        mReplyNode = null;
+                    }
                 }
             });
 
@@ -325,6 +335,10 @@ public class CommentsFragment extends Fragment implements LoaderManager.LoaderCa
             }
 
             Linkify.addLinks(mBody, Linkify.ALL);
+
+            if (mIsReply) {
+                mReplyText.requestFocus();
+            }
 
             return view;
         }
@@ -389,6 +403,23 @@ public class CommentsFragment extends Fragment implements LoaderManager.LoaderCa
         }
     }
 
+    public void focusOnReply(TreeNode reply) {
+        CommentViewHolder cvh = (CommentViewHolder) reply.getViewHolder();
+        cvh.mReplyText.requestFocus();
+        InputMethodManager imm = (InputMethodManager) getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, InputMethodManager.HIDE_IMPLICIT_ONLY);
+    }
+
+    public void removeReply(TreeNode node) {
+        CommentViewHolder cvh = (CommentViewHolder) node.getViewHolder();
+        cvh.mReplyText.requestFocus();
+
+        //hide keyboard
+        InputMethodManager imm = (InputMethodManager) getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.hideSoftInputFromWindow(cvh.mReplyText.getWindowToken(), 0);
+
+        mTreeView.removeNode(node);
+    }
 
     @Override
     public void onAttach(Context context) {

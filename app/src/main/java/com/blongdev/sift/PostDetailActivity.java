@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Color;
+import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
@@ -34,6 +35,7 @@ import com.blongdev.sift.database.SiftContract;
 import com.fasterxml.jackson.databind.deser.Deserializers;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
+import com.unnamed.b.atv.model.TreeNode;
 
 public class PostDetailActivity extends BaseActivity {
     private int mPostId = 0;
@@ -65,6 +67,8 @@ public class PostDetailActivity extends BaseActivity {
     ImageView mSendComment;
     FrameLayout mPostView;
     FrameLayout mCommentsView;
+    AppBarLayout mAppBar;
+    TreeNode mReplyNode;
 
 
     int mVote;
@@ -139,6 +143,7 @@ public class PostDetailActivity extends BaseActivity {
         mCommentArea = (LinearLayout) findViewById(R.id.comment_area);
         mReplyText = (EditText) findViewById(R.id.reply_text);
         mSendComment = (ImageView) findViewById(R.id.send);
+        mAppBar = (AppBarLayout) findViewById(R.id.appbar);
 
         mFavorite = (ImageView) findViewById(R.id.favorite);
 
@@ -208,7 +213,17 @@ public class PostDetailActivity extends BaseActivity {
                     return;
                 }
 
-                mCommentsFragment.replyToPost();
+                if(mReplyNode == null) {
+                    mReplyNode = mCommentsFragment.replyToPost();
+                    mReply.setImageResource(R.drawable.ic_clear_24dp);
+                    mCommentsFragment.focusOnReply(mReplyNode);
+                    mAppBar.setExpanded(false);
+                } else {
+                    mCommentsFragment.removeReply(mReplyNode);
+                    mReply.setImageResource(R.drawable.ic_reply_24dp);
+                    mReplyNode = null;
+                }
+
                 if (mPostShowing) {
                     toggleComments();
                 }
