@@ -1,27 +1,16 @@
 package com.blongdev.sift;
 
-import android.app.FragmentTransaction;
-import android.app.SearchManager;
+
+
 import android.content.Context;
 import android.content.Intent;
-import android.database.Cursor;
 import android.graphics.Color;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.NavigationView;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.FragmentManager;
-import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.ActionBarDrawerToggle;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.support.v7.widget.SearchView;
-import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
-import android.view.inputmethod.InputMethodManager;
 import android.webkit.WebView;
 import android.widget.EditText;
 import android.widget.FrameLayout;
@@ -30,9 +19,7 @@ import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import com.blongdev.sift.database.SiftContract;
-import com.fasterxml.jackson.databind.deser.Deserializers;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
 import com.unnamed.b.atv.model.TreeNode;
@@ -98,32 +85,6 @@ public class PostDetailActivity extends BaseActivity {
         String domain = intent.getStringExtra(getString(R.string.domain));
         mVote = intent.getIntExtra(getString(R.string.vote),0);
 
-//
-//        if (!TextUtils.isEmpty(title)) {
-//            Cursor cursor = null;
-//            try {
-//                String selection = SiftContract.Posts._ID + " = ?";
-//                String[] selectionArgs = new String[]{String.valueOf(mPostId)};
-//                cursor = getContentResolver().query(SiftContract.Posts.CONTENT_URI, null, selection, selectionArgs, null);
-//                if (cursor != null && cursor.moveToFirst()) {
-//                    title = cursor.getString(cursor.getColumnIndex(SiftContract.Posts.COLUMN_TITLE));
-//                    username = cursor.getString(cursor.getColumnIndex(SiftContract.Posts.COLUMN_OWNER_USERNAME));
-//                    subreddit = cursor.getString(cursor.getColumnIndex(SiftContract.Posts.COLUMN_SUBREDDIT_NAME));
-//                    points = cursor.getString(cursor.getColumnIndex(SiftContract.Posts.COLUMN_POINTS));
-//                    comments = cursor.getString(cursor.getColumnIndex(SiftContract.Posts.COLUMN_NUM_COMMENTS));
-//                    url = cursor.getString(cursor.getColumnIndex(SiftContract.Posts.COLUMN_URL));
-//                    age = Utilities.getAgeString(cursor.getLong(cursor.getColumnIndex(SiftContract.Posts.COLUMN_DATE_CREATED)));
-//                    imageUrl = cursor.getString(cursor.getColumnIndex(SiftContract.Posts.COLUMN_IMAGE_URL));
-//                    body = cursor.getString(cursor.getColumnIndex(SiftContract.Posts.COLUMN_BODY));
-//                    domain = cursor.getString(cursor.getColumnIndex(SiftContract.Posts.COLUMN_DOMAIN));
-//                    mVote = cursor.getInt(cursor.getColumnIndex(SiftContract.Posts.COLUMN_VOTE));
-//                }
-//            } finally {
-//                if (cursor != null) {
-//                    cursor.close();
-//                }
-//            }
-//        }
 
         mPostDetailLayout = (LinearLayout) findViewById(R.id.post_detail_layout);
         mTitle = (TextView) findViewById(R.id.post_title);
@@ -133,7 +94,6 @@ public class PostDetailActivity extends BaseActivity {
         mComments = (TextView) findViewById(R.id.post_comments);
         mUrl = (TextView) findViewById(R.id.post_url);
         mAge = (TextView) findViewById(R.id.post_age);
-//        mImage = (ImageView) findViewById(R.id.post_detail_image);
         mWebView = (WebView) findViewById(R.id.post_web_view);
         mLoadingSpinner = (ProgressBar) findViewById(R.id.progressSpinner);
         mBody = (TextView) findViewById(R.id.post_body);
@@ -228,38 +188,8 @@ public class PostDetailActivity extends BaseActivity {
                     toggleComments();
                 }
 
-
-//                if (mCommentArea.getVisibility() == View.GONE) {
-//                    mCommentArea.setVisibility(View.VISIBLE);
-//                    mReplyText.requestFocus();
-//                } else {
-//                    mCommentArea.setVisibility(View.GONE);
-//                    mReplyText.clearFocus();
-//
-//                    //hide keyboard
-//                    InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
-//                    imm.hideSoftInputFromWindow(mReplyText.getWindowToken(), 0);
-//                }
             }
         });
-
-//        mSendComment.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                if (!TextUtils.isEmpty(mReplyText.getText().toString())) {
-//                    Reddit.commentOnPost(getApplicationContext(), mPostServerId, mReplyText.getText().toString());
-//                    mReplyText.setText(null);
-//                    mCommentArea.setVisibility(View.GONE);
-//                    mReplyText.clearFocus();
-//
-//                    //hide keyboard
-//                    InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
-//                    imm.hideSoftInputFromWindow(mReplyText.getWindowToken(), 0);
-//                }
-//            }
-//        });
-
-        //mBody.setText(body);
 
         if (mVote == SiftContract.Posts.UPVOTE) {
             mUpvote.setImageDrawable(SiftApplication.getContext().getResources().getDrawable(R.drawable.ic_up_arrow_filled_24dp));
@@ -315,12 +245,10 @@ public class PostDetailActivity extends BaseActivity {
                     mFavorited = false;
                     mFavorite.setImageResource(R.drawable.ic_favorite_outline_24dp);
                     Reddit.getInstance().unfavoritePost(getApplicationContext(), mPostServerId);
-//                    Toast.makeText(getApplicationContext(), getApplicationContext().getString(R.string.unsaved), Toast.LENGTH_LONG).show();
                 } else {
                     mFavorited = true;
                     mFavorite.setImageResource(R.drawable.ic_favorite_24dp);
                     Reddit.getInstance().favoritePost(getApplicationContext(), mPostServerId);
-//                    Toast.makeText(getApplicationContext(), getApplicationContext().getString(R.string.saved), Toast.LENGTH_LONG).show();
                 }
             }
         });
@@ -407,57 +335,6 @@ public class PostDetailActivity extends BaseActivity {
         Reddit.votePost(context, mPostServerId, mVote);
 
     }
-
-//    @Override
-//    public boolean onCreateOptionsMenu(Menu menu) {
-//        // Inflate the menu; this adds items to the action bar if it is present.
-//        getMenuInflater().inflate(R.menu.menu_subreddit, menu);
-//        // Associate searchable configuration with the SearchView
-//        SearchManager searchManager =
-//                (SearchManager) getSystemService(Context.SEARCH_SERVICE);
-//        SearchView searchView =
-//                (SearchView) menu.findItem(R.id.menu_search).getActionView();
-//        searchView.setSearchableInfo(
-//                searchManager.getSearchableInfo(getComponentName()));
-//
-//        mFavorite = (MenuItem) menu.findItem(R.id.favorite);
-//
-//        if (mReddit.mRedditClient.isAuthenticated() && mReddit.mRedditClient.hasActiveUserContext()) {
-//            if (!TextUtils.isEmpty(mPostServerId)) {
-//                long subscriptionId = Utilities.getSubscriptionId(getApplicationContext(), mPostServerId);
-//                if (subscriptionId > 0) {
-//                    mFavorited = true;
-//                    mFavorite.setIcon(R.drawable.ic_favorite_24dp);
-//                }
-//            }
-//        }
-//
-//        mFavorite.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
-//            @Override
-//            public boolean onMenuItemClick(MenuItem item) {
-//                if (!Utilities.loggedIn(getApplicationContext())) {
-//                    Toast.makeText(getApplicationContext(), getApplicationContext().getString(R.string.must_log_in), Toast.LENGTH_LONG).show();
-//                    return false;
-//                }
-//
-//                if (mFavorited) {
-//                    mFavorited = false;
-//                    mFavorite.setIcon(R.drawable.ic_favorite_outline_24dp);
-//                    Reddit.getInstance().unfavoritePost(getApplicationContext(), mPostServerId);
-////                    Toast.makeText(getApplicationContext(), getApplicationContext().getString(R.string.unsaved), Toast.LENGTH_LONG).show();
-//                } else {
-//                    mFavorited = true;
-//                    mFavorite.setIcon(R.drawable.ic_favorite_24dp);
-//                    Reddit.getInstance().favoritePost(getApplicationContext(), mPostServerId);
-////                    Toast.makeText(getApplicationContext(), getApplicationContext().getString(R.string.saved), Toast.LENGTH_LONG).show();
-//                }
-//                return true;
-//            }
-//        });
-//
-//        return true;
-//    }
-
 
     @Override
     public void onDestroy() {

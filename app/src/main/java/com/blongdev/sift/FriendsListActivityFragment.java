@@ -13,19 +13,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
 import com.blongdev.sift.database.SiftContract;
-import com.squareup.okhttp.internal.Util;
-import com.squareup.picasso.Picasso;
-
 import java.util.ArrayList;
 
-/**
- * A placeholder fragment containing a simple view.
- */
 public class FriendsListActivityFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
 
     ListView mFriendsListView;

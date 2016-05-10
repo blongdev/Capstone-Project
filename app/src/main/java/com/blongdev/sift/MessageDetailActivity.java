@@ -3,15 +3,8 @@ package com.blongdev.sift;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.NavigationView;
-import android.support.design.widget.Snackbar;
-import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
-import android.support.v7.app.ActionBarDrawerToggle;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
@@ -25,7 +18,6 @@ public class MessageDetailActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_message_detail);
 
-
         //Change toolbar title to username
         Intent intent = getIntent();
         mUsername = intent.getStringExtra(getString(R.string.username));
@@ -35,7 +27,6 @@ public class MessageDetailActivity extends BaseActivity {
             ActionBar toolbar = getSupportActionBar();
             if (toolbar != null) {
                 toolbar.setTitle(mUsername);
-//                toolbar.setDisplayHomeAsUpEnabled(true);
             }
         }
 
@@ -62,10 +53,4 @@ public class MessageDetailActivity extends BaseActivity {
         }
     }
 
-
-//    @Override
-//    public boolean onOptionsItemSelected(MenuItem item) {
-//        this.finish();
-//        return true;
-//    }
 }

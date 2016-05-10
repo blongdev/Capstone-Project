@@ -2,11 +2,9 @@ package com.blongdev.sift;
 
 import android.app.Activity;
 import android.content.BroadcastReceiver;
-import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.database.Cursor;
 import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -29,9 +27,7 @@ import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import com.blongdev.sift.database.SiftContract;
-import com.squareup.okhttp.internal.Util;
 import com.unnamed.b.atv.model.TreeNode;
 import com.unnamed.b.atv.view.AndroidTreeView;
 
@@ -39,14 +35,6 @@ import net.dean.jraw.http.NetworkException;
 import net.dean.jraw.models.Comment;
 import net.dean.jraw.models.CommentNode;
 import net.dean.jraw.models.Submission;
-
-import org.w3c.dom.Text;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Objects;
 
 
 public class CommentsFragment extends Fragment implements LoaderManager.LoaderCallbacks<CommentNode> {
@@ -64,14 +52,13 @@ public class CommentsFragment extends Fragment implements LoaderManager.LoaderCa
         @Override
         public void onReceive(Context context, Intent intent) {
             if (!TextUtils.isEmpty(mPostServerId)) {
-//                new getCommentsTask().execute();
                 getActivity().getSupportLoaderManager().initLoader(1, null, CommentsFragment.this).forceLoad();
             }
         }
     };
 
     public CommentsFragment() {
-        // Required empty public constructor
+
     }
 
     @Override
@@ -83,7 +70,6 @@ public class CommentsFragment extends Fragment implements LoaderManager.LoaderCa
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
         View rootView =  inflater.inflate(R.layout.fragment_comments, container, false);
 
         mActivity = getActivity();
@@ -99,7 +85,6 @@ public class CommentsFragment extends Fragment implements LoaderManager.LoaderCa
         }
 
         if (!TextUtils.isEmpty(mPostServerId)) {
-//            new getCommentsTask().execute();
             getActivity().getSupportLoaderManager().initLoader(1, null, this).forceLoad();
         }
 
@@ -138,22 +123,7 @@ public class CommentsFragment extends Fragment implements LoaderManager.LoaderCa
         mTreeView.addNode(node, child);
         mTreeView.expandNode(node);
         return child;
-//        int bottom = child.getViewHolder().getView().getBottom();
-//        mTree.scrollTo(0, bottom);
     }
-//
-//    private void addNodeToFront(TreeNode node, TreeNode child) {
-//        List<TreeNode> children = node.getChildren();
-//        for (TreeNode t : children) {
-//            node.deleteChild(t);
-//        }
-//
-//        mTreeView.addNode(node, child);
-//
-//        for (TreeNode t : children) {
-//            node.addChildren(children);
-//        }
-//    }
 
     private TreeNode createCommentNode(CommentInfo comment) {
         return new TreeNode(comment).setViewHolder(new CommentViewHolder(getContext(), false));
@@ -188,10 +158,6 @@ public class CommentsFragment extends Fragment implements LoaderManager.LoaderCa
         public View createNodeView(final TreeNode node, CommentInfo value) {
             final LayoutInflater inflater = LayoutInflater.from(context);
             final View view = inflater.inflate(R.layout.comment, null, false);
-
-//            final float dpScale = getResources().getDisplayMetrics().density;
-//            int padding_left = (int) (15 * dpScale + 0.5f) * node.getLevel();
-//            int padding = (int) (6 * dpScale + 0.5f);
 
             int padding_left = (int) getResources().getDimension(R.dimen.comment_indent) * (node.getLevel()-1);
             int padding = (int) getResources().getDimension(R.dimen.comment_padding);

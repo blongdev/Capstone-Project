@@ -5,35 +5,19 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
-import android.support.v4.view.ViewPager;
-import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
-
 import com.blongdev.sift.database.SiftContract;
-import com.squareup.picasso.Picasso;
-
-import net.dean.jraw.models.Message;
-
-import org.w3c.dom.Text;
-
 import java.util.ArrayList;
-import java.util.List;
 
-/**
- * A placeholder fragment containing a simple view.
- */
 public class MessageActivityFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
 
     ArrayList<MessageInfo> mMessages;
@@ -61,7 +45,6 @@ public class MessageActivityFragment extends Fragment implements LoaderManager.L
         }
 
         mMessages = new ArrayList<MessageInfo>();
-        //populateMessages();
 
         mMessagesListView = (ListView) rootView.findViewById(R.id.messages_list);
         mMessagesAdapter = new MessagesAdapter(getActivity(), mMessages);
@@ -118,38 +101,11 @@ public class MessageActivityFragment extends Fragment implements LoaderManager.L
             if(msg != null) {
                 viewHolder.mTitle.setText(msg.mTitle);
                 viewHolder.mBody.setText(msg.mBody);
-                //Picasso.with(getContext()).load(R.drawable.ic_account_circle_24dp).placeholder(R.drawable.ic_account_circle_24dp).into(viewHolder.mImage);
             }
 
             return view;
         }
     }
-//
-//    public void populateMessages() {
-//        String selection = SiftContract.Messages.COLUMN_ACCOUNT_ID + " = ?";
-//        Cursor cursor = getContext().getContentResolver().query(SiftContract.Messages.CONTENT_URI, null, null, null, null);
-//        if (cursor != null) {
-//            while (cursor.moveToNext()) {
-//                MessageInfo msg = new MessageInfo();
-//                msg.mFrom = cursor.getString(cursor.getColumnIndex(SiftContract.Messages.COLUMN_USER_FROM));
-//                msg.mTo = cursor.getString(cursor.getColumnIndex(SiftContract.Messages.COLUMN_USER_TO));
-//                msg.mTitle = cursor.getString(cursor.getColumnIndex(SiftContract.Messages.COLUMN_TITLE));
-//                msg.mBody = cursor.getString(cursor.getColumnIndex(SiftContract.Messages.COLUMN_BODY));
-//                msg.mDate = cursor.getInt(cursor.getColumnIndex(SiftContract.Messages.COLUMN_DATE));
-//                mMessages.add(msg);
-//            }
-//        }
-
-//        for (int i = 1; i<=15; i++) {
-//            MessageInfo msg = new MessageInfo();
-//            msg.mFrom = "From: " + i;
-//            msg.mTo = "To: " + i;
-//            msg.mTitle = "Title " + i;
-//            msg.mBody = "Body " + i;
-//            msg.mDate = 12;
-//            mMessages.add(msg);
-//        }
-//    }
 
     public static class MessageViewHolder {
         protected TextView mTo;
@@ -159,15 +115,6 @@ public class MessageActivityFragment extends Fragment implements LoaderManager.L
         protected TextView mDate;
     }
 
-//    private static final String ARG_SECTION_NUMBER = "section_number";
-//
-//    public static MessageActivityFragment newInstance(int sectionNumber) {
-//        MessageActivityFragment fragment = new MessageActivityFragment();
-//        Bundle args = new Bundle();
-//        args.putInt(ARG_SECTION_NUMBER, sectionNumber);
-//        fragment.setArguments(args);
-//        return fragment;
-//    }
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {

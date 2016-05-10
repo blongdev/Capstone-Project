@@ -8,12 +8,9 @@ package com.blongdev.sift.database;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
-import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteDatabase.CursorFactory;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.os.Debug;
-
 import com.blongdev.sift.AccountInfo;
 import com.blongdev.sift.CommentInfo;
 import com.blongdev.sift.FavoritesInfo;
@@ -24,8 +21,6 @@ import com.blongdev.sift.SubredditInfo;
 import com.blongdev.sift.SubscriptionInfo;
 import com.blongdev.sift.UserInfo;
 import com.blongdev.sift.VoteInfo;
-
-import java.util.Random;
 
 public class SiftDbHelper extends SQLiteOpenHelper {
 
@@ -69,21 +64,6 @@ public class SiftDbHelper extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-//        db.execSQL(SiftContract.Posts.DELETE_TABLE);
-//        db.execSQL(SiftContract.Accounts.DELETE_TABLE);
-//        db.execSQL(SiftContract.Comments.DELETE_TABLE);
-//        db.execSQL(SiftContract.Subreddits.DELETE_TABLE);
-//        db.execSQL(SiftContract.Users.DELETE_TABLE);
-//        db.execSQL(SiftContract.Messages.DELETE_TABLE);
-//        db.execSQL(SiftContract.Subscriptions.DELETE_TABLE);
-//        db.execSQL(SiftContract.Favorites.DELETE_TABLE);
-//        db.execSQL(SiftContract.Votes.DELETE_TABLE);
-//        db.execSQL(SiftContract.Friends.DELETE_TABLE);
-//
-//        db.execSQL(SiftContract.Friends.DELETE_VIEW);
-//        db.execSQL(SiftContract.Subscriptions.DELETE_VIEW);
-//        db.execSQL(SiftContract.Favorites.DELETE_VIEW);
-
         onCreate(db);
     }
 

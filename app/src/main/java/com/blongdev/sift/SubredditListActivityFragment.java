@@ -6,7 +6,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
 import android.support.v4.app.LoaderManager;
@@ -21,21 +20,12 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-
 import com.blongdev.sift.database.SiftContract;
-import com.blongdev.sift.database.SiftDbHelper;
-import com.fasterxml.jackson.databind.JsonNode;
-
 import net.dean.jraw.http.NetworkException;
 import net.dean.jraw.models.Listing;
-import net.dean.jraw.models.Submission;
 import net.dean.jraw.models.Subreddit;
 import net.dean.jraw.paginators.Paginator;
-import net.dean.jraw.paginators.SubredditPaginator;
 import net.dean.jraw.paginators.SubredditSearchPaginator;
-
-import java.lang.reflect.Array;
-import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -127,12 +117,10 @@ public class SubredditListActivityFragment extends Fragment {
             mSearchTerm = args.getString(getString(R.string.search_term));
             if (mSearchTerm != null) {
                 mPaginator = new SubredditSearchPaginator(mReddit.mRedditClient, mSearchTerm);
-//                new GetSubredditsTask().execute();
                 getActivity().getSupportLoaderManager().initLoader(ASYNCTASK_LOADER_ID, null, mSearchSubredditsLoader).forceLoad();
                 mLoadingSpinner.setVisibility(View.VISIBLE);
             }
         } else {
-//            populateSubreddits();
             getActivity().getSupportLoaderManager().initLoader(CURSOR_LOADER_ID, null, mSubscriptionLoader).forceLoad();
         }
 
@@ -203,7 +191,6 @@ public class SubredditListActivityFragment extends Fragment {
                 if (sub.mSubscribers > 0) {
                     viewHolder.mSubscribers.setText(sub.mSubscribers + " " + getContext().getString(R.string.subscribers));
                 }
-                //Picasso.with(getContext()).load(R.drawable.ic_account_circle_24dp).placeholder(R.drawable.ic_account_circle_24dp).into(viewHolder.mImage);
             }
 
             return view;
@@ -211,63 +198,11 @@ public class SubredditListActivityFragment extends Fragment {
 
     }
 
-//    public void populateSubreddits() {
-//        Cursor cursor = getContext().getContentResolver().query(SiftContract.Subscriptions.VIEW_URI, null, null, null, null);
-//        if (cursor != null) {
-//                while (cursor.moveToNext()) {
-//                    SubredditInfo sub = new SubredditInfo();
-//                    sub.mId = cursor.getLong(cursor.getColumnIndex(SiftContract.Subscriptions.COLUMN_SUBREDDIT_ID));
-//                    sub.mName = cursor.getString(cursor.getColumnIndex(SiftContract.Subreddits.COLUMN_NAME));
-//                    sub.mDescription = cursor.getString(cursor.getColumnIndex(SiftContract.Subreddits.COLUMN_DESCRIPTION));
-//                    sub.mSubscribers = cursor.getLong(cursor.getColumnIndex(SiftContract.Subreddits.COLUMN_SUBSCRIBERS));
-//                    mSubreddits.add(sub);
-//                }
-//        }
-//    }
-
     public static class SubredditViewHolder {
         protected TextView mName;
         protected TextView mDescription;
         protected TextView mSubscribers;
     }
-
-//
-//    private final class GetSubredditsTask extends AsyncTask<String, Void, ArrayList<SubredditInfo>> {
-//        @Override
-//        protected ArrayList<SubredditInfo> doInBackground(String... params) {
-//            if (mPaginator != null && mPaginator.hasNext()) {
-//                Listing<Subreddit> page = mPaginator.next();
-//                for (Subreddit subreddit : page) {
-//                    SubredditInfo sub = new SubredditInfo();
-//                    sub.mName = subreddit.getDisplayName();
-//                    sub.mServerId = subreddit.getId();
-//                    sub.mDescription = subreddit.getPublicDescription();
-//                    try {
-//                        //bug in jraw library sometimes throws nullpointerexception
-//                        sub.mSubscribers = subreddit.getSubscriberCount();
-//                    } catch (NullPointerException e) {
-//                        e.printStackTrace();
-//                    }
-//                    mSubreddits.add(sub);
-//                }
-//            }
-//
-//            return mSubreddits;
-//        }
-//
-//        @Override
-//        protected void onPreExecute() {
-//            if(mSubreddits.size() == 0) {
-//                mLoadingSpinner.setVisibility(View.VISIBLE);
-//            }
-//        }
-//
-//        @Override
-//        protected void onPostExecute(ArrayList<SubredditInfo> subs) {
-//            mLoadingSpinner.setVisibility(View.GONE);
-//            mSubredditAdapter.refreshWithList(subs);
-//        }
-//    }
 
 }
 

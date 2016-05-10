@@ -1,27 +1,12 @@
 package com.blongdev.sift;
 
-import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
-import android.graphics.Bitmap;
-import android.graphics.drawable.Drawable;
-import android.support.v7.widget.RecyclerView;
-import android.view.View;
-import android.widget.ImageView;
 import android.widget.RemoteViews;
 import android.widget.RemoteViewsService;
-import android.widget.TextView;
-
-import com.blongdev.sift.R;
 import com.blongdev.sift.database.SiftContract;
-import com.squareup.okhttp.internal.Util;
-import com.squareup.picasso.Picasso;
-import com.squareup.picasso.Target;
-
-import net.dean.jraw.models.Comment;
-
 import java.util.ArrayList;
 
 /**

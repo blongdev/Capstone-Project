@@ -5,7 +5,6 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;
 import android.content.AbstractThreadedSyncAdapter;
-import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.ContentProviderClient;
 import android.content.ContentResolver;
@@ -19,28 +18,21 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.RemoteException;
 import android.support.v4.app.NotificationCompat;
-import android.text.TextUtils;
 import android.util.Log;
-
 import com.blongdev.sift.AccountInfo;
-import com.blongdev.sift.ContributionInfo;
 import com.blongdev.sift.MessageActivity;
 import com.blongdev.sift.R;
 import com.blongdev.sift.Reddit;
 import com.blongdev.sift.SiftApplication;
 import com.blongdev.sift.SiftWidget;
-import com.blongdev.sift.SubscriptionInfo;
-import com.blongdev.sift.UserInfo;
 import com.blongdev.sift.Utilities;
 import com.blongdev.sift.database.SiftContract;
+import com.google.android.gms.analytics.GoogleAnalytics;
 
-import net.dean.jraw.ApiException;
 import net.dean.jraw.RedditClient;
 import net.dean.jraw.http.NetworkException;
 import net.dean.jraw.http.oauth.OAuthData;
-import net.dean.jraw.http.oauth.OAuthException;
 import net.dean.jraw.http.oauth.OAuthHelper;
-import net.dean.jraw.managers.AccountManager;
 import net.dean.jraw.models.Contribution;
 import net.dean.jraw.models.Listing;
 import net.dean.jraw.models.Message;
@@ -53,50 +45,34 @@ import net.dean.jraw.paginators.SubredditPaginator;
 import net.dean.jraw.paginators.TimePeriod;
 import net.dean.jraw.paginators.UserContributionPaginator;
 import net.dean.jraw.paginators.UserSubredditsPaginator;
-
-import java.net.NetworkInterface;
-import java.net.URI;
 import java.util.ArrayList;
 
 /**
  * Created by Brian on 3/23/2016.
  */
 public class SiftSyncAdapter extends AbstractThreadedSyncAdapter {
-    // Global variables
-    // Define a variable to contain a content resolver instance
     ContentResolver mContentResolver;
     Context mContext;
 
-    /**
-     * Set up the sync adapter
-     */
+
     public SiftSyncAdapter(Context context, boolean autoInitialize) {
         super(context, autoInitialize);
-        /*
-         * If your app uses a content resolver, get an instance of it
-         * from the incoming Context
-         */
         mContentResolver = context.getContentResolver();
         mContext = context;
     }
 
-    /**
-     * Set up the sync adapter. This form of the
-     * constructor maintains compatibility with Android 3.0
-     * and later platform versions
-     */
+
     public SiftSyncAdapter(Context context, boolean autoInitialize, boolean allowParallelSyncs) {
         super(context, autoInitialize, allowParallelSyncs);
-        /*
-         * If your app uses a content resolver, get an instance of it
-         * from the incoming Context
-         */
         mContentResolver = context.getContentResolver();
     }
 
     @Override
     public void onPerformSync(Account account, Bundle extras, String authority, ContentProviderClient provider, SyncResult syncResult) {
         Log.v("SiftSyncAdapter", "onPerformSync()");
+        GoogleAnalytics.getInstance(mContext).dispatchLocalHits();
+
+
         long startTime = System.currentTimeMillis();
         boolean initialSync = extras.getBoolean(SiftApplication.getContext().getString(R.string.initial_sync), false);
 
@@ -265,7 +241,6 @@ public class SiftSyncAdapter extends AbstractThreadedSyncAdapter {
             Listing<Contribution> contributions = favorites.next();
             Submission sub;
             for (Contribution c : contributions) {
-                //TODO make sure a new sync wont cause insert conflicts
                 if (c instanceof Submission) {
                     sub = (Submission) c;
                     cv.put(SiftContract.Posts.COLUMN_SERVER_ID, sub.getId());
@@ -298,7 +273,6 @@ public class SiftSyncAdapter extends AbstractThreadedSyncAdapter {
         if (friends.hasNext()) {
             Listing<UserRecord> friend = friends.next();
             for (UserRecord u : friend) {
-                //TODO make sure a new sync wont cause insert conflicts
                 //GET USER INFO
                 String fullname = u.getFullName();
                 net.dean.jraw.models.Account user = redditClient.getUser(fullname);
@@ -345,7 +319,6 @@ public class SiftSyncAdapter extends AbstractThreadedSyncAdapter {
             }
         }
 
-        //TODO SENT PAGES SHOWING YOUR USERNAME FOR ALL
         InboxPaginator sent = new InboxPaginator(redditClient, SiftApplication.getContext().getString(R.string.sent));
         sent.setLimit(Integer.MAX_VALUE);
         sent.setTimePeriod(TimePeriod.MONTH);

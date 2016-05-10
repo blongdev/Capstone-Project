@@ -113,7 +113,6 @@ public class SiftProvider extends ContentProvider {
 
     @Override
     public String getType(Uri arg0) {
-        // TODO Auto-generated method stub
         return null;
     }
 
@@ -169,7 +168,6 @@ public class SiftProvider extends ContentProvider {
                 throw new IllegalArgumentException("Unknown URI: " + uri);
         }
 
-        //TODO set syncToNetwork to true when caller is not syncAdapter
         getContext().getContentResolver().notifyChange(uri, null, false);
         return Uri.parse(SiftContract.Posts.TABLE_NAME + "/" + id);
     }
@@ -275,7 +273,6 @@ public class SiftProvider extends ContentProvider {
             default:
                 throw new IllegalArgumentException("Unknown URI: " + uri);
         }
-//        getContext().getContentResolver().notifyChange(uri, null);
         return rowsUpdated;
     }
 

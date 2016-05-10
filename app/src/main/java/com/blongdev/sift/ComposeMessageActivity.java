@@ -3,24 +3,16 @@ package com.blongdev.sift;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.blongdev.sift.database.SiftContract;
-
-import org.w3c.dom.Text;
-
 public class ComposeMessageActivity extends BaseActivity {
 
     private static final String BODY = "body";
     private static final String SUBJECT = "subject";
-
 
     String mUserTo;
     TextView mTo;

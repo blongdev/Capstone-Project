@@ -33,15 +33,5 @@
         android:text="@string/empty"
         android:gravity="center" />
 
-    <!--<ProgressBar-->
-        <!--android:id="@+id/progressSpinner"-->
-        <!--style="?android:attr/progressBarStyleHorizontal"-->
-        <!--android:indeterminateOnly="true"-->
-        <!--android:layout_width="match_parent"-->
-        <!--android:layout_height="wrap_content"-->
-        <!--android:layout_gravity="top"-->
-        <!--android:layout_margin="0dp"-->
-        <!--android:visibility="gone"/>-->
-
 
 </FrameLayout>

@@ -3,17 +3,12 @@ package com.blongdev.sift;
 import android.app.SearchManager;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
-import android.view.View;
 
 public class SearchResultsActivity extends BaseActivity {
 
@@ -30,7 +25,6 @@ public class SearchResultsActivity extends BaseActivity {
         Intent intent = getIntent();
         if (intent != null && Intent.ACTION_SEARCH.equals(intent.getAction())) {
             String query = intent.getStringExtra(SearchManager.QUERY);
-            //use the query to search
             mSearchTerm = query;
 
             ActionBar toolbar = getSupportActionBar();
@@ -39,11 +33,8 @@ public class SearchResultsActivity extends BaseActivity {
             }
         }
 
-        // Create the adapter that will return a fragment for each of the three
-        // primary sections of the activity.
         mSearchPagerAdapter = new SearchPagerAdapter(getSupportFragmentManager());
 
-        // Set up the ViewPager with the sections adapter.
         mViewPager = (ViewPager) findViewById(R.id.pager);
         mViewPager.setAdapter(mSearchPagerAdapter);
 
@@ -56,7 +47,6 @@ public class SearchResultsActivity extends BaseActivity {
     protected void onNewIntent(Intent intent) {
         if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
             String query = intent.getStringExtra(SearchManager.QUERY);
-            //use the query to search
             mSearchTerm = query;
         }
     }
@@ -70,10 +60,6 @@ public class SearchResultsActivity extends BaseActivity {
 
         @Override
         public Fragment getItem(int position) {
-            // getItem is called to instantiate the fragment for the given page.
-            // Return a PlaceholderFragment (defined as a static inner class below).
-//            return UserInfoActivity.PlaceholderFragment.newInstance(position + 1);
-
             Bundle args = new Bundle();
             args.putString(getString(R.string.search_term), mSearchTerm);
             args.putInt(getString(R.string.paginator_type), SubredditInfo.SUBMISSION_SEARCH_PAGINATOR);

@@ -6,12 +6,9 @@ import android.accounts.AccountManager;
 import android.app.Application;
 import android.content.ContentResolver;
 import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
-
 import com.blongdev.sift.database.SiftContract;
 import com.google.android.gms.analytics.GoogleAnalytics;
-import com.google.android.gms.analytics.HitBuilders;
 import com.google.android.gms.analytics.Tracker;
 
 /**
@@ -41,48 +38,13 @@ public class SiftApplication extends Application {
     public void onCreate ()
     {
         super.onCreate();
-
         //create sync account if it doesnt already exist
         createSyncAccount(this);
-
-
-//          //PREVENT CRASHING AND INSTEAD RESTART APPLICATION ON UNHANDLED EXCEPTION
-//        // Setup handler for uncaught exceptions.
-//        Thread.setDefaultUncaughtExceptionHandler (new Thread.UncaughtExceptionHandler()
-//        {
-//            @Override
-//            public void uncaughtException (Thread thread, Throwable e)
-//            {
-//                handleUncaughtException (thread, e);
-//            }
-//        });
     }
-//
-//    public void handleUncaughtException (Thread thread, Throwable e)
-//    {
-//        e.printStackTrace();
-//
-//        mTracker.send(new HitBuilders.ExceptionBuilder()
-//                .setDescription("testError")
-//                .build());
-//
-//        GoogleAnalytics.getInstance(this).dispatchLocalHits();
-//
-//        Intent intent = new Intent(getApplicationContext(), MainActivity.class);
-//        intent.setFlags (Intent.FLAG_ACTIVITY_NEW_TASK); // required when starting from Application
-//        startActivity (intent);
-//
-//        System.exit(1); // kill off the crashed app
-//    }
 
-    /**
-     * Gets the default {@link Tracker} for this {@link Application}.
-     * @return tracker
-     */
     synchronized public Tracker getDefaultTracker() {
         if (mTracker == null) {
             GoogleAnalytics analytics = GoogleAnalytics.getInstance(this);
-            // To enable debug logging use: adb shell setprop log.tag.GAv4 DEBUG
             mTracker = analytics.newTracker(R.xml.tracker);
         }
         return mTracker;

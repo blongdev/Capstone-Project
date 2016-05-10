@@ -19,7 +19,6 @@ import android.widget.Toast;
 
 import com.blongdev.sift.database.SiftContract;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.squareup.okhttp.internal.Util;
 
 import net.dean.jraw.ApiException;
 import net.dean.jraw.RedditClient;
@@ -35,9 +34,7 @@ import net.dean.jraw.models.Comment;
 import net.dean.jraw.models.LoggedInAccount;
 import net.dean.jraw.models.Submission;
 import net.dean.jraw.models.Subreddit;
-import net.dean.jraw.models.Thing;
 import net.dean.jraw.models.VoteDirection;
-import net.dean.jraw.models.attr.Votable;
 
 
 import java.net.URL;
@@ -71,8 +68,6 @@ public class Reddit {
     public Credentials mCredentials;
     public OAuthHelper mOAuthHelper;
     public LoggedInAccount mMe;
-    //Account mAccount;
-
 
     private static final String LOG_TAG = "Reddit Singleton";
 
@@ -91,7 +86,6 @@ public class Reddit {
             mMe = mRedditClient.me();
         }
 
-        //TODO turn off logging for release builds
         mRedditClient.setLoggingMode(LoggingMode.ALWAYS);
         mRedditClient.setSaveResponseHistory(true);
     }
@@ -104,12 +98,8 @@ public class Reddit {
         return Credentials.installedApp(CLIENT_ID, REDIRECT_URL);
     }
 
-//    public void addGeneralAccount(Context context) {
-//        CreateSyncAccount(context, GENERAL_ACCOUNT);
-//    }
 
     public void refreshKey(Context context, OnRefreshCompleted callback) {
-        //TODO make work with multiple accounts
         Cursor cursor = null;
         try {
             cursor = context.getContentResolver().query(SiftContract.Accounts.CONTENT_URI, null, null, null, null);
@@ -204,7 +194,6 @@ public class Reddit {
         context.getContentResolver().insert(SiftContract.Accounts.CONTENT_URI, cv);
 
         cv.clear();
-        //subreddits
 
         runInitialSync(context);
 
@@ -262,7 +251,6 @@ public class Reddit {
         @Override
         protected Void doInBackground(String... params) {
             try {
-                //TODO use device id rather than random uuid
                 String android_id = Settings.Secure.getString(mContext.getContentResolver(),
                         Settings.Secure.ANDROID_ID);
                 UUID uuid = UUID.randomUUID();
@@ -304,56 +292,11 @@ public class Reddit {
     }
 
 
-//    /**
-//     * Create a new dummy account for the sync adapter
-//     *
-//     * @param context The application context
-//     */
-//    public static Account CreateSyncAccount(Context context, String accountName) {
-//        // Create the account type and default account
-//        Account newAccount = new Account(
-//                accountName, ACCOUNT_TYPE);
-//        // Get an instance of the Android account manager
-//        AccountManager accountManager =
-//                (AccountManager) context.getSystemService(context.ACCOUNT_SERVICE);
-//        /*
-//         * Add the account and account type, no password or user data
-//         * If successful, return the Account object, otherwise report an error.
-//         */
-//        if (accountManager.addAccountExplicitly(newAccount, null, null)) {
-//            /*
-//             * If you don't set android:syncable="true" in
-//             * in your <provider> element in the manifest,
-//             * then call context.setIsSyncable(account, AUTHORITY, 1)
-//             * here.
-//             */
-//
-//            ContentResolver.setIsSyncable(newAccount, SiftContract.AUTHORITY, 1);
-//            ContentResolver.setSyncAutomatically(newAccount, SiftContract.AUTHORITY, true);
-//            ContentResolver.addPeriodicSync(newAccount, SiftContract.AUTHORITY, Bundle.EMPTY, SYNC_INTERVAL);
-//
-//
-//            return newAccount;
-//
-//        } else {
-//            /*
-//             * The account exists or some other error occurred. Log this, report it,
-//             * or handle it internally.
-//             */
-//        }
-//        return null;
-//    }
-//
-//    public AsyncTask refreshToken() {
-//        return new RefreshTokenTask().execute();
-//    }
-
     public interface OnRefreshCompleted {
         void onRefreshCompleted();
         void restartActivity();
     }
 
-    //TODO implement for multiple accounts
     public void removeAccounts (Context context, OnRefreshCompleted onRefreshCompleted) {
         //revoke access token
         if (mRedditClient.isAuthenticated() && mRedditClient.hasActiveUserContext()) {
@@ -382,9 +325,6 @@ public class Reddit {
                         String accountId = cursor.getString(cursor.getColumnIndex(SiftContract.Accounts._ID));
                         mRefreshToken = cursor.getString(cursor.getColumnIndex(SiftContract.Accounts.COLUMN_REFRESH_KEY));
                         if (mRefreshToken != null && !mRefreshToken.isEmpty()) {
-                            //revoking tokens causing crash
-                            //mOAuthHelper.revokeAccessToken(mCredentials);
-                            //mRedditClient.deauthenticate();
                             String selection = SiftContract.Accounts._ID + " =?";
                             String[] selectionArgs = new String[]{accountId};
                             mContext.getContentResolver().delete(SiftContract.Accounts.CONTENT_URI, selection, selectionArgs);
@@ -440,7 +380,6 @@ public class Reddit {
                 }
 
                 Submission sub = instance.mRedditClient.getSubmission(mServerId);
-                //TODO rather then not sending archived posts, hide vote arrows
                 if (sub == null || sub.isArchived()) {
                     return null;
                 }
@@ -507,7 +446,6 @@ public class Reddit {
                     return null;
                 }
 
-                //TODO rather then not sending archived comments, hide vote arrows
                 if (mComment == null || mComment.isArchived()) {
                     return null;
                 }
@@ -567,7 +505,6 @@ public class Reddit {
             try {
                 Subreddit subreddit = instance.mRedditClient.getSubreddit(mName);
 
-                //TODO rather then not sending archived comments, hide vote arrows
                 if (subreddit == null) {
                     return null;
                 }
@@ -646,10 +583,7 @@ public class Reddit {
             }
 
             try {
-
                 Subreddit subreddit = instance.mRedditClient.getSubreddit(mName);
-
-                //TODO rather then not sending archived comments, hide vote arrows
                 if (subreddit == null) {
                     return null;
                 }
@@ -1015,7 +949,6 @@ public class Reddit {
                     String[] selectionArgs = new String[]{String.valueOf(userId)};
                     int count = mContext.getContentResolver().delete(SiftContract.Friends.CONTENT_URI, selection, selectionArgs);
                     Log.v("Reddit", count + " Removed");
-
                 }
             } catch (NetworkException e) {
                 e.printStackTrace();
@@ -1279,15 +1212,6 @@ public class Reddit {
         String mCaptchaAttempt;
         boolean mSent = false;
 
-//        public SendMessageTask(Context context, String to, String subject, String body, Captcha captcha, String captchaAttempt) {
-//            mContext = context;
-//            mTo = to;
-//            mSubject = subject;
-//            mBody = body;
-//            mCaptcha = captcha;
-//            mCaptchaAttempt = captchaAttempt;
-//        }
-
         public SendMessageTask(Context context, String to, String subject, String body) {
             mContext = context;
             mTo = to;
@@ -1344,9 +1268,6 @@ public class Reddit {
                         if (urls != null && urls.size() > 0) {
                             return urls.get(0);
                         }
-
-                        //List<String> widths = source.findValuesAsText("width");
-                        //List<String> heights = source.findValuesAsText("height");
                     }
                 }
             }

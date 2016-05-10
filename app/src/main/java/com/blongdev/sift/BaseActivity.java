@@ -1,23 +1,14 @@
 package com.blongdev.sift;
 
-import android.accounts.Account;
-import android.accounts.AccountManager;
-import android.app.Activity;
-import android.app.Dialog;
 import android.app.SearchManager;
-import android.content.ContentResolver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.res.Resources;
 import android.database.Cursor;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.os.Debug;
 import android.support.annotation.LayoutRes;
-import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
-import android.support.design.widget.Snackbar;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AlertDialog;
@@ -31,11 +22,8 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
-import android.widget.Toast;
-
 import com.blongdev.sift.database.SiftContract;
 import com.google.android.gms.analytics.Tracker;
-import com.squareup.okhttp.internal.Util;
 
 public class BaseActivity extends AppCompatActivity implements Reddit.OnRefreshCompleted {
 
@@ -44,18 +32,13 @@ public class BaseActivity extends AppCompatActivity implements Reddit.OnRefreshC
     private NavigationView mNavigationView;
     View mNavHeader;
     Menu mNavMenu;
-
     MenuItem mNavProfile;
     MenuItem mNavInbox;
     MenuItem mNavFriends;
     MenuItem mMySubreddits;
-
     String mUsername;
-
     boolean mHasUser;
-
     View mRemoveAccount;
-
     Reddit.OnRefreshCompleted mOnRefreshCompleted;
     Tracker mTracker;
 
@@ -89,12 +72,10 @@ public class BaseActivity extends AppCompatActivity implements Reddit.OnRefreshC
         mNavigationView = (NavigationView) findViewById(R.id.navigation_view);
         mNavHeader = mNavigationView.inflateHeaderView(R.layout.nav_header);
         mNavMenu = mNavigationView.getMenu();
-
         mNavFriends = mNavMenu.findItem(R.id.nav_friends);
         mNavProfile = mNavMenu.findItem(R.id.nav_profile);
         mNavInbox = mNavMenu.findItem(R.id.nav_inbox);
         mMySubreddits = mNavMenu.findItem(R.id.nav_subreddits);
-
         mRemoveAccount = mNavHeader.findViewById(R.id.remove_account);
 
         TextView navUser = (TextView) mNavHeader.findViewById(R.id.nav_username);
@@ -211,10 +192,7 @@ public class BaseActivity extends AppCompatActivity implements Reddit.OnRefreshC
                     AlertDialog subredditDialog = subredditBuilder.create();
                     subredditDialog.show();
                     return true;
-//                case R.id.nav_settings:
-//                    intent = new Intent(getApplicationContext(), SettingsActivity.class);
-//                    startActivity(intent);
-//                    return true;
+
                 default:
                     return true;
             }
@@ -232,7 +210,6 @@ public class BaseActivity extends AppCompatActivity implements Reddit.OnRefreshC
                     .setPositiveButton(R.string.remove, new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int id) {
                             mReddit.removeAccounts(getApplicationContext(), mOnRefreshCompleted);
-                            //BaseActivity.this.recreate();
                         }
                     })
                     .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
@@ -299,9 +276,7 @@ public class BaseActivity extends AppCompatActivity implements Reddit.OnRefreshC
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
-        // Associate searchable configuration with the SearchView
         SearchManager searchManager =
                 (SearchManager) getSystemService(Context.SEARCH_SERVICE);
         SearchView searchView =
@@ -314,11 +289,6 @@ public class BaseActivity extends AppCompatActivity implements Reddit.OnRefreshC
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
         return super.onOptionsItemSelected(item);
     }
 

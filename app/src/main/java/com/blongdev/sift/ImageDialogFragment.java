@@ -1,10 +1,8 @@
 package com.blongdev.sift;
 
-import android.app.ActionBar;
 import android.graphics.Matrix;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
-import android.support.v4.view.ScaleGestureDetectorCompat;
 import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -13,8 +11,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.ImageView;
-
-import com.blongdev.sift.R;
 import com.squareup.picasso.Picasso;
 
 /**
@@ -66,7 +62,7 @@ public class ImageDialogFragment extends DialogFragment {
     private class ScaleListener extends ScaleGestureDetector.SimpleOnScaleGestureListener {
         @Override
         public boolean onScale(ScaleGestureDetector detector) {
-            //previously scaled, needs adjustment. not working well yet
+
             mScaleFactor *=  detector.getScaleFactor();
             mScaleFactor = Math.max(0.2f*mInitialScaleFactor, Math.min(mScaleFactor, 5f*mInitialScaleFactor));
 

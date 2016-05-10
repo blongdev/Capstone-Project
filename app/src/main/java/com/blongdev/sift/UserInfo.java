@@ -5,7 +5,6 @@ package com.blongdev.sift;
  */
 public class UserInfo {
     public String mUsername;
-//    public int mPoints;
     public int mLinkKarma;
     public int mCommentKarma;
     public long mAge;

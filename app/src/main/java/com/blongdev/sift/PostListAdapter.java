@@ -1,44 +1,26 @@
 package com.blongdev.sift;
 
-import android.app.Activity;
-import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
-import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Color;
-import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
-import android.net.Uri;
 import android.os.AsyncTask;
-import android.os.Bundle;
-import android.support.v4.app.FragmentManager;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import com.blongdev.sift.database.SiftContract;
-import com.squareup.okhttp.internal.Util;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
-
-import net.dean.jraw.ApiException;
 import net.dean.jraw.http.NetworkException;
-import net.dean.jraw.managers.AccountManager;
 import net.dean.jraw.models.Comment;
-import net.dean.jraw.models.Contribution;
 import net.dean.jraw.models.Submission;
-import net.dean.jraw.models.VoteDirection;
-
 import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * Created by Brian on 2/24/2016.
@@ -102,7 +84,6 @@ public class PostListAdapter extends RecyclerView.Adapter<PostListAdapter.PostVi
             }
 
         } else {
-            //TODO just have postViewHolder with a reference to a PostInfo object rather than copying all of its fields
             PostInfo post = (PostInfo) mPostList.get(i);
             postViewHolder.mUsername.setText(post.mUsername);
             postViewHolder.mSubreddit.setText(post.mSubreddit);
@@ -139,21 +120,7 @@ public class PostListAdapter extends RecyclerView.Adapter<PostListAdapter.PostVi
                 Picasso.with(postViewHolder.mImage.getContext())
                         .load(post.mImageUrl)
                         .placeholder(R.drawable.ic_photo_48dp)
-                                //.error(R.drawable.drawer_icon)
                         .into(postViewHolder.mTarget);
-
-//
-//                            postViewHolder.mImage, new com.squareup.picasso.Callback() {
-//                        @Override
-//                        public void onSuccess() {
-//                            postViewHolder.mImage.setScaleType(ImageView.ScaleType.CENTER_CROP);
-//                        }
-//
-//                        @Override
-//                        public void onError() {
-//
-//                        }
-//                    });
             } else {
                 Picasso.with(postViewHolder.mImage.getContext())
                         .load(post.mImageUrl)
@@ -180,7 +147,6 @@ public class PostListAdapter extends RecyclerView.Adapter<PostListAdapter.PostVi
         return new PostViewHolder(itemView, type);
     }
 
-    //TODO Separate into 2 viewholders, post and comment
     public static class PostViewHolder extends RecyclerView.ViewHolder  {
         protected TextView mUsername;
         protected TextView mSubreddit;
@@ -211,7 +177,6 @@ public class PostListAdapter extends RecyclerView.Adapter<PostListAdapter.PostVi
                 mUsername =  (TextView) v.findViewById(R.id.comment_username);
                 mTitle = (TextView)  v.findViewById(R.id.comment_body);
                 mPoints = (TextView) v.findViewById(R.id.comment_points);
-//                mComments = (TextView)  v.findViewById(R.id.comment_replies);
                 mAge = (TextView) v.findViewById(R.id.comment_age);
                 mUpvote = (ImageView) v.findViewById(R.id.upvote);
                 mDownvote = (ImageView) v.findViewById(R.id.downvote);
@@ -243,11 +208,8 @@ public class PostListAdapter extends RecyclerView.Adapter<PostListAdapter.PostVi
                 mTarget = new Target() {
                     @Override
                     public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
-                        //Drawable drawable = new BitmapDrawable(postViewHolder.mImage.getContext().getResources(), bitmap);
                         mImage.setScaleType(ImageView.ScaleType.CENTER_CROP);
                         mImage.setImageBitmap(bitmap);
-                        //postViewHolder.mImage.invalidate();
-                        //postViewHolder.mImage.setImageDrawable(drawable);
                     }
 
                     @Override
@@ -265,7 +227,6 @@ public class PostListAdapter extends RecyclerView.Adapter<PostListAdapter.PostVi
 
         }
 
-        //TODO create an interface to handle all clicks with abstract methods
         private View.OnClickListener mOnClickListener = (new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -280,14 +241,6 @@ public class PostListAdapter extends RecyclerView.Adapter<PostListAdapter.PostVi
                 } else if(v == mDownvote) {
                     downvote(v.getContext());
                 }
-//                  else if (v == mImage) {
-//                    FragmentManager fm = ((AppCompatActivity) v.getContext()).getSupportFragmentManager();
-//                    ImageDialogFragment imageFragment = new ImageDialogFragment();
-//                    Bundle args = new Bundle();
-//                    args.putString(v.getContext().getString(R.string.image_url), mImageUrl);
-//                    imageFragment.setArguments(args);
-//                    imageFragment.show(fm, "ImageDialogFragment");
-//                }
             }
 
             private void upvote(Context context) {
@@ -455,5 +408,4 @@ public class PostListAdapter extends RecyclerView.Adapter<PostListAdapter.PostVi
 
         }
     }
-
 }

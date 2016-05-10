@@ -2,15 +2,11 @@ package com.blongdev.sift;
 
 import android.content.Context;
 import android.content.Intent;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.Loader;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.view.View;
 import android.webkit.URLUtil;
@@ -19,13 +15,10 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import com.squareup.picasso.Picasso;
-
 import net.dean.jraw.ApiException;
 import net.dean.jraw.http.NetworkException;
 import net.dean.jraw.models.Captcha;
-
 import java.net.MalformedURLException;
 import java.net.URL;
 
@@ -35,8 +28,6 @@ public class ComposePostActivity extends BaseActivity implements LoaderManager.L
     private static final String TITLE = "title";
     private static final String CAPTCHA = "captcha";
     private static final String LINK = "link";
-
-
 
     String mSubredditName;
     Captcha mCaptcha;
@@ -70,7 +61,6 @@ public class ComposePostActivity extends BaseActivity implements LoaderManager.L
             subreddit.setText(mSubredditName);
         }
 
-//        new GetCaptchaTask(getApplicationContext()).execute();
         getSupportLoaderManager().initLoader(1, null, this).forceLoad();
 
 
@@ -121,9 +111,6 @@ public class ComposePostActivity extends BaseActivity implements LoaderManager.L
                 } else {
                     Reddit.textSubmission(getApplicationContext(), mSubredditName, title, body, mCaptcha, captchaText);
                 }
-
-//                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-//                        .setAction("Action", null).show();
             }
         });
     }
@@ -146,49 +133,6 @@ public class ComposePostActivity extends BaseActivity implements LoaderManager.L
         mCaptchaBlock.setVisibility(View.GONE);
     }
 
-//    private final class GetCaptchaTask extends AsyncTask<String, Void, Captcha> {
-//
-//        Context mContext;
-//
-//        public GetCaptchaTask(Context context) {
-//            mContext = context;
-//        }
-//
-//        @Override
-//        protected void onPreExecute() {
-//
-//        }
-//
-//        @Override
-//        protected Captcha doInBackground(String... params) {
-//            Reddit reddit = Reddit.getInstance();
-//            if (!reddit.mRedditClient.isAuthenticated()) {
-//                return null;
-//            }
-//
-//            try {
-//                if (reddit.mRedditClient.needsCaptcha()) {
-//                    return reddit.mRedditClient.getNewCaptcha();
-//                }
-//            } catch (NetworkException | ApiException e) {
-//                e.printStackTrace();
-//            }
-//
-//            return null;
-//        }
-//
-//        @Override
-//        protected void onPostExecute(Captcha captcha) {
-//            if (captcha != null) {
-//                mCaptcha = captcha;
-//                Picasso.with(mContext).load(captcha.getImageUrl().toString()).into(mCaptchaImage);
-//                mCaptchaBlock.setVisibility(View.VISIBLE);
-//            }
-//        }
-//    }
-
-
-
     @Override
     public void onSaveInstanceState(Bundle savedInstanceState) {
         savedInstanceState.putString(BODY, mBody.getText().toString());
@@ -206,7 +150,6 @@ public class ComposePostActivity extends BaseActivity implements LoaderManager.L
         mCaptchaText.setText(savedInstanceState.getString(CAPTCHA));
         mLinkBox.setChecked(savedInstanceState.getBoolean(LINK));
     }
-
 }
 
 class CaptchaLoader extends AsyncTaskLoader<Captcha> {

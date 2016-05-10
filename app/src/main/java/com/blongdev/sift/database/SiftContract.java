@@ -1,11 +1,7 @@
 package com.blongdev.sift.database;
 
-import android.accounts.Account;
-import android.app.Notification;
 import android.net.Uri;
 import android.provider.BaseColumns;
-
-import java.util.concurrent.ConcurrentMap;
 
 /**
  * Created by Brian on 3/12/2016.
@@ -78,9 +74,6 @@ public final class SiftContract {
                 COLUMN_DOMAIN + TEXT_TYPE + COMMA_SEP +
                 COLUMN_POSITION + INTEGER_TYPE + COMMA_SEP +
                 COLUMN_VOTE + INTEGER_TYPE + COMMA_SEP +
-//                remove foreign keys that could be null
-//                " FOREIGN KEY(" + COLUMN_SUBREDDIT_ID + ") REFERENCES " + Subreddits.TABLE_NAME + "(" + Subreddits._ID + ")" + COMMA_SEP +
-//                " FOREIGN KEY(" + COLUMN_OWNER_ID + ") REFERENCES " + Users.TABLE_NAME + "(" + Users._ID + ")" + COMMA_SEP +
                 UNIQUE + "(" + COLUMN_SERVER_ID + COMMA_SEP + COLUMN_SUBREDDIT_ID + ")" + ON_CONFLICT_REPLACE + COMMA_SEP +
                 UNIQUE + "(" + COLUMN_POSITION + COMMA_SEP + COLUMN_SUBREDDIT_ID + ")" + ON_CONFLICT_REPLACE + " )";
 
@@ -136,9 +129,6 @@ public final class SiftContract {
                 COLUMN_PARENT_ID + INTEGER_TYPE + COMMA_SEP +
                 COLUMN_VOTE + INTEGER_TYPE + COMMA_SEP +
                 COLUMN_POST_ID + INTEGER_TYPE + " )";
-//                " FOREIGN KEY(" + COLUMN_OWNER_ID + ") REFERENCES " + Users.TABLE_NAME + "(" + Users._ID + ")" + COMMA_SEP +
-//                " FOREIGN KEY(" + COLUMN_POST_ID + ") REFERENCES " + Posts.TABLE_NAME + "(" + Posts._ID + ")" +" )";
-
 
         public static final String DELETE_TABLE = "DROP TABLE IF EXISTS " + TABLE_NAME;
     }
@@ -234,8 +224,6 @@ public final class SiftContract {
                 COLUMN_SERVER_ID + TEXT_TYPE + COMMA_SEP +
                 COLUMN_MAILBOX_TYPE + INTEGER_TYPE + COMMA_SEP +
                 " FOREIGN KEY(" + COLUMN_ACCOUNT_ID + ") REFERENCES " + Accounts.TABLE_NAME + "(" + Accounts._ID + ")" + ON_DELETE_CASCADE + COMMA_SEP +
-//                " FOREIGN KEY(" + COLUMN_USER_TO + ") REFERENCES " + Users.TABLE_NAME + "(" + Users._ID + ")" + COMMA_SEP +
-//                " FOREIGN KEY(" + COLUMN_USER_FROM + ") REFERENCES " + Users.TABLE_NAME + "(" + Users._ID + ")" +  COMMA_SEP +
                 UNIQUE + "(" + COLUMN_SERVER_ID + ")" + ON_CONFLICT_IGNORE + " )";
 
         public static final String DELETE_TABLE = "DROP TABLE IF EXISTS " + TABLE_NAME;
@@ -317,7 +305,7 @@ public final class SiftContract {
         public static final String COLUMN_ACCOUNT_ID = "accountId";
         public static final String COLUMN_VOTE = "vote";
 
-        public static final int UDOWNVOTE = 0;
+        public static final int DOWNVOTE = 0;
         public static final int UPVOTE = 1;
 
         public static final String CREATE_TABLE = "CREATE TABLE " +
@@ -328,9 +316,6 @@ public final class SiftContract {
                 COLUMN_COMMENT_ID + INTEGER_TYPE + COMMA_SEP +
                 COLUMN_VOTE + INTEGER_TYPE + COMMA_SEP +
                 " FOREIGN KEY(" + COLUMN_ACCOUNT_ID + ") REFERENCES " + Accounts.TABLE_NAME + "(" + Accounts._ID + ")" + ON_DELETE_CASCADE
-//                + COMMA_SEP +
-//                " FOREIGN KEY(" + COLUMN_POST_ID + ") REFERENCES " + Posts.TABLE_NAME + "(" + Posts._ID + ")" + COMMA_SEP +
-//                " FOREIGN KEY(" + COLUMN_COMMENT_ID + ") REFERENCES " + Comments.TABLE_NAME + "(" + Comments._ID + ")"
                 + " )";
 
         public static final String DELETE_TABLE = "DROP TABLE IF EXISTS " + TABLE_NAME;
