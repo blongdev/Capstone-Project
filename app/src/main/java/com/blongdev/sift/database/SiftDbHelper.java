@@ -162,13 +162,13 @@ public class SiftDbHelper extends SQLiteOpenHelper {
         for (int i=1; i <= NUM_DUMMY_USERS; i++) {
             UserInfo user = new UserInfo();
             user.mUsername = "User " + i;
-            user.mPoints = (int )(Math.random() * 3000);
+            user.mLinkKarma = (int )(Math.random() * 3000);
             user.mAge = (int )(Math.random() * 12) + 1;
             user.mUserType = 0;
 
             ContentValues cv = new ContentValues();
             cv.put(SiftContract.Users.COLUMN_USERNAME, user.mUsername);
-            cv.put(SiftContract.Users.COLUMN_POINTS, user.mPoints);
+            cv.put(SiftContract.Users.COLUMN_POINTS, user.mLinkKarma);
             cv.put(SiftContract.Users.COLUMN_DATE_CREATED, user.mAge);
             cv.put(SiftContract.Users.COLUMN_USER_TYPE, user.mUserType);
 

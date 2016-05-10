@@ -18,6 +18,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.blongdev.sift.database.SiftContract;
+import com.squareup.okhttp.internal.Util;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
@@ -83,6 +84,9 @@ public class FriendsListActivityFragment extends Fragment implements LoaderManag
                 view = LayoutInflater.from(getContext()).inflate(R.layout.friend, parent, false);
                 viewHolder = new UserViewHolder();
                 viewHolder.mUsername = (TextView) view.findViewById(R.id.friend_username);
+                viewHolder.mLinkKarma = (TextView) view.findViewById(R.id.friend_link_karma);
+                viewHolder.mCommentKarma = (TextView) view.findViewById(R.id.friend_comment_karma);
+                viewHolder.mAge = (TextView) view.findViewById(R.id.friend_age);
                 view.setTag(viewHolder);
             } else {
                 viewHolder = (UserViewHolder) view.getTag();
@@ -91,7 +95,9 @@ public class FriendsListActivityFragment extends Fragment implements LoaderManag
             UserInfo user = mFriendsList.get(position);
             if(user != null) {
                 viewHolder.mUsername.setText(user.mUsername);
-//                Picasso.with(getContext()).load(R.drawable.ic_account_circle_24dp).placeholder(R.drawable.ic_account_circle_24dp).into(viewHolder.mImage);
+                viewHolder.mLinkKarma.setText(getString(R.string.link_karma) + " " + user.mLinkKarma);
+                viewHolder.mCommentKarma.setText(getString(R.string.comment_karma) + " " + user.mCommentKarma);
+                viewHolder.mAge.setText(Utilities.getAgeString(user.mAge));
             }
 
             return view;
@@ -101,9 +107,9 @@ public class FriendsListActivityFragment extends Fragment implements LoaderManag
 
     public static class UserViewHolder {
         protected TextView mUsername;
-        protected TextView mPoints;
+        protected TextView mLinkKarma;
+        protected TextView mCommentKarma;
         protected TextView mAge;
-        protected ImageView mImage;
     }
 
 
@@ -118,8 +124,9 @@ public class FriendsListActivityFragment extends Fragment implements LoaderManag
             while (cursor.moveToNext()) {
                 UserInfo friend = new UserInfo();
                 friend.mUsername = cursor.getString(cursor.getColumnIndex(SiftContract.Users.COLUMN_USERNAME));
-                friend.mPoints = cursor.getInt(cursor.getColumnIndex(SiftContract.Users.COLUMN_POINTS));
-                friend.mAge = cursor.getInt(cursor.getColumnIndex(SiftContract.Users.COLUMN_DATE_CREATED));
+                friend.mLinkKarma = cursor.getInt(cursor.getColumnIndex(SiftContract.Users.COLUMN_LINK_KARMA));
+                friend.mCommentKarma = cursor.getInt(cursor.getColumnIndex(SiftContract.Users.COLUMN_COMMENT_KARMA));
+                friend.mAge = cursor.getLong(cursor.getColumnIndex(SiftContract.Users.COLUMN_DATE_CREATED));
                 mFriends.add(friend);
             }
             mFriendsAdapter.swapData(mFriends);

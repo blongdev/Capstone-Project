@@ -479,8 +479,11 @@ class ContributionLoader extends AsyncTaskLoader<List<ContributionInfo>> {
     public List<ContributionInfo> loadInBackground() {
         Reddit reddit = Reddit.getInstance();
         ArrayList<ContributionInfo> newPostArray = new ArrayList<ContributionInfo>();
+        if (!reddit.mRedditClient.isAuthenticated() || !Utilities.connectedToNetwork(mContext))
+            return newPostArray;
+
         try {
-            if (reddit.mRedditClient.isAuthenticated() && paginator != null && paginator.hasNext()) {
+            if (paginator != null && paginator.hasNext()) {
                 Listing<Contribution> page = paginator.next();
                 int i = 0;
                 for (Contribution contribution : page) {

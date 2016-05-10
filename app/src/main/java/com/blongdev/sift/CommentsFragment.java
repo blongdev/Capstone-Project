@@ -242,7 +242,6 @@ public class CommentsFragment extends Fragment implements LoaderManager.LoaderCa
             TextView age =(TextView) view.findViewById(R.id.comment_age);
             TextView replies = (TextView) view.findViewById(R.id.comment_replies);
 
-
             if (mIsReply) {
                 mCommentArea.setVisibility(View.VISIBLE);
                 mReplyText.requestFocus();
@@ -427,7 +426,6 @@ public class CommentsFragment extends Fragment implements LoaderManager.LoaderCa
 
         @Override
         protected void onPostExecute(Void nothing) {
-
             //if the user leaves the activity before comments load, return to prevent a crash
             if (getContext() == null || mRoot == null) {
                 return;
@@ -465,6 +463,7 @@ public class CommentsFragment extends Fragment implements LoaderManager.LoaderCa
 
     @Override
     public Loader<CommentNode> onCreateLoader(int id, Bundle args) {
+        mLoadingSpinner.setVisibility(View.VISIBLE);
         return new CommentLoader(getContext(), mPostServerId);
     }
     @Override

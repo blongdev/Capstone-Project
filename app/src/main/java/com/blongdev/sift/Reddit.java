@@ -230,7 +230,7 @@ public class Reddit {
                     if (mRedditClient.isAuthenticated()) {
                         Log.v(LOG_TAG, "Authenticated");
                     }
-                } catch (OAuthException | NetworkException e) {
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
             }
@@ -272,7 +272,7 @@ public class Reddit {
                 if (mRedditClient.isAuthenticated()) {
                     Log.v(LOG_TAG, "Authenticated");
                 }
-            } catch (OAuthException | NetworkException e) {
+            } catch (Exception e) {
                 e.printStackTrace();
             }
 

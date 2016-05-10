@@ -35,6 +35,7 @@ import android.widget.Toast;
 
 import com.blongdev.sift.database.SiftContract;
 import com.google.android.gms.analytics.Tracker;
+import com.squareup.okhttp.internal.Util;
 
 public class BaseActivity extends AppCompatActivity implements Reddit.OnRefreshCompleted {
 
@@ -74,7 +75,7 @@ public class BaseActivity extends AppCompatActivity implements Reddit.OnRefreshC
     @Override
     protected void onResume(){
         super.onResume();
-        if (!mReddit.mRedditClient.isAuthenticated()) {
+        if (!mReddit.mRedditClient.isAuthenticated() && Utilities.connectedToNetwork(getApplicationContext())) {
             mReddit.refreshKey(getApplicationContext(), this);
         }
     }
@@ -277,11 +278,8 @@ public class BaseActivity extends AppCompatActivity implements Reddit.OnRefreshC
     @Override
     public void onRefreshCompleted() {
         TextView navUser = (TextView) mNavHeader.findViewById(R.id.nav_username);
-        if (mReddit.mRedditClient.isAuthenticated()) {
-            if (mReddit.mRedditClient.hasActiveUserContext()) {
-                mUsername = mReddit.mRedditClient.getAuthenticatedUser();
-                navUser.setText(mUsername);
-            }
+        if (Utilities.loggedIn(getApplicationContext())){
+            navUser.setText(Utilities.getLoggedInUsername(getApplicationContext()));
         } else {
             navUser.setText(getString(R.string.nav_header_add_account));
         }

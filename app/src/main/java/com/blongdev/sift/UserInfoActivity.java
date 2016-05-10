@@ -183,8 +183,8 @@ public class UserInfoActivity extends BaseActivity {
 
         mAddFriend = (MenuItem) menu.findItem(R.id.subscribe);
 
-        if (mReddit.mRedditClient.isAuthenticated() && mReddit.mRedditClient.hasActiveUserContext()) {
-            if (Utilities.isFriend(getApplicationContext(),mUsername)) {
+        if (Utilities.loggedIn(getApplicationContext())) {
+            if (Utilities.isFriend(getApplicationContext(), mUsername)) {
                 mIsFriend = true;
                 mAddFriend.setIcon(R.drawable.ic_favorite_24dp);
             }

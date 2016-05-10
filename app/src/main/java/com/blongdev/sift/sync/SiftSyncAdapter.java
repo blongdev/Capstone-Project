@@ -34,6 +34,7 @@ import com.blongdev.sift.UserInfo;
 import com.blongdev.sift.Utilities;
 import com.blongdev.sift.database.SiftContract;
 
+import net.dean.jraw.ApiException;
 import net.dean.jraw.RedditClient;
 import net.dean.jraw.http.NetworkException;
 import net.dean.jraw.http.oauth.OAuthData;
@@ -128,7 +129,7 @@ public class SiftSyncAdapter extends AbstractThreadedSyncAdapter {
             try {
                 OAuthData data = oAuthHelper.refreshToken(Reddit.getCredentials());
                 redditClient.authenticate(data);
-            } catch (OAuthException | NetworkException e) {
+            } catch (Exception e) {
                 e.printStackTrace();
             }
 

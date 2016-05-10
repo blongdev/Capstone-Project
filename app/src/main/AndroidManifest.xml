@@ -23,8 +23,8 @@
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
+                <category android:name="android.intent.category.MONKEY" />
             </intent-filter>
 
             <meta-data
@@ -43,6 +43,9 @@
             android:name=".UserInfoActivity"
             android:label="@string/title_activity_user_info"
             android:theme="@style/AppTheme.NoActionBar">
+            <intent-filter>
+                <category android:name="android.intent.category.MONKEY" />
+            </intent-filter>
             <meta-data
                 android:name="android.app.default_searchable"
                 android:value=".SearchResultsActivity" />
@@ -51,6 +54,9 @@
             android:name=".FriendsListActivity"
             android:label="@string/title_activity_friends_list"
             android:theme="@style/AppTheme.NoActionBar">
+            <intent-filter>
+                <category android:name="android.intent.category.MONKEY" />
+            </intent-filter>
             <meta-data
                 android:name="android.app.default_searchable"
                 android:value=".SearchResultsActivity" />
@@ -75,6 +81,9 @@
             android:name=".SubredditListActivity"
             android:label="@string/title_activity_subreddit_list"
             android:theme="@style/AppTheme.NoActionBar">
+            <intent-filter>
+                <category android:name="android.intent.category.MONKEY" />
+            </intent-filter>
             <meta-data
                 android:name="android.app.default_searchable"
                 android:value=".SearchResultsActivity" />
@@ -91,6 +100,9 @@
             android:name=".MessageDetailActivity"
             android:label="@string/title_activity_message_detail"
             android:theme="@style/AppTheme.NoActionBar">
+            <intent-filter>
+                <category android:name="android.intent.category.MONKEY" />
+            </intent-filter>
             <meta-data
                 android:name="android.app.default_searchable"
                 android:value=".SearchResultsActivity" />
@@ -107,6 +119,9 @@
             android:name=".BaseActivity"
             android:label="@string/title_activity_base"
             android:theme="@style/AppTheme.NoActionBar">
+            <intent-filter>
+                <category android:name="android.intent.category.MONKEY" />
+            </intent-filter>
             <meta-data
                 android:name="android.app.default_searchable"
                 android:value=".SearchResultsActivity" />
@@ -137,6 +152,9 @@
             android:name=".SubredditActivity"
             android:label="@string/title_activity_subreddit"
             android:theme="@style/AppTheme.NoActionBar">
+            <intent-filter>
+                <category android:name="android.intent.category.MONKEY" />\
+            </intent-filter>
             <meta-data
                 android:name="android.app.default_searchable"
                 android:value=".SearchResultsActivity" />
@@ -147,8 +165,8 @@
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.SEARCH" />
-
                 <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.MONKEY" />
             </intent-filter>
 
             <meta-data

@@ -35,6 +35,7 @@ import net.dean.jraw.paginators.SubredditPaginator;
 import net.dean.jraw.paginators.SubredditSearchPaginator;
 
 import java.lang.reflect.Array;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -274,16 +275,21 @@ class SubredditLoader extends AsyncTaskLoader<List<SubredditInfo>> {
 
     List<SubredditInfo> mSubreddits;
     Paginator mPaginator;
+    Context mContext;
 
 
     public SubredditLoader(Context context, Paginator paginator) {
         super(context);
         mSubreddits = new ArrayList<SubredditInfo>();
         mPaginator = paginator;
+        mContext = context;
     }
 
     @Override
     public List<SubredditInfo> loadInBackground() {
+        Reddit reddit = Reddit.getInstance();
+        if(!reddit.mRedditClient.isAuthenticated() || !Utilities.connectedToNetwork(mContext))
+            return mSubreddits;
 
         try {
             if (mPaginator != null && mPaginator.hasNext()) {

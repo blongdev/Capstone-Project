@@ -233,7 +233,7 @@ public final class SiftContract {
                 COLUMN_ACCOUNT_ID + INTEGER_TYPE + COMMA_SEP +
                 COLUMN_SERVER_ID + TEXT_TYPE + COMMA_SEP +
                 COLUMN_MAILBOX_TYPE + INTEGER_TYPE + COMMA_SEP +
-                " FOREIGN KEY(" + COLUMN_ACCOUNT_ID + ") REFERENCES " + Accounts.TABLE_NAME + "(" + Accounts._ID + ")" + COMMA_SEP +
+                " FOREIGN KEY(" + COLUMN_ACCOUNT_ID + ") REFERENCES " + Accounts.TABLE_NAME + "(" + Accounts._ID + ")" + ON_DELETE_CASCADE + COMMA_SEP +
 //                " FOREIGN KEY(" + COLUMN_USER_TO + ") REFERENCES " + Users.TABLE_NAME + "(" + Users._ID + ")" + COMMA_SEP +
 //                " FOREIGN KEY(" + COLUMN_USER_FROM + ") REFERENCES " + Users.TABLE_NAME + "(" + Users._ID + ")" +  COMMA_SEP +
                 UNIQUE + "(" + COLUMN_SERVER_ID + ")" + ON_CONFLICT_IGNORE + " )";

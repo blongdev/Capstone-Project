@@ -33,8 +33,8 @@
     <string name="points">points</string>
     <string name="url">url</string>
     <string name="age">age</string>
-    <string name="title_activity_user_info">UserInfoActivity</string>
-    <string name="title_activity_post_detail">PostDetailActivity</string>
+    <string name="title_activity_user_info">User Info</string>
+    <string name="title_activity_post_detail">Post Detail</string>
     <string name="section_format">Hello World from section: %1$d</string>
 
     <string name="category">category</string>
@@ -46,7 +46,7 @@
     <string name="domain">domain</string>
     <string name="drawer_open">drawer open</string>
     <string name="drawer_close">drawer close</string>
-    <string name="title_activity_friends_list">FriendsListActivity</string>
+    <string name="title_activity_friends_list">Friends</string>
     <string name="title_activity_settings">Settings</string>
 
     <string name="image_url">imageUrl</string>
@@ -98,6 +98,9 @@
     <string name="new_message">You have %1$d new message</string>
     <string name="new_messages">You have %1$d new messages</string>
 
+
+    <string name="link_karma">Link karma: </string>
+    <string name="comment_karma">Comment karma: </string>
 
     <!-- Strings related to Settings -->
 
@@ -169,13 +172,13 @@
     <string name="pref_ringtone_silent">Silent</string>
 
     <string name="pref_title_vibrate">Vibrate</string>
-    <string name="title_activity_message">MessageActivity</string>
-    <string name="title_activity_subreddit_list">SubredditListActivity</string>
-    <string name="title_activity_message_detail">MessageDetailActivity</string>
-    <string name="title_activity_authentication">AuthenticationActivity</string>
+    <string name="title_activity_message">Messages</string>
+    <string name="title_activity_subreddit_list">Subreddits</string>
+    <string name="title_activity_message_detail">Message</string>
+    <string name="title_activity_authentication">Authentication</string>
     <string name="title_activity_base">BaseActivity</string>
-    <string name="title_activity_subreddit">SubredditActivity</string>
-    <string name="title_activity_search_results">SearchResultsActivity</string>
+    <string name="title_activity_subreddit">Subreddit</string>
+    <string name="title_activity_search_results">SearchResults</string>
     <string name="appwidget_text">EXAMPLE</string>
     <string name="add_widget">Add widget</string>
 
@@ -203,6 +206,8 @@
 
     <!--admob unit ids-->
     <string name="admob_unit_id_post_detail">ca-app-pub-0619092467992816/8561604081</string>
-    <string name="title_activity_compose_post">ComposePostActivity</string>
-    <string name="title_activity_compose_message">ComposeMessageActivity</string>
+
+
+    <string name="title_activity_compose_post">Compose Post</string>
+    <string name="title_activity_compose_message">Compose Message</string>
 </resources>
