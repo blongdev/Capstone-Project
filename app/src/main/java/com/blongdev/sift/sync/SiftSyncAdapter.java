@@ -24,6 +24,7 @@ import com.blongdev.sift.MessageActivity;
 import com.blongdev.sift.R;
 import com.blongdev.sift.Reddit;
 import com.blongdev.sift.SiftApplication;
+import com.blongdev.sift.SiftBroadcastReceiver;
 import com.blongdev.sift.SiftWidget;
 import com.blongdev.sift.Utilities;
 import com.blongdev.sift.database.SiftContract;
@@ -112,17 +113,13 @@ public class SiftSyncAdapter extends AbstractThreadedSyncAdapter {
             if (redditClient.isAuthenticated() && redditClient.hasActiveUserContext()) {
                 try {
                     getData(redditClient, currentAccount.mId, provider, initialSync);
-                } catch (NetworkException e) {
+                } catch (RuntimeException e) {
                     e.printStackTrace();
                 }
             }
         }
 
-        if (initialSync) {
-            Intent intent = new Intent("com.blongdev.sift.loggedIn");
-            SiftApplication.getContext().sendBroadcast(intent);
-        } else if (redditClient.isAuthenticated()) {
-
+        if (redditClient.isAuthenticated()) {
             try {
                 //sync front page posts
                 SubredditPaginator paginator = new SubredditPaginator(redditClient);
@@ -150,7 +147,7 @@ public class SiftSyncAdapter extends AbstractThreadedSyncAdapter {
                     cv.clear();
                     i++;
                 }
-            } catch (NetworkException e) {
+            } catch (RuntimeException e) {
                 e.printStackTrace();
             }
 
@@ -171,7 +168,7 @@ public class SiftSyncAdapter extends AbstractThreadedSyncAdapter {
     private void getData(RedditClient redditClient, int accountId, ContentProviderClient provider, boolean initialSync) {
         ContentValues cv = new ContentValues();
         //Subscribed
-        UserSubredditsPaginator subscribed = new UserSubredditsPaginator(redditClient, "subscriber");
+        UserSubredditsPaginator subscribed = new UserSubredditsPaginator(redditClient, SiftApplication.getContext().getString(R.string.subscriber));
         subscribed.setLimit(Integer.MAX_VALUE);
         if (subscribed.hasNext()) {
             Listing<Subreddit> subreddits = subscribed.next();
@@ -232,6 +229,11 @@ public class SiftSyncAdapter extends AbstractThreadedSyncAdapter {
                     }
                 }
             }
+        }
+
+        if (initialSync) {
+            Intent intent = new Intent(SiftBroadcastReceiver.LOGGED_IN);
+            SiftApplication.getContext().sendBroadcast(intent);
         }
 
         //add favorite posts

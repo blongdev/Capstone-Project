@@ -30,12 +30,13 @@
 
 
             <android.support.design.widget.TabLayout
-            android:id="@+id/subreddit_tabs"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:tabMode="scrollable"
-            app:tabGravity="fill"
-            app:layout_collapseMode="pin"/>
+                android:id="@+id/subreddit_tabs"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:tabMode="scrollable"
+                app:tabGravity="fill"
+                android:focusable="true"
+                app:layout_collapseMode="pin"/>
 
         </android.support.design.widget.AppBarLayout>
 
@@ -46,7 +47,9 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:background="@color/background"
+            android:focusable="true"
             app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
         </android.support.v4.view.ViewPager>
 
 
@@ -56,9 +59,9 @@
             android:layout_height="wrap_content"
             android:layout_gravity="bottom|end"
             android:layout_margin="@dimen/fab_margin"
+            android:contentDescription="@string/create_post"
+            android:focusable="true"
             android:src="@drawable/ic_create_24dp" />
-
-
 
         <ProgressBar
             android:id="@+id/progressSpinnerMain"
@@ -67,6 +70,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
             android:padding="8dp"
+            android:contentDescription="@string/loading"
             android:visibility="gone"/>
 
     </android.support.design.widget.CoordinatorLayout>
@@ -78,6 +82,7 @@
         android:layout_gravity="start"
         android:background="@android:color/white"
         app:itemTextColor="@color/nav_drawer_text"
+        android:focusable="true"
         app:menu="@layout/nav_menu"/>
 
 </android.support.v4.widget.DrawerLayout>

@@ -244,7 +244,7 @@ class SubredditLoader extends AsyncTaskLoader<List<SubredditInfo>> {
                 }
             }
 
-        } catch (NetworkException e) {
+        } catch (RuntimeException e) {
             e.printStackTrace();
         }
         return mSubreddits;

@@ -99,6 +99,7 @@
     <string name="link_karma">Link karma: </string>
     <string name="comment_karma">Comment karma: </string>
 
+    <string name="logged_in_intent">com.blongdev.sift.loggedIn</string>
 
     <string name="empty">Empty</string>
 
@@ -159,4 +160,17 @@
 
     <string name="title_activity_compose_post">Compose Post</string>
     <string name="title_activity_compose_message">Compose Message</string>
+
+
+    <!-- content descriptions -->
+    <string name="send">send</string>
+    <string name="create_post">create post</string>
+    <string name="loading">loading</string>
+    <string name="upvote">upvote</string>
+    <string name="downvote">downvote</string>
+    <string name="advertisement">advertisement</string>
+    <string name="toggle_comments">toggle comments</string>
+    <string name="message">message</string>
+    <string name="image">image</string>
+    <string name="log_out">log out</string>
 </resources>

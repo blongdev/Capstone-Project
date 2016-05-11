@@ -318,7 +318,7 @@ class ContributionLoader extends AsyncTaskLoader<List<ContributionInfo>> {
                     i++;
                 }
             }
-        } catch (NetworkException e) {
+        } catch (RuntimeException e) {
             e.printStackTrace();
         }
 

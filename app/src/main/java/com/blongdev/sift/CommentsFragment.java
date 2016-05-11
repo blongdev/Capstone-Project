@@ -493,7 +493,7 @@ class CommentLoader extends AsyncTaskLoader<CommentNode> {
         try {
             Submission post = reddit.mRedditClient.getSubmission(mPostServerId);
             return post.getComments();
-        } catch (NetworkException e) {
+        } catch (RuntimeException e) {
             e.printStackTrace();
         }
         return null;

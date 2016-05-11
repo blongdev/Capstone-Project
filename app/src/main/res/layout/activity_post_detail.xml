@@ -49,6 +49,7 @@
                     android:padding="8dp"
                     android:background="@android:color/transparent"
                     android:src="@drawable/ic_up_arrow_white_24dp"
+                    android:contentDescription="@string/upvote"
                     />
 
                 <ImageView
@@ -59,6 +60,7 @@
                     android:padding="8dp"
                     android:background="@android:color/transparent"
                     android:src="@drawable/ic_down_arrow_white_24dp"
+                    android:contentDescription="@string/downvote"
                     />
 
                 <ImageView
@@ -69,6 +71,7 @@
                     android:padding="8dp"
                     android:background="@android:color/transparent"
                     android:src="@drawable/ic_favorite_outline_24dp"
+                    android:contentDescription="@string/favorite"
                     />
 
                 <ImageView
@@ -78,6 +81,7 @@
                     android:layout_height="wrap_content"
                     android:padding="8dp"
                     android:background="@android:color/transparent"
+                    android:contentDescription="@string/reply"
                     android:src="@drawable/ic_reply_24dp"
                     />
 
@@ -140,6 +144,7 @@
                 app:adSize="BANNER"
                 android:layout_alignParentBottom="true"
                 android:layout_centerHorizontal="true"
+                android:contentDescription="@string/advertisement"
                 app:adUnitId="@string/admob_unit_id_post_detail">
             </com.google.android.gms.ads.AdView>
 
@@ -154,17 +159,20 @@
             android:layout_margin="@dimen/fab_margin"
             app:layout_anchor="@id/appbar"
             app:layout_anchorGravity="bottom|end"
+            android:contentDescription="@string/toggle_comments"
+            android:focusable="true"
             android:src="@drawable/ic_forum_24dp" />
 
     </android.support.design.widget.CoordinatorLayout>
 
     <android.support.design.widget.NavigationView
-    android:id="@+id/navigation_view"
-    android:layout_width="wrap_content"
-    android:layout_height="match_parent"
-    android:layout_gravity="start"
-    android:background="@android:color/white"
-    app:itemTextColor="@color/nav_drawer_text"
-    app:menu="@layout/nav_menu" />
+        android:id="@+id/navigation_view"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_gravity="start"
+        android:background="@android:color/white"
+        app:itemTextColor="@color/nav_drawer_text"
+        android:focusable="true"
+        app:menu="@layout/nav_menu" />
 
 </android.support.v4.widget.DrawerLayout>

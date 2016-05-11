@@ -99,7 +99,7 @@ public class Reddit {
     }
 
 
-    public void refreshKey(Context context, OnRefreshCompleted callback) {
+    public void refreshKey(Context context) {
         Cursor cursor = null;
         try {
             cursor = context.getContentResolver().query(SiftContract.Accounts.CONTENT_URI, null, null, null, null);
@@ -107,11 +107,11 @@ public class Reddit {
                  if (cursor.moveToFirst()) {
                     mRefreshToken = cursor.getString(cursor.getColumnIndex(SiftContract.Accounts.COLUMN_REFRESH_KEY));
                     if (mRefreshToken != null && !mRefreshToken.isEmpty()) {
-                        new RefreshTokenTask(callback, context).execute();
+                        new RefreshTokenTask(context).execute();
                         return;
                     }
                  } else {
-                    new GetUserlessTask(context, callback).execute();
+                    new GetUserlessTask(context).execute();
                  }
             }
         } finally {
@@ -144,7 +144,7 @@ public class Reddit {
                 } else {
                     Log.e(LOG_TAG, "Passed in OAuthData was null");
                 }
-            } catch (IllegalStateException | NetworkException | OAuthException e) {
+            } catch (RuntimeException | OAuthException e) {
                 Log.e(LOG_TAG, e.getMessage());
             }
             return null;
@@ -201,11 +201,9 @@ public class Reddit {
 
     private final class RefreshTokenTask extends AsyncTask<String, Void, OAuthData> {
 
-        private OnRefreshCompleted mOnRefreshCompleted;
         private Context mContext;
 
-        public RefreshTokenTask(OnRefreshCompleted activity, Context context) {
-            mOnRefreshCompleted = activity;
+        public RefreshTokenTask( Context context) {
             mContext = context;
         }
 
@@ -229,7 +227,6 @@ public class Reddit {
         @Override
         protected void onPostExecute(OAuthData oAuthData) {
             Log.v(LOG_TAG, "onPostExecute()");
-            mOnRefreshCompleted.onRefreshCompleted();
 
             Intent refreshIntent = new Intent(AUTHENTICATED);
             LocalBroadcastManager.getInstance(mContext).sendBroadcast(refreshIntent);
@@ -241,11 +238,9 @@ public class Reddit {
     private final class GetUserlessTask extends AsyncTask<String, Void, Void> {
 
         Context mContext;
-        private OnRefreshCompleted mOnRefreshCompleted;
 
-        public GetUserlessTask(Context context, OnRefreshCompleted activity) {
+        public GetUserlessTask(Context context) {
             mContext = context;
-            mOnRefreshCompleted = activity;
         }
 
         @Override
@@ -270,7 +265,6 @@ public class Reddit {
         @Override
         protected void onPostExecute(Void nothing) {
             Log.v(LOG_TAG, "onPostExecute()");
-            mOnRefreshCompleted.onRefreshCompleted();
 
             Intent refreshIntent = new Intent(AUTHENTICATED);
             LocalBroadcastManager.getInstance(mContext).sendBroadcast(refreshIntent);
@@ -292,26 +286,19 @@ public class Reddit {
     }
 
 
-    public interface OnRefreshCompleted {
-        void onRefreshCompleted();
-        void restartActivity();
-    }
-
-    public void removeAccounts (Context context, OnRefreshCompleted onRefreshCompleted) {
+    public void removeAccounts (Context context) {
         //revoke access token
         if (mRedditClient.isAuthenticated() && mRedditClient.hasActiveUserContext()) {
-            new RevokeTokenTask(context, onRefreshCompleted).execute();
+            new RevokeTokenTask(context).execute();
         }
     }
 
     private final class RevokeTokenTask extends AsyncTask<String, Void, Void> {
 
         Context mContext;
-        private OnRefreshCompleted mOnRefreshCompleted;
 
-        public RevokeTokenTask(Context context, OnRefreshCompleted activity) {
+        public RevokeTokenTask(Context context) {
             mContext = context;
-            mOnRefreshCompleted = activity;
         }
 
         @Override
@@ -332,7 +319,7 @@ public class Reddit {
                         }
                     }
                 }
-            } catch (NetworkException e) {
+            } catch (RuntimeException e) {
                 e.printStackTrace();
             } finally {
                 if (cursor != null) {
@@ -346,7 +333,9 @@ public class Reddit {
         @Override
         protected void onPostExecute(Void nothing) {
             Log.v(LOG_TAG, "onPostExecute()");
-            mOnRefreshCompleted.restartActivity();
+
+            Intent refreshIntent = new Intent(SiftBroadcastReceiver.LOGGED_IN);
+            LocalBroadcastManager.getInstance(mContext).sendBroadcast(refreshIntent);
         }
     }
 
@@ -404,7 +393,7 @@ public class Reddit {
                 int count = mContext.getContentResolver().update(SiftContract.Posts.CONTENT_URI, cv, selection, selectionArgs);
                 Log.v("Reddit", count + " vote updated");
 
-            } catch (ApiException | NetworkException e) {
+            } catch (ApiException | RuntimeException e) {
                 e.printStackTrace();
             }
 
@@ -463,7 +452,7 @@ public class Reddit {
                         break;
                 }
 
-            } catch (ApiException | NetworkException e) {
+            } catch (ApiException | RuntimeException e) {
                 e.printStackTrace();
             }
 
@@ -541,7 +530,7 @@ public class Reddit {
                     cv.clear();
                 }
 
-            } catch (NetworkException e) {
+            } catch (RuntimeException e) {
                 e.printStackTrace();
             }
 
@@ -598,7 +587,7 @@ public class Reddit {
                 int count = mContext.getContentResolver().delete(SiftContract.Subscriptions.CONTENT_URI, selection, selectionArgs);
                 Log.v("Reddit", "Unsubscribed");
 
-            } catch (NetworkException e) {
+            } catch (RuntimeException e) {
                 e.printStackTrace();
             }
 
@@ -670,7 +659,7 @@ public class Reddit {
                 cv.put(SiftContract.Favorites.COLUMN_POST_ID, postId);
                 mContext.getContentResolver().insert(SiftContract.Favorites.CONTENT_URI, cv);
 
-            } catch (ApiException | NetworkException e) {
+            } catch (ApiException | RuntimeException e) {
                 e.printStackTrace();
             }
 
@@ -733,7 +722,7 @@ public class Reddit {
 
                 }
 
-            } catch (ApiException | NetworkException e) {
+            } catch (ApiException | RuntimeException e) {
                 e.printStackTrace();
             }
 
@@ -785,7 +774,7 @@ public class Reddit {
                 net.dean.jraw.managers.AccountManager accountManager = new net.dean.jraw.managers.AccountManager(instance.mRedditClient);
 
                 accountManager.reply(sub, mComment);
-            } catch (ApiException | NetworkException e) {
+            } catch (ApiException | RuntimeException e) {
                 e.printStackTrace();
             }
 
@@ -831,7 +820,7 @@ public class Reddit {
 
                 accountManager.reply(mComment, mReply);
 
-            } catch (ApiException | NetworkException e) {
+            } catch (ApiException | RuntimeException e) {
                 e.printStackTrace();
             }
 
@@ -895,7 +884,7 @@ public class Reddit {
                 cv.put(SiftContract.Friends.COLUMN_ACCOUNT_ID, accountId);
                 cv.put(SiftContract.Friends.COLUMN_FRIEND_USER_ID, userId);
                 mContext.getContentResolver().insert(SiftContract.Friends.CONTENT_URI, cv);
-            } catch (NetworkException e) {
+            } catch (RuntimeException e) {
                 e.printStackTrace();
             }
 
@@ -950,7 +939,7 @@ public class Reddit {
                     int count = mContext.getContentResolver().delete(SiftContract.Friends.CONTENT_URI, selection, selectionArgs);
                     Log.v("Reddit", count + " Removed");
                 }
-            } catch (NetworkException e) {
+            } catch (RuntimeException e) {
                 e.printStackTrace();
             }
 
@@ -993,7 +982,7 @@ public class Reddit {
             try {
                 instance.mRedditClient.getUser(mUsername);
                 mUserFound = true;
-            } catch (NetworkException | IllegalArgumentException e) {
+            } catch (RuntimeException e) {
                 e.printStackTrace();
             }
 
@@ -1044,7 +1033,7 @@ public class Reddit {
             try {
                 instance.mRedditClient.getSubreddit(mSubreddit);
                 mSubredditFound = true;
-            } catch (NetworkException | IllegalArgumentException e) {
+            } catch (RuntimeException e) {
                 e.printStackTrace();
             }
 
@@ -1110,7 +1099,7 @@ public class Reddit {
                     accountManager.submit(submission);
                 }
                 mSubmitted = true;
-            } catch (NetworkException | ApiException e) {
+            } catch (RuntimeException | ApiException e) {
                 e.printStackTrace();
             }
 
@@ -1176,7 +1165,7 @@ public class Reddit {
                     accountManager.submit(submission);
                 }
                 mSubmitted = true;
-            } catch (NetworkException | ApiException e) {
+            } catch (RuntimeException | ApiException e) {
                 e.printStackTrace();
             }
 
@@ -1234,7 +1223,7 @@ public class Reddit {
                 net.dean.jraw.managers.InboxManager inboxManager = new net.dean.jraw.managers.InboxManager(instance.mRedditClient);
                 inboxManager.compose(mTo, mSubject, mBody);
                 mSent = true;
-            } catch (NetworkException | ApiException e) {
+            } catch (RuntimeException | ApiException e) {
                 e.printStackTrace();
             }
 

@@ -34,7 +34,7 @@
                     style="@style/CommentInfo"
                     android:id="@+id/comment_username"
                     android:textColor="@color/secondary_text"
-                    android:text="Username" />
+                    />
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -43,7 +43,7 @@
                     android:textColor="@color/secondary_text"
                     android:layout_toRightOf="@id/comment_username"
                     android:id="@+id/comment_points"
-                    android:text="Points" />
+                    />
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -52,7 +52,7 @@
                     android:textColor="@color/secondary_text"
                     android:layout_toRightOf="@id/comment_points"
                     android:id="@+id/comment_age"
-                    android:text="Age" />
+                     />
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -61,7 +61,7 @@
                     android:textColor="@color/secondary_text"
                     android:layout_alignParentRight="true"
                     android:id="@+id/comment_replies"
-                    android:text="Replies" />
+                     />
 
             </RelativeLayout>
 
@@ -88,6 +88,7 @@
                     android:layout_width="0dp"
                     android:layout_weight="1"
                     android:layout_height="wrap_content"
+                    android:focusable="true"
                     android:backgroundTint="@android:color/white"
                     />
 
@@ -97,6 +98,7 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="bottom"
                     android:padding="8dp"
+                    android:focusable="true"
                     android:background="@android:color/transparent"
                     android:src="@drawable/ic_send_24dp" />
 
@@ -117,6 +119,8 @@
                     android:layout_height="wrap_content"
                     android:padding="8dp"
                     android:background="@android:color/transparent"
+                    android:contentDescription="@string/upvote"
+                    android:focusable="true"
                     android:src="@drawable/ic_up_arrow_white_24dp" />
 
                 <ImageView
@@ -126,6 +130,8 @@
                     android:layout_height="wrap_content"
                     android:padding="8dp"
                     android:background="@android:color/transparent"
+                    android:contentDescription="@string/downvote"
+                    android:focusable="true"
                     android:src="@drawable/ic_down_arrow_white_24dp" />
 
                 <ImageView
@@ -135,6 +141,8 @@
                     android:layout_height="wrap_content"
                     android:padding="8dp"
                     android:background="@android:color/transparent"
+                    android:contentDescription="@string/reply"
+                    android:focusable="true"
                     android:src="@drawable/ic_reply_24dp" />
 
 

@@ -23,6 +23,7 @@
                 android:layout_width="72dp"
                 android:layout_height="match_parent"
                 android:scaleType="centerCrop"
+                android:contentDescription="@string/image"
                 android:paddingRight="@dimen/content_spacer" />
 
             <LinearLayout
@@ -40,13 +41,13 @@
                     <TextView
                         android:id="@+id/post_username"
                         style="@style/PostUsername"
-                        android:text="Username"/>
+                        />
 
                     <TextView
                         android:id="@+id/post_subreddit"
                         style="@style/PostSubreddit"
                         android:layout_toRightOf="@id/post_username"
-                        android:text="Subreddit"/>
+                        />
                 </RelativeLayout>
 
 
@@ -54,7 +55,7 @@
                     android:id="@+id/post_title"
                     style="@style/PostTitle"
                     android:layout_gravity="start"
-                    android:text="Title"/>
+                    />
 
                 <RelativeLayout
                     android:layout_width="wrap_content"
@@ -63,25 +64,25 @@
                     <TextView
                         android:id="@+id/post_points"
                         style="@style/PostPoints"
-                        android:text="Points"/>
+                        />
 
                     <TextView
                         android:id="@+id/post_comments"
                         style="@style/PostComments"
                         android:layout_toRightOf="@id/post_points"
-                        android:text="Comments"/>
+                        />
 
                     <TextView
                         android:id="@+id/post_url"
                         style="@style/PostUrl"
                         android:layout_toRightOf="@id/post_comments"
-                        android:text="Url"/>
+                        />
 
                     <TextView
                         android:id="@+id/post_age"
                         style="@style/PostAge"
                         android:layout_toRightOf="@id/post_url"
-                        android:text="Age"/>
+                        />
 
                 </RelativeLayout>
 
@@ -97,12 +98,16 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:background="@android:color/transparent"
+                    android:contentDescription="@string/upvote"
+                    android:focusable="true"
                     android:src="@drawable/ic_expand_less_24dp" />
 
                 <android.support.v7.widget.AppCompatImageButton
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:background="@android:color/transparent"
+                    android:contentDescription="@string/downvote"
+                    android:focusable="true"
                     android:src="@drawable/ic_expand_more_24dp" />
 
             </LinearLayout>

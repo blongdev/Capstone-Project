@@ -25,7 +25,7 @@ import android.widget.TextView;
 import com.blongdev.sift.database.SiftContract;
 import com.google.android.gms.analytics.Tracker;
 
-public class BaseActivity extends AppCompatActivity implements Reddit.OnRefreshCompleted {
+public class BaseActivity extends AppCompatActivity {
 
     Reddit mReddit;
     private DrawerLayout mDrawerLayout;
@@ -36,10 +36,10 @@ public class BaseActivity extends AppCompatActivity implements Reddit.OnRefreshC
     MenuItem mNavInbox;
     MenuItem mNavFriends;
     MenuItem mMySubreddits;
+    MenuItem mPopular;
     String mUsername;
     boolean mHasUser;
     View mRemoveAccount;
-    Reddit.OnRefreshCompleted mOnRefreshCompleted;
     Tracker mTracker;
 
     @Override
@@ -51,23 +51,19 @@ public class BaseActivity extends AppCompatActivity implements Reddit.OnRefreshC
         mTracker.enableExceptionReporting(true);
 
         mReddit = Reddit.getInstance();
-
-
     }
 
     @Override
     protected void onResume(){
         super.onResume();
         if (!mReddit.mRedditClient.isAuthenticated() && Utilities.connectedToNetwork(getApplicationContext())) {
-            mReddit.refreshKey(getApplicationContext(), this);
+            mReddit.refreshKey(getApplicationContext());
         }
     }
 
     protected void onCreateDrawer() {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
-        mOnRefreshCompleted = this;
 
         mNavigationView = (NavigationView) findViewById(R.id.navigation_view);
         mNavHeader = mNavigationView.inflateHeaderView(R.layout.nav_header);
@@ -76,6 +72,7 @@ public class BaseActivity extends AppCompatActivity implements Reddit.OnRefreshC
         mNavProfile = mNavMenu.findItem(R.id.nav_profile);
         mNavInbox = mNavMenu.findItem(R.id.nav_inbox);
         mMySubreddits = mNavMenu.findItem(R.id.nav_subreddits);
+        mPopular = mNavMenu.findItem(R.id.nav_popular);
         mRemoveAccount = mNavHeader.findViewById(R.id.remove_account);
 
         TextView navUser = (TextView) mNavHeader.findViewById(R.id.nav_username);
@@ -95,6 +92,7 @@ public class BaseActivity extends AppCompatActivity implements Reddit.OnRefreshC
                     mNavProfile.setVisible(false);
                     mNavInbox.setVisible(false);
                     mMySubreddits.setVisible(false);
+                    mPopular.setVisible(false);
                 }
             }
         } finally {
@@ -209,7 +207,7 @@ public class BaseActivity extends AppCompatActivity implements Reddit.OnRefreshC
                     .setMessage(getString(R.string.remove_account))
                     .setPositiveButton(R.string.remove, new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int id) {
-                            mReddit.removeAccounts(getApplicationContext(), mOnRefreshCompleted);
+                            mReddit.removeAccounts(getApplicationContext());
                         }
                     })
                     .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
@@ -253,21 +251,6 @@ public class BaseActivity extends AppCompatActivity implements Reddit.OnRefreshC
     }
 
     @Override
-    public void onRefreshCompleted() {
-        TextView navUser = (TextView) mNavHeader.findViewById(R.id.nav_username);
-        if (Utilities.loggedIn(getApplicationContext())){
-            navUser.setText(Utilities.getLoggedInUsername(getApplicationContext()));
-        } else {
-            navUser.setText(getString(R.string.nav_header_add_account));
-        }
-    }
-
-    @Override
-    public void restartActivity() {
-        this.recreate();
-    }
-
-    @Override
     public void setContentView(@LayoutRes int layoutResID) {
         super.setContentView(layoutResID);
         onCreateDrawer();
@@ -291,8 +274,5 @@ public class BaseActivity extends AppCompatActivity implements Reddit.OnRefreshC
     public boolean onOptionsItemSelected(MenuItem item) {
         return super.onOptionsItemSelected(item);
     }
-
-
-
 
 }

@@ -6,5 +6,6 @@
     android:layout_gravity="center"
     android:foregroundGravity="center"
     android:scaleType="matrix"
+    android:contentDescription="@string/image"
     />
 

@@ -167,7 +167,7 @@ class CaptchaLoader extends AsyncTaskLoader<Captcha> {
             if (reddit.mRedditClient.needsCaptcha()) {
                 return reddit.mRedditClient.getNewCaptcha();
             }
-        } catch (NetworkException | ApiException e) {
+        } catch (RuntimeException | ApiException e) {
             e.printStackTrace();
         }
 

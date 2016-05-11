@@ -1,9 +1,11 @@
 package com.blongdev.sift;
 
+import android.content.BroadcastReceiver;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.database.Cursor;
 import android.net.Uri;
 import android.support.design.widget.TabLayout;
@@ -16,14 +18,16 @@ import android.support.v4.app.LoaderManager;
 import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.ViewPager;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 import com.blongdev.sift.database.SiftContract;
-import com.google.android.gms.analytics.GoogleAnalytics;
-import net.dean.jraw.http.NetworkException;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
+
 import net.dean.jraw.models.Listing;
 import net.dean.jraw.models.Subreddit;
 import net.dean.jraw.paginators.SubredditStream;
@@ -60,6 +64,7 @@ public class MainActivity extends BaseActivity {
         public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
             mLoadingSpinner.setVisibility(View.GONE);
             if (data != null) {
+                data.moveToPosition(-1);
                 while (data.moveToNext()) {
                     SubscriptionInfo sub = new SubscriptionInfo();
                     sub.mSubredditId = data.getInt(data.getColumnIndex(SiftContract.Subscriptions.COLUMN_SUBREDDIT_ID));
@@ -103,7 +108,6 @@ public class MainActivity extends BaseActivity {
             mPagerAdapter.swapData(new ArrayList<SubscriptionInfo>());
         }
 
-
     };
 
     @Override
@@ -112,6 +116,7 @@ public class MainActivity extends BaseActivity {
         setContentView(R.layout.activity_main);
 
         mLoadingSpinner = (ProgressBar) findViewById(R.id.progressSpinnerMain);
+        mLoadingSpinner.setVisibility(View.VISIBLE);
 
         mSubreddits = new ArrayList<SubscriptionInfo>();
         SubscriptionInfo frontpage = new SubscriptionInfo();
@@ -134,6 +139,8 @@ public class MainActivity extends BaseActivity {
             }
         });
 
+        mFab.hide();
+
         Intent intent = getIntent();
         if (intent != null) {
             mCategory = intent.getStringExtra(getString(R.string.category));
@@ -143,8 +150,6 @@ public class MainActivity extends BaseActivity {
             getSupportLoaderManager().initLoader(ASYNCTASK_LOADER_ID, null, mPopularSubredditsLoader).forceLoad();
         } else if (Utilities.loggedIn(getApplicationContext())){
             getSupportLoaderManager().initLoader(CURSOR_LOADER_ID, null, mSubscriptionLoader).forceLoad();
-            //hide fab on frontpage
-            mFab.hide();
         } else if (mReddit.mRedditClient.isAuthenticated()){
             getSupportLoaderManager().initLoader(ASYNCTASK_LOADER_ID, null, mPopularSubredditsLoader).forceLoad();
         }
@@ -156,7 +161,6 @@ public class MainActivity extends BaseActivity {
 
         TabLayout tabLayout = (TabLayout) findViewById(R.id.subreddit_tabs);
         tabLayout.setupWithViewPager(mPager);
-
 
         mPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
@@ -195,8 +199,6 @@ public class MainActivity extends BaseActivity {
             notifyDataSetChanged();
         }
 
-
-
         @Override
         public Fragment getItem(int position) {
             SubscriptionInfo sub = mSubreddits.get(position);
@@ -221,36 +223,46 @@ public class MainActivity extends BaseActivity {
         public CharSequence getPageTitle(int position) {
             SubscriptionInfo sub = mSubreddits.get(position);
             if (sub.mSubredditName == null) {
-                return "FrontPage";
+                return getString(R.string.frontPage);
+            } else if (position == 0 && !TextUtils.equals(sub.mSubredditName, getString(R.string.frontPage))) {
+                mFab.show();
             }
             return sub.mSubredditName;
         }
     }
 
-    @Override
-    public void onRefreshCompleted() {
-        super.onRefreshCompleted();
-        if (mReddit.mRedditClient.isAuthenticated()) {
-            if (!Utilities.loggedIn(getApplicationContext())) {
-                if (mCategory != null && mReddit.mRedditClient.isAuthenticated()) {
-                    getSupportLoaderManager().initLoader(ASYNCTASK_LOADER_ID, null, mPopularSubredditsLoader).forceLoad();
-                } else if (Utilities.loggedIn(getApplicationContext())){
-                    getSupportLoaderManager().initLoader(CURSOR_LOADER_ID, null, mSubscriptionLoader).forceLoad();
-                } else if (mReddit.mRedditClient.isAuthenticated()){
-                    getSupportLoaderManager().initLoader(ASYNCTASK_LOADER_ID, null, mPopularSubredditsLoader).forceLoad();
-                }
 
+    private BroadcastReceiver mBroadcastReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (mReddit.mRedditClient.isAuthenticated()) {
+                if (!Utilities.loggedIn(getApplicationContext())) {
+                    if (mCategory != null && mReddit.mRedditClient.isAuthenticated()) {
+                        getSupportLoaderManager().initLoader(ASYNCTASK_LOADER_ID, null, mPopularSubredditsLoader).forceLoad();
+                    } else if (Utilities.loggedIn(getApplicationContext())){
+                        getSupportLoaderManager().initLoader(CURSOR_LOADER_ID, null, mSubscriptionLoader).forceLoad();
+                    } else if (mReddit.mRedditClient.isAuthenticated()){
+                        getSupportLoaderManager().initLoader(ASYNCTASK_LOADER_ID, null, mPopularSubredditsLoader).forceLoad();
+                    }
+
+                }
+                mPager.setAdapter(mPagerAdapter);
             }
-            mPager.setAdapter(mPagerAdapter);
         }
-    }
+    };
 
     @Override
     public void onResume() {
         super.onResume();
-
+        LocalBroadcastManager.getInstance(this).registerReceiver(mBroadcastReceiver,
+                new IntentFilter(Reddit.AUTHENTICATED));
     }
 
+    @Override
+    public void onPause() {
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(mBroadcastReceiver);
+        super.onPause();
+    }
 }
 
 
@@ -318,7 +330,7 @@ class PopularSubredditLoader extends AsyncTaskLoader<List<SubscriptionInfo>> {
                     cv.clear();
                 }
             }
-        } catch (NetworkException e) {
+        } catch (RuntimeException e) {
             e.printStackTrace();
         }
 

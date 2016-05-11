@@ -21,15 +21,9 @@ import android.widget.TextView;
 
 public class PostDetailFragment extends Fragment {
 
-    LinearLayout mPostDetailLayout;
     TextView mTitle;
     TextView mUsername;
-    TextView mSubreddit;
-    TextView mPoints;
-    TextView mComments;
-    TextView mUrl;
     TextView mAge;
-    ImageView mImage;
     WebView mWebView;
     ProgressBar mLoadingSpinner;
     TextView mBody;
@@ -93,7 +87,6 @@ public class PostDetailFragment extends Fragment {
                 mWebView.getSettings().setJavaScriptEnabled(true);
                 mWebView.getSettings().setJavaScriptCanOpenWindowsAutomatically(true);
 
-//            }
         }
 
         return rootView;

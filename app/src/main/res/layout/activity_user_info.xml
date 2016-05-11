@@ -34,6 +34,7 @@
                 android:id="@+id/tabs"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:focusable="true"
                 app:tabMode="scrollable"
                 app:tabGravity="fill"/>
 
@@ -44,6 +45,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:background="@color/background"
+            android:focusable="true"
             app:layout_behavior="@string/appbar_scrolling_view_behavior" />
 
         <android.support.design.widget.FloatingActionButton
@@ -52,6 +54,8 @@
             android:layout_height="wrap_content"
             android:layout_gravity="end|bottom"
             android:layout_margin="@dimen/fab_margin"
+            android:contentDescription="@string/message"
+            android:focusable="true"
             android:src="@android:drawable/ic_dialog_email" />
 
     </android.support.design.widget.CoordinatorLayout>
@@ -63,6 +67,7 @@
         android:layout_gravity="start"
         android:background="@android:color/white"
         app:itemTextColor="@color/nav_drawer_text"
+        android:focusable="true"
         app:menu="@layout/nav_menu" />
 
 </android.support.v4.widget.DrawerLayout>

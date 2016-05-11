@@ -8,7 +8,7 @@ import android.widget.Toast;
 
 public class SiftBroadcastReceiver extends BroadcastReceiver {
 
-    private final static String LOGGED_IN = "com.blongdev.sift.loggedIn";
+    public final static String LOGGED_IN = "com.blongdev.sift.loggedIn";
 
     public SiftBroadcastReceiver() {
     }

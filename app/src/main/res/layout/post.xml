@@ -25,6 +25,7 @@
             android:maxHeight="200dp"
             android:background="@color/imageBg"
             android:adjustViewBounds="true"
+            android:contentDescription="@string/image"
             android:scaleType="center"/>
 
         <LinearLayout
@@ -48,29 +49,32 @@
                         android:id="@+id/post_points"
                         style="@style/PostPoints"
                         android:textColor="@color/secondary_text"
-                        android:text="Points"/>
+                        />
 
                     <TextView
                         android:id="@+id/post_username"
                         android:layout_toRightOf="@id/post_points"
                         style="@style/PostUsername"
+                        android:focusable="true"
                         android:textColor="@color/secondary_text"
-                        android:text="Username"/>
+                        />
 
                     <TextView
                         android:id="@+id/post_subreddit"
                         style="@style/PostSubreddit"
+                        android:focusable="true"
                         android:textColor="@color/secondary_text"
                         android:layout_toRightOf="@id/post_username"
-                        android:text="Subreddit"/>
+                        />
                 </RelativeLayout>
 
 
                 <TextView
                     android:id="@+id/post_title"
                     style="@style/PostTitle"
+                    android:focusable="true"
                     android:layout_gravity="start"
-                    android:text="Title"/>
+                    />
 
                 <RelativeLayout
                     android:layout_width="wrap_content"
@@ -80,7 +84,7 @@
                         android:id="@+id/post_comments"
                         style="@style/PostComments"
                         android:textColor="@color/secondary_text"
-                        android:text="Comments"/>
+                        />
 
                     <TextView
                         android:id="@+id/post_url"
@@ -112,6 +116,9 @@
                     android:layout_height="wrap_content"
                     android:padding="8dp"
                     android:background="@android:color/transparent"
+                    android:focusable="true"
+                    android:clickable="true"
+                    android:contentDescription="@string/upvote"
                     android:src="@drawable/ic_up_arrow_white_24dp" />
 
                 <ImageView
@@ -120,6 +127,9 @@
                     android:layout_height="wrap_content"
                     android:padding="8dp"
                     android:background="@android:color/transparent"
+                    android:contentDescription="@string/downvote"
+                    android:focusable="true"
+                    android:clickable="true"
                     android:src="@drawable/ic_down_arrow_white_24dp" />
 
             </LinearLayout>

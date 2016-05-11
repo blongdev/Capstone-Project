@@ -45,7 +45,7 @@
                         style="@style/CommentInfo"
                         android:textColor="@color/secondary_text"
                         android:id="@+id/comment_username"
-                        android:text="Username" />
+                         />
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -54,7 +54,7 @@
                         android:textColor="@color/secondary_text"
                         android:layout_toRightOf="@id/comment_username"
                         android:id="@+id/comment_points"
-                        android:text="Points" />
+                         />
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -63,7 +63,7 @@
                         android:textColor="@color/secondary_text"
                         android:layout_toRightOf="@id/comment_points"
                         android:id="@+id/comment_age"
-                        android:text="Age" />
+                         />
 
                 </RelativeLayout>
 
@@ -93,6 +93,8 @@
                     android:layout_height="wrap_content"
                     android:padding="8dp"
                     android:background="@android:color/transparent"
+                    android:contentDescription="@string/upvote"
+                    android:focusable="true"
                     android:src="@drawable/ic_up_arrow_white_24dp" />
 
                 <ImageView
@@ -101,6 +103,8 @@
                     android:layout_height="wrap_content"
                     android:padding="8dp"
                     android:background="@android:color/transparent"
+                    android:contentDescription="@string/downvote"
+                    android:focusable="true"
                     android:src="@drawable/ic_down_arrow_white_24dp" />
 
             </LinearLayout>

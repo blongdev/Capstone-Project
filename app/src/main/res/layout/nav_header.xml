@@ -29,6 +29,7 @@
             android:layout_gravity="bottom|right"
             android:padding="16dp"
             android:visibility="gone"
+            android:contentDescription="@string/log_out"
             android:src="@drawable/ic_remove_circle_outline_24dp"/>
 
 </FrameLayout>

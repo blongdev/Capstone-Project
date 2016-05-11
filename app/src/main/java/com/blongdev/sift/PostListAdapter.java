@@ -5,7 +5,9 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
+import android.media.Image;
 import android.os.AsyncTask;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
@@ -223,9 +225,40 @@ public class PostListAdapter extends RecyclerView.Adapter<PostListAdapter.PostVi
                         mImage.setImageDrawable(placeHolderDrawable);
                     }
                 };
-            }
 
+                mTitle.setOnFocusChangeListener(mTextFocusListener);
+                mUpvote.setOnFocusChangeListener(mImageFocusListener);
+                mDownvote.setOnFocusChangeListener(mImageFocusListener);
+            }
         }
+
+        private View.OnFocusChangeListener mTextFocusListener = (new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus ){
+                TextView text = (TextView) v;
+                if (hasFocus) {
+                    text.setTextColor(ContextCompat.getColor(v.getContext(), R.color.colorAccent));
+                } else {
+                    if (v == mTitle) {
+                        text.setTextColor(Color.WHITE);
+                    } else {
+                        text.setTextColor(ContextCompat.getColor(v.getContext(), R.color.secondary_text));
+                    }
+                }
+            }
+        });
+
+        private View.OnFocusChangeListener mImageFocusListener = (new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus ){
+                ImageView image = (ImageView) v;
+                if (hasFocus) {
+                    image.setColorFilter(ContextCompat.getColor(v.getContext(), R.color.colorAccent));
+                } else {
+                    image.setColorFilter(Color.TRANSPARENT);
+                }
+            }
+        });
 
         private View.OnClickListener mOnClickListener = (new View.OnClickListener() {
             @Override
@@ -374,7 +407,7 @@ public class PostListAdapter extends RecyclerView.Adapter<PostListAdapter.PostVi
                 try {
                     Reddit reddit = Reddit.getInstance();
                     return reddit.mRedditClient.getSubmission(mSubmissionServerId);
-                } catch (NetworkException e) {
+                } catch (RuntimeException e) {
                     e.printStackTrace();
                 }
                 return null;

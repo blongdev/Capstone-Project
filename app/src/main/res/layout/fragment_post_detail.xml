@@ -15,6 +15,7 @@
         <WebView
             android:id="@+id/post_web_view"
             android:layout_width="match_parent"
+            android:focusable="true"
             android:layout_height="match_parent"></WebView>
 
     </android.support.v4.widget.NestedScrollView>

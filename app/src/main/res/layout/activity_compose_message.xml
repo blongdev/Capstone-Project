@@ -38,6 +38,8 @@
             android:layout_height="wrap_content"
             android:layout_gravity="bottom|end"
             android:layout_margin="@dimen/fab_margin"
+            android:contentDescription="@string/send"
+            android:focusable="true"
             android:src="@drawable/ic_send_24dp" />
 
     </android.support.design.widget.CoordinatorLayout>
@@ -49,6 +51,7 @@
         android:layout_gravity="start"
         android:background="@android:color/white"
         app:itemTextColor="@color/nav_drawer_text"
+        android:focusable="true"
         app:menu="@layout/nav_menu"/>
 
 </android.support.v4.widget.DrawerLayout>

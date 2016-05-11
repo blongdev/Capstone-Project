@@ -25,6 +25,11 @@ import com.google.android.gms.ads.AdView;
 import com.unnamed.b.atv.model.TreeNode;
 
 public class PostDetailActivity extends BaseActivity {
+
+    private static final String VOTE = "vote";
+    private static final String FAVORITE = "favorite";
+    private static final String COMMENTS = "comments";
+
     private int mPostId = 0;
     private String mPostServerId;
     PostDetailFragment mPostFragment;
@@ -56,10 +61,7 @@ public class PostDetailActivity extends BaseActivity {
     FrameLayout mCommentsView;
     AppBarLayout mAppBar;
     TreeNode mReplyNode;
-
-
     int mVote;
-
     FloatingActionButton mFab;
 
     @Override
@@ -107,17 +109,6 @@ public class PostDetailActivity extends BaseActivity {
 
         mFavorite = (ImageView) findViewById(R.id.favorite);
 
-        if (mReddit.mRedditClient.isAuthenticated() && mReddit.mRedditClient.hasActiveUserContext()) {
-            if (!TextUtils.isEmpty(mPostServerId)) {
-                long favoriteId = Utilities.getFavoriteId(getApplicationContext(), mPostServerId);
-                if (favoriteId > 0) {
-                    mFavorited = true;
-                    mFavorite.setImageResource(R.drawable.ic_favorite_24dp);
-                }
-            }
-        }
-
-
         mTitle.setText(title);
         mUsername.setText(username);
         mSubreddit.setText(subreddit);
@@ -126,6 +117,13 @@ public class PostDetailActivity extends BaseActivity {
         mUrl.setText(domain);
         mAge.setText(age);
 
+        mFab = (FloatingActionButton) findViewById(R.id.fab);
+        mFab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                toggleComments();
+            }
+        });
 
         mUsername.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -191,18 +189,14 @@ public class PostDetailActivity extends BaseActivity {
             }
         });
 
-        if (mVote == SiftContract.Posts.UPVOTE) {
-            mUpvote.setImageDrawable(SiftApplication.getContext().getResources().getDrawable(R.drawable.ic_up_arrow_filled_24dp));
-            mDownvote.setImageDrawable(SiftApplication.getContext().getResources().getDrawable(R.drawable.ic_down_arrow_white_24dp));
-            mPoints.setTextColor(SiftApplication.getContext().getResources().getColor(R.color.upvote));
-        } else if (mVote == SiftContract.Posts.DOWNVOTE) {
-            mDownvote.setImageDrawable(SiftApplication.getContext().getResources().getDrawable(R.drawable.ic_down_arrow_filled_24dp));
-            mUpvote.setImageDrawable(SiftApplication.getContext().getResources().getDrawable(R.drawable.ic_up_arrow_white_24dp));
-            mPoints.setTextColor(SiftApplication.getContext().getResources().getColor(R.color.downvote));
-        } else {
-            mUpvote.setImageDrawable(SiftApplication.getContext().getResources().getDrawable(R.drawable.ic_up_arrow_white_24dp));
-            mDownvote.setImageDrawable(SiftApplication.getContext().getResources().getDrawable(R.drawable.ic_down_arrow_white_24dp));
-            mPoints.setTextColor(Color.WHITE);
+        if (mReddit.mRedditClient.isAuthenticated() && mReddit.mRedditClient.hasActiveUserContext()) {
+            if (!TextUtils.isEmpty(mPostServerId)) {
+                long favoriteId = Utilities.getFavoriteId(getApplicationContext(), mPostServerId);
+                if (favoriteId > 0) {
+                    mFavorited = true;
+                    mFavorite.setImageResource(R.drawable.ic_favorite_24dp);
+                }
+            }
         }
 
         //add post and comment fragments
@@ -225,13 +219,34 @@ public class PostDetailActivity extends BaseActivity {
         mPostShowing = true;
         mCommentsView.setVisibility(View.GONE);
 
-        mFab = (FloatingActionButton) findViewById(R.id.fab);
-        mFab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
+        if (savedInstanceState != null) {
+            mVote = savedInstanceState.getInt(VOTE);
+            mFavorited = savedInstanceState.getBoolean(FAVORITE);
+            boolean showComments = savedInstanceState.getBoolean(COMMENTS);
+            if (showComments) {
                 toggleComments();
             }
-        });
+
+            if(mFavorited) {
+                mFavorite.setImageResource(R.drawable.ic_favorite_24dp);
+            }
+        }
+
+
+        if (mVote == SiftContract.Posts.UPVOTE) {
+            mUpvote.setImageDrawable(SiftApplication.getContext().getResources().getDrawable(R.drawable.ic_up_arrow_filled_24dp));
+            mDownvote.setImageDrawable(SiftApplication.getContext().getResources().getDrawable(R.drawable.ic_down_arrow_white_24dp));
+            mPoints.setTextColor(SiftApplication.getContext().getResources().getColor(R.color.upvote));
+        } else if (mVote == SiftContract.Posts.DOWNVOTE) {
+            mDownvote.setImageDrawable(SiftApplication.getContext().getResources().getDrawable(R.drawable.ic_down_arrow_filled_24dp));
+            mUpvote.setImageDrawable(SiftApplication.getContext().getResources().getDrawable(R.drawable.ic_up_arrow_white_24dp));
+            mPoints.setTextColor(SiftApplication.getContext().getResources().getColor(R.color.downvote));
+        } else {
+            mUpvote.setImageDrawable(SiftApplication.getContext().getResources().getDrawable(R.drawable.ic_up_arrow_white_24dp));
+            mDownvote.setImageDrawable(SiftApplication.getContext().getResources().getDrawable(R.drawable.ic_down_arrow_white_24dp));
+            mPoints.setTextColor(Color.WHITE);
+        }
+
 
         mFavorite.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -268,7 +283,7 @@ public class PostDetailActivity extends BaseActivity {
         if (mPostShowing) {
             mPostShowing = false;
             mCommentsView.setVisibility(View.VISIBLE);
-            mFab.setImageResource(R.drawable.ic_attachment_24dp);
+            mFab.setImageResource(R.drawable.ic_info_outline_24dp);
         } else {
             mPostShowing = true;
             mCommentsView.setVisibility(View.GONE);
@@ -341,4 +356,11 @@ public class PostDetailActivity extends BaseActivity {
         super.onDestroy();
     }
 
+    @Override
+    public void onSaveInstanceState(Bundle savedInstanceState) {
+        savedInstanceState.putInt(VOTE, mVote);
+        savedInstanceState.putBoolean(FAVORITE, mFavorited);
+        savedInstanceState.putBoolean(COMMENTS, !mPostShowing);
+        super.onSaveInstanceState(savedInstanceState);
+    }
 }

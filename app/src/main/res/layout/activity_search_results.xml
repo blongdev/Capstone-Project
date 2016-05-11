@@ -34,6 +34,7 @@
                 android:layout_height="wrap_content"
                 app:tabMode="scrollable"
                 app:tabGravity="fill"
+                android:focusable="true"
                 app:layout_collapseMode="pin"/>
 
         </android.support.design.widget.AppBarLayout>
@@ -44,6 +45,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:background="@color/background"
+            android:focusable="true"
             app:layout_behavior="@string/appbar_scrolling_view_behavior">
         </android.support.v4.view.ViewPager>
 
@@ -57,6 +59,7 @@
         android:layout_gravity="start"
         android:background="@android:color/white"
         app:itemTextColor="@color/nav_drawer_text"
+        android:focusable="true"
         app:menu="@layout/nav_menu" />
 
 </android.support.v4.widget.DrawerLayout>
