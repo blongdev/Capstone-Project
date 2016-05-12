@@ -115,6 +115,11 @@ public class MainActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        if (findViewById(R.id.tablet) != null) {
+            Intent intent = new Intent(this, SubredditListActivity.class);
+            startActivity(intent);
+        }
+
         mLoadingSpinner = (ProgressBar) findViewById(R.id.progressSpinnerMain);
         mLoadingSpinner.setVisibility(View.VISIBLE);
 

@@ -40,6 +40,7 @@
 
     <string name="vote">vote</string>
     <string name="body">body</string>
+    <string name="from">from</string>
     <string name="domain">domain</string>
     <string name="drawer_open">drawer open</string>
     <string name="drawer_close">drawer close</string>

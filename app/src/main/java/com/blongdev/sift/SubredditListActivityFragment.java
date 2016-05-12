@@ -45,6 +45,10 @@ public class SubredditListActivityFragment extends Fragment {
     private static final int CURSOR_LOADER_ID = 1;
     private static final int ASYNCTASK_LOADER_ID = 2;
 
+    public interface Callback {
+        public void onItemSelected(long id, String name);
+    }
+
     private LoaderManager.LoaderCallbacks<Cursor> mSubscriptionLoader
             = new LoaderManager.LoaderCallbacks<Cursor>() {
         @Override
@@ -99,6 +103,7 @@ public class SubredditListActivityFragment extends Fragment {
 
 
     public SubredditListActivityFragment() {
+
     }
 
     @Override
@@ -144,10 +149,8 @@ public class SubredditListActivityFragment extends Fragment {
                     }
                 }
 
-                Intent intent = new Intent(getContext(), SubredditActivity.class);
-                intent.putExtra(getString(R.string.subreddit_id), sub.mId);
-                intent.putExtra(getString(R.string.subreddit_name), sub.mName);
-                startActivity(intent);
+                ((Callback)getActivity()).onItemSelected(sub.mId, sub.mName);
+
             }
         });
 

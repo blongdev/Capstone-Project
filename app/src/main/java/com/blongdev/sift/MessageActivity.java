@@ -1,5 +1,6 @@
 package com.blongdev.sift;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
@@ -8,16 +9,23 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import com.blongdev.sift.database.SiftContract;
 
-public class MessageActivity extends BaseActivity {
+public class MessageActivity extends BaseActivity implements MessageActivityFragment.Callback {
 
     private SectionsPagerAdapter mSectionsPagerAdapter;
     private ViewPager mViewPager;
+    private MessageDetailActivityFragment mMessageDetailFragment;
+    private FragmentManager mFragmentManager;
+    boolean mIsTablet;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_message_list);
+
+        if(findViewById(R.id.detail_fragment) != null) {
+            mIsTablet = true;
+        }
 
         mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
 
@@ -26,6 +34,10 @@ public class MessageActivity extends BaseActivity {
 
         TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(mViewPager);
+
+        mFragmentManager = getSupportFragmentManager();
+
+
     }
 
 
@@ -80,6 +92,27 @@ public class MessageActivity extends BaseActivity {
                     return getString(R.string.mentions);
             }
             return null;
+        }
+    }
+
+    @Override
+    public void onItemSelected(String title, String body, String from) {
+        if(mIsTablet) {
+            mMessageDetailFragment = new MessageDetailActivityFragment();
+            Bundle args = new Bundle();
+            args.putString(getString(R.string.title), title);
+            args.putString(getString(R.string.body), body);
+            args.putString(getString(R.string.from), from);
+            mMessageDetailFragment.setArguments(args);
+            android.support.v4.app.FragmentTransaction ft = mFragmentManager.beginTransaction();
+            ft.replace(R.id.detail_fragment, mMessageDetailFragment);
+            ft.commit();
+        } else {
+            Intent intent = new Intent(this, MessageDetailActivity.class);
+            intent.putExtra(getString(R.string.username), from);
+            intent.putExtra(getString(R.string.title), title);
+            intent.putExtra(getString(R.string.body), body);
+            startActivity(intent);
         }
     }
 }

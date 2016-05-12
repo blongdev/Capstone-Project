@@ -24,12 +24,22 @@ public class MessageDetailActivityFragment extends Fragment {
 
         //Change toolbar title to username
         Intent intent = getActivity().getIntent();
-        String title = intent.getStringExtra(getString(R.string.title));
+        String title, body, from;
+        Bundle args = getArguments();
+        if (args != null) {
+            title = args.getString(getString(R.string.title));
+            body = args.getString(getString(R.string.body));
+            from = args.getString(getString(R.string.from));
+        } else {
+            title = intent.getStringExtra(getString(R.string.title));
+            body = intent.getStringExtra(getString(R.string.body));
+            from = intent.getStringExtra(getString(R.string.from));
+        }
+
         if (!TextUtils.isEmpty(title)) {
             titleView.setText(title);
         }
 
-        String body = intent.getStringExtra(getString(R.string.body));
         if (!TextUtils.isEmpty(body)) {
             bodyView.setText(body);
         }

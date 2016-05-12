@@ -10,8 +10,9 @@ android {
         minSdkVersion 16
         targetSdkVersion 23
         versionCode 1
-        versionName "0.6 dev"
+        versionName "0.61 dev"
     }
+
     buildTypes {
         release {
             minifyEnabled false

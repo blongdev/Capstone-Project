@@ -5,6 +5,7 @@ package com.blongdev.sift;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
+import android.graphics.drawable.RippleDrawable;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.FragmentManager;
@@ -64,10 +65,16 @@ public class PostDetailActivity extends BaseActivity {
     int mVote;
     FloatingActionButton mFab;
 
+    boolean mIsTablet;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_post_detail);
+
+        if (findViewById(R.id.tablet) != null) {
+            mIsTablet = true;
+        }
 
         Intent intent = getIntent();
         if (intent != null) {
@@ -117,13 +124,15 @@ public class PostDetailActivity extends BaseActivity {
         mUrl.setText(domain);
         mAge.setText(age);
 
-        mFab = (FloatingActionButton) findViewById(R.id.fab);
-        mFab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                toggleComments();
-            }
-        });
+        if (!mIsTablet) {
+            mFab = (FloatingActionButton) findViewById(R.id.fab);
+            mFab.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    toggleComments();
+                }
+            });
+        }
 
         mUsername.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -216,14 +225,16 @@ public class PostDetailActivity extends BaseActivity {
         mPostView = (FrameLayout) findViewById(R.id.post_detail_fragment);
         mCommentsView = (FrameLayout) findViewById(R.id.comments_fragment);
 
-        mPostShowing = true;
-        mCommentsView.setVisibility(View.GONE);
+        if (!mIsTablet) {
+            mPostShowing = true;
+            mCommentsView.setVisibility(View.GONE);
+        }
 
         if (savedInstanceState != null) {
             mVote = savedInstanceState.getInt(VOTE);
             mFavorited = savedInstanceState.getBoolean(FAVORITE);
             boolean showComments = savedInstanceState.getBoolean(COMMENTS);
-            if (showComments) {
+            if (showComments && !mIsTablet) {
                 toggleComments();
             }
 

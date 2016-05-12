@@ -29,6 +29,10 @@ public class MessageActivityFragment extends Fragment implements LoaderManager.L
     public MessageActivityFragment() {
     }
 
+    public interface Callback {
+        public void onItemSelected(String title, String body, String from);
+    }
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -57,11 +61,7 @@ public class MessageActivityFragment extends Fragment implements LoaderManager.L
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 MessageInfo msg = mMessages.get(position);
-                Intent intent = new Intent(getContext(), MessageDetailActivity.class);
-                intent.putExtra(getString(R.string.username), msg.mFrom);
-                intent.putExtra(getString(R.string.title), msg.mTitle);
-                intent.putExtra(getString(R.string.body), msg.mBody);
-                startActivity(intent);
+                ((Callback) getActivity()).onItemSelected(msg.mTitle, msg.mBody, msg.mFrom);
             }
         });
 
