@@ -491,6 +491,7 @@ class CommentLoader extends AsyncTaskLoader<CommentNode> {
         }
 
         try {
+            reddit.mRateLimiter.acquire();
             Submission post = reddit.mRedditClient.getSubmission(mPostServerId);
             return post.getComments();
         } catch (RuntimeException e) {

@@ -68,7 +68,7 @@ public class Reddit {
     public String mRefreshToken;
     public Credentials mCredentials;
     public OAuthHelper mOAuthHelper;
-    public LoggedInAccount mMe;
+    public RateLimiter mRateLimiter;
 
     private static final String LOG_TAG = "Reddit Singleton";
 
@@ -82,10 +82,7 @@ public class Reddit {
         mRedditClient = new RedditClient(mUserAgent);
         mCredentials = getCredentials();
         mOAuthHelper = mRedditClient.getOAuthHelper();
-
-        if (mRedditClient.isAuthenticated()) {
-            mMe = mRedditClient.me();
-        }
+        mRateLimiter = RateLimiter.create(1);
 
         mRedditClient.setLoggingMode(LoggingMode.ALWAYS);
         mRedditClient.setSaveResponseHistory(true);
@@ -139,6 +136,7 @@ public class Reddit {
             try {
                 OAuthData oAuthData =  mOAuthHelper.onUserChallenge(params[0], mCredentials);
                 if (oAuthData != null) {
+                    mRateLimiter.acquire();
                     mRedditClient.authenticate(oAuthData);
                     addUser(mContext);
 
@@ -166,12 +164,13 @@ public class Reddit {
             return;
         }
 
-        mMe = mRedditClient.me();
-        String username = mMe.getFullName();
-        String serverId = mMe.getId();
-        long date = mMe.getCreatedUtc().getTime();
-        long commentKarma = mMe.getCommentKarma();
-        long linkKarma = mMe.getLinkKarma();
+        mRateLimiter.acquire();
+        LoggedInAccount me = mRedditClient.me();
+        String username = me.getFullName();
+        String serverId = me.getId();
+        long date = me.getCreatedUtc().getTime();
+        long commentKarma = me.getCommentKarma();
+        long linkKarma = me.getLinkKarma();
 
         //user
         ContentValues cv = new ContentValues();
@@ -197,7 +196,6 @@ public class Reddit {
         cv.clear();
 
         runInitialSync(context);
-
     }
 
     private final class RefreshTokenTask extends AsyncTask<String, Void, OAuthData> {
@@ -213,7 +211,9 @@ public class Reddit {
             if (!mRefreshToken.isEmpty()) {
                 mOAuthHelper.setRefreshToken(mRefreshToken);
                 try {
+                    mRateLimiter.acquire();
                     OAuthData finalData = mOAuthHelper.refreshToken(mCredentials);
+                    mRateLimiter.acquire();
                     mRedditClient.authenticate(finalData);
                     if (mRedditClient.isAuthenticated()) {
                         Log.v(LOG_TAG, "Authenticated");
@@ -251,7 +251,10 @@ public class Reddit {
                         Settings.Secure.ANDROID_ID);
                 UUID uuid = UUID.randomUUID();
                 Credentials credentials = Credentials.userlessApp(CLIENT_ID, uuid);
+
+                mRateLimiter.acquire();
                 OAuthData authData = mRedditClient.getOAuthHelper().easyAuth(credentials);
+                mRateLimiter.acquire();
                 mRedditClient.authenticate(authData);
                 if (mRedditClient.isAuthenticated()) {
                     Log.v(LOG_TAG, "Authenticated");
@@ -369,6 +372,7 @@ public class Reddit {
                     return null;
                 }
 
+                instance.mRateLimiter.acquire();
                 Submission sub = instance.mRedditClient.getSubmission(mServerId);
                 if (sub == null || sub.isArchived()) {
                     return null;
@@ -377,12 +381,15 @@ public class Reddit {
 
                 switch (mVote) {
                     case SiftContract.Posts.NO_VOTE:
+                        instance.mRateLimiter.acquire();
                         accountManager.vote(sub, VoteDirection.NO_VOTE);
                         break;
                     case SiftContract.Posts.UPVOTE:
+                        instance.mRateLimiter.acquire();
                         accountManager.vote(sub, VoteDirection.UPVOTE);
                         break;
                     case SiftContract.Posts.DOWNVOTE:
+                        instance.mRateLimiter.acquire();
                         accountManager.vote(sub, VoteDirection.DOWNVOTE);
                         break;
                 }
@@ -443,12 +450,15 @@ public class Reddit {
 
                 switch (mVote) {
                     case SiftContract.Posts.NO_VOTE:
+                        instance.mRateLimiter.acquire();
                         accountManager.vote(mComment, VoteDirection.NO_VOTE);
                         break;
                     case SiftContract.Posts.UPVOTE:
+                        instance.mRateLimiter.acquire();
                         accountManager.vote(mComment, VoteDirection.UPVOTE);
                         break;
                     case SiftContract.Posts.DOWNVOTE:
+                        instance.mRateLimiter.acquire();
                         accountManager.vote(mComment, VoteDirection.DOWNVOTE);
                         break;
                 }
@@ -493,6 +503,7 @@ public class Reddit {
             }
 
             try {
+                instance.mRateLimiter.acquire();
                 Subreddit subreddit = instance.mRedditClient.getSubreddit(mName);
 
                 if (subreddit == null) {
@@ -500,6 +511,7 @@ public class Reddit {
                 }
 
                 net.dean.jraw.managers.AccountManager accountManager = new net.dean.jraw.managers.AccountManager(instance.mRedditClient);
+                instance.mRateLimiter.acquire();
                 accountManager.subscribe(subreddit);
 
                 ContentValues cv = new ContentValues();
@@ -521,9 +533,8 @@ public class Reddit {
                     cv.clear();
                 }
 
-
                 //add subscription
-                long accountId = Utilities.getAccountId(mContext, instance.mRedditClient);
+                long accountId = Utilities.getAccountId(mContext);
                 if (accountId > 0) {
                     cv.put(SiftContract.Subscriptions.COLUMN_ACCOUNT_ID, accountId);
                     cv.put(SiftContract.Subscriptions.COLUMN_SUBREDDIT_ID, subredditId);
@@ -573,12 +584,14 @@ public class Reddit {
             }
 
             try {
+                instance.mRateLimiter.acquire();
                 Subreddit subreddit = instance.mRedditClient.getSubreddit(mName);
                 if (subreddit == null) {
                     return null;
                 }
 
                 net.dean.jraw.managers.AccountManager accountManager = new net.dean.jraw.managers.AccountManager(instance.mRedditClient);
+                instance.mRateLimiter.acquire();
                 accountManager.unsubscribe(subreddit);
 
                 long subredditId = Utilities.getSubredditId(mContext, subreddit.getId());
@@ -628,6 +641,7 @@ public class Reddit {
             }
 
             try {
+                instance.mRateLimiter.acquire();
                 Submission sub = instance.mRedditClient.getSubmission(mServerId);
                 if (sub == null) {
                     return null;
@@ -635,6 +649,7 @@ public class Reddit {
 
                 net.dean.jraw.managers.AccountManager accountManager = new net.dean.jraw.managers.AccountManager(instance.mRedditClient);
 
+                instance.mRateLimiter.acquire();
                 accountManager.save(sub);
 
                 ContentValues cv = new ContentValues();
@@ -655,7 +670,7 @@ public class Reddit {
                 long postId = ContentUris.parseId(uri);
 
                 cv.clear();
-                long accountId = Utilities.getAccountId(mContext, instance.mRedditClient);
+                long accountId = Utilities.getAccountId(mContext);
                 cv.put(SiftContract.Favorites.COLUMN_ACCOUNT_ID, accountId);
                 cv.put(SiftContract.Favorites.COLUMN_POST_ID, postId);
                 mContext.getContentResolver().insert(SiftContract.Favorites.CONTENT_URI, cv);
@@ -704,6 +719,7 @@ public class Reddit {
             }
 
             try {
+                instance.mRateLimiter.acquire();
                 Submission sub = instance.mRedditClient.getSubmission(mServerId);
                 if (sub == null) {
                     return null;
@@ -711,6 +727,7 @@ public class Reddit {
 
                 net.dean.jraw.managers.AccountManager accountManager = new net.dean.jraw.managers.AccountManager(instance.mRedditClient);
 
+                instance.mRateLimiter.acquire();
                 accountManager.unsave(sub);
 
                 long postId = Utilities.getSavedPostId(mContext, mServerId);
@@ -766,14 +783,14 @@ public class Reddit {
             }
 
             try {
-
+                instance.mRateLimiter.acquire();
                 Submission sub = instance.mRedditClient.getSubmission(mServerId);
                 if (sub == null) {
                     return null;
                 }
 
                 net.dean.jraw.managers.AccountManager accountManager = new net.dean.jraw.managers.AccountManager(instance.mRedditClient);
-
+                instance.mRateLimiter.acquire();
                 accountManager.reply(sub, mComment);
             } catch (ApiException | RuntimeException e) {
                 e.printStackTrace();
@@ -818,7 +835,7 @@ public class Reddit {
 
             try {
                 net.dean.jraw.managers.AccountManager accountManager = new net.dean.jraw.managers.AccountManager(instance.mRedditClient);
-
+                instance.mRateLimiter.acquire();
                 accountManager.reply(mComment, mReply);
 
             } catch (ApiException | RuntimeException e) {
@@ -862,11 +879,12 @@ public class Reddit {
             }
 
             try {
-
+                instance.mRateLimiter.acquire();
                 net.dean.jraw.models.Account user = instance.mRedditClient.getUser(mUsername);
 
                 if (!user.isFriend()) {
                     net.dean.jraw.managers.AccountManager accountManager = new net.dean.jraw.managers.AccountManager(instance.mRedditClient);
+                    instance.mRateLimiter.acquire();
                     accountManager.updateFriend(mUsername);
                 }
 
@@ -881,7 +899,7 @@ public class Reddit {
                 cv.clear();
 
                 //add friend
-                long accountId = Utilities.getAccountId(mContext, instance.mRedditClient);
+                long accountId = Utilities.getAccountId(mContext);
                 cv.put(SiftContract.Friends.COLUMN_ACCOUNT_ID, accountId);
                 cv.put(SiftContract.Friends.COLUMN_FRIEND_USER_ID, userId);
                 mContext.getContentResolver().insert(SiftContract.Friends.CONTENT_URI, cv);
@@ -926,9 +944,11 @@ public class Reddit {
             }
 
             try {
+                instance.mRateLimiter.acquire();
                 net.dean.jraw.models.Account user = instance.mRedditClient.getUser(mUsername);
                 if (user.isFriend()) {
                     net.dean.jraw.managers.AccountManager accountManager = new net.dean.jraw.managers.AccountManager(instance.mRedditClient);
+                    instance.mRateLimiter.acquire();
                     accountManager.deleteFriend(mUsername);
                 }
 
@@ -981,6 +1001,7 @@ public class Reddit {
             }
 
             try {
+                instance.mRateLimiter.acquire();
                 instance.mRedditClient.getUser(mUsername);
                 mUserFound = true;
             } catch (RuntimeException e) {
@@ -1032,6 +1053,7 @@ public class Reddit {
             }
 
             try {
+                instance.mRateLimiter.acquire();
                 instance.mRedditClient.getSubreddit(mSubreddit);
                 mSubredditFound = true;
             } catch (RuntimeException e) {
@@ -1095,8 +1117,10 @@ public class Reddit {
                         = new net.dean.jraw.managers.AccountManager.SubmissionBuilder(mText, mSubreddit, mTitle);
 
                 if (mCaptcha != null && !TextUtils.isEmpty(mCaptchaAttempt)) {
+                    instance.mRateLimiter.acquire();
                     accountManager.submit(submission, mCaptcha, mCaptchaAttempt);
                 } else {
+                    instance.mRateLimiter.acquire();
                     accountManager.submit(submission);
                 }
                 mSubmitted = true;
@@ -1161,8 +1185,10 @@ public class Reddit {
                         = new net.dean.jraw.managers.AccountManager.SubmissionBuilder(mUrl, mSubreddit, mTitle);
 
                 if (mCaptcha != null && !TextUtils.isEmpty(mCaptchaAttempt)) {
+                    instance.mRateLimiter.acquire();
                     accountManager.submit(submission, mCaptcha, mCaptchaAttempt);
                 } else {
+                    instance.mRateLimiter.acquire();
                     accountManager.submit(submission);
                 }
                 mSubmitted = true;
@@ -1222,6 +1248,7 @@ public class Reddit {
 
             try {
                 net.dean.jraw.managers.InboxManager inboxManager = new net.dean.jraw.managers.InboxManager(instance.mRedditClient);
+                instance.mRateLimiter.acquire();
                 inboxManager.compose(mTo, mSubject, mBody);
                 mSent = true;
             } catch (RuntimeException | ApiException e) {

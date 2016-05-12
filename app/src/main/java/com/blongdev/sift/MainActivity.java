@@ -300,6 +300,7 @@ class PopularSubredditLoader extends AsyncTaskLoader<List<SubscriptionInfo>> {
         try {
             SubredditStream paginator = new SubredditStream(reddit.mRedditClient, "popular");
             if (paginator.hasNext()) {
+                reddit.mRateLimiter.acquire();
                 Listing<Subreddit> subs = paginator.next();
                 ContentValues cv = new ContentValues();
                 String selection = SiftContract.Subreddits.COLUMN_SERVER_ID + " =?";

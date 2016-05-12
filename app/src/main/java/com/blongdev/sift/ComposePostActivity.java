@@ -164,7 +164,9 @@ class CaptchaLoader extends AsyncTaskLoader<Captcha> {
         }
 
         try {
+            reddit.mRateLimiter.acquire();
             if (reddit.mRedditClient.needsCaptcha()) {
+                reddit.mRateLimiter.acquire();
                 return reddit.mRedditClient.getNewCaptcha();
             }
         } catch (RuntimeException | ApiException e) {

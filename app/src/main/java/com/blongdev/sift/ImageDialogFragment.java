@@ -35,8 +35,6 @@ public class ImageDialogFragment extends DialogFragment {
 
         getDialog().requestWindowFeature(Window.FEATURE_NO_TITLE);
 
-
-
         mImageView = (ImageView) rootView.findViewById(R.id.dialog_fragment_image);
         Bundle args = getArguments();
         String imageUrl = args.getString(getString(R.string.image_url));

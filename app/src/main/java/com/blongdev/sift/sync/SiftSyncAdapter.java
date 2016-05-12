@@ -98,31 +98,34 @@ public class SiftSyncAdapter extends AbstractThreadedSyncAdapter {
             }
         }
 
-        RedditClient redditClient = new RedditClient(Reddit.getUserAgent());
-
+//        RedditClient redditClient = new RedditClient(Reddit.getUserAgent());
+        Reddit reddit = Reddit.getInstance();
         for (AccountInfo currentAccount : accounts) {
-            OAuthHelper oAuthHelper = redditClient.getOAuthHelper();
+            OAuthHelper oAuthHelper = reddit.mRedditClient.getOAuthHelper();
             oAuthHelper.setRefreshToken(currentAccount.mRefreshKey);
             try {
+                reddit.mRateLimiter.acquire();
                 OAuthData data = oAuthHelper.refreshToken(Reddit.getCredentials());
-                redditClient.authenticate(data);
+                reddit.mRateLimiter.acquire();
+                reddit.mRedditClient.authenticate(data);
             } catch (Exception e) {
                 e.printStackTrace();
             }
 
-            if (redditClient.isAuthenticated() && redditClient.hasActiveUserContext()) {
+            if (reddit.mRedditClient.isAuthenticated() && reddit.mRedditClient.hasActiveUserContext()) {
                 try {
-                    getData(redditClient, currentAccount.mId, provider, initialSync);
+                    getData(currentAccount.mId, provider, initialSync);
                 } catch (RuntimeException e) {
                     e.printStackTrace();
                 }
             }
         }
 
-        if (redditClient.isAuthenticated()) {
+        if (reddit.mRedditClient.isAuthenticated()) {
             try {
                 //sync front page posts
-                SubredditPaginator paginator = new SubredditPaginator(redditClient);
+                SubredditPaginator paginator = new SubredditPaginator(reddit.mRedditClient);
+                reddit.mRateLimiter.acquire();
                 Listing<Submission> submissions = paginator.next();
 
                 ContentValues cv = new ContentValues();
@@ -165,12 +168,14 @@ public class SiftSyncAdapter extends AbstractThreadedSyncAdapter {
         Log.v("SiftSyncAdapter", "Sync Completed. Total Time: " + (endTime - startTime) / 1000 + " seconds");
     }
 
-    private void getData(RedditClient redditClient, int accountId, ContentProviderClient provider, boolean initialSync) {
+    private void getData(int accountId, ContentProviderClient provider, boolean initialSync) {
+        Reddit reddit = Reddit.getInstance();
         ContentValues cv = new ContentValues();
         //Subscribed
-        UserSubredditsPaginator subscribed = new UserSubredditsPaginator(redditClient, SiftApplication.getContext().getString(R.string.subscriber));
+        UserSubredditsPaginator subscribed = new UserSubredditsPaginator(reddit.mRedditClient, SiftApplication.getContext().getString(R.string.subscriber));
         subscribed.setLimit(Integer.MAX_VALUE);
         if (subscribed.hasNext()) {
+            reddit.mRateLimiter.acquire();
             Listing<Subreddit> subreddits = subscribed.next();
             for (Subreddit s : subreddits) {
                 //add subreddit
@@ -204,7 +209,8 @@ public class SiftSyncAdapter extends AbstractThreadedSyncAdapter {
                 cv.clear();
 
                 if (!initialSync) {
-                    SubredditPaginator paginator = new SubredditPaginator(redditClient, subName);
+                    SubredditPaginator paginator = new SubredditPaginator(reddit.mRedditClient, subName);
+                    reddit.mRateLimiter.acquire();
                     Listing<Submission> submissions = paginator.next();
                     int i = 0;
                     for (Submission sub : submissions) {
@@ -237,9 +243,10 @@ public class SiftSyncAdapter extends AbstractThreadedSyncAdapter {
         }
 
         //add favorite posts
-        UserContributionPaginator favorites = new UserContributionPaginator(redditClient, SiftApplication.getContext().getString(R.string.saved), redditClient.getAuthenticatedUser());
+        UserContributionPaginator favorites = new UserContributionPaginator(reddit.mRedditClient, SiftApplication.getContext().getString(R.string.saved), reddit.mRedditClient.getAuthenticatedUser());
         favorites.setLimit(Integer.MAX_VALUE);
         if (favorites.hasNext()) {
+            reddit.mRateLimiter.acquire();
             Listing<Contribution> contributions = favorites.next();
             Submission sub;
             for (Contribution c : contributions) {
@@ -270,14 +277,16 @@ public class SiftSyncAdapter extends AbstractThreadedSyncAdapter {
             }
         }
 
-        ImportantUserPaginator friends = new ImportantUserPaginator(redditClient, SiftApplication.getContext().getString(R.string.friends));
+        ImportantUserPaginator friends = new ImportantUserPaginator(reddit.mRedditClient, SiftApplication.getContext().getString(R.string.friends));
         friends.setLimit(Integer.MAX_VALUE);
         if (friends.hasNext()) {
+            reddit.mRateLimiter.acquire();
             Listing<UserRecord> friend = friends.next();
             for (UserRecord u : friend) {
                 //GET USER INFO
                 String fullname = u.getFullName();
-                net.dean.jraw.models.Account user = redditClient.getUser(fullname);
+                reddit.mRateLimiter.acquire();
+                net.dean.jraw.models.Account user = reddit.mRedditClient.getUser(fullname);
 
                 cv.put(SiftContract.Users.COLUMN_SERVER_ID, user.getId());
                 cv.put(SiftContract.Users.COLUMN_USERNAME, fullname);
@@ -299,10 +308,11 @@ public class SiftSyncAdapter extends AbstractThreadedSyncAdapter {
         int newMessages = 0;
 
         //messages
-        InboxPaginator inbox = new InboxPaginator(redditClient, SiftApplication.getContext().getString(R.string.inbox));
+        InboxPaginator inbox = new InboxPaginator(reddit.mRedditClient, SiftApplication.getContext().getString(R.string.inbox));
         inbox.setLimit(Integer.MAX_VALUE);
         inbox.setTimePeriod(TimePeriod.MONTH);
         if (inbox.hasNext()) {
+            reddit.mRateLimiter.acquire();
             Listing<Message> message = inbox.next();
             for (Message m : message) {
                 cv.put(SiftContract.Messages.COLUMN_USER_FROM, m.getAuthor());
@@ -321,10 +331,11 @@ public class SiftSyncAdapter extends AbstractThreadedSyncAdapter {
             }
         }
 
-        InboxPaginator sent = new InboxPaginator(redditClient, SiftApplication.getContext().getString(R.string.sent));
+        InboxPaginator sent = new InboxPaginator(reddit.mRedditClient, SiftApplication.getContext().getString(R.string.sent));
         sent.setLimit(Integer.MAX_VALUE);
         sent.setTimePeriod(TimePeriod.MONTH);
         if (sent.hasNext()) {
+            reddit.mRateLimiter.acquire();
             Listing<Message> message = sent.next();
             for (Message m : message) {
                 cv.put(SiftContract.Messages.COLUMN_USER_FROM, m.getAuthor());
@@ -338,10 +349,11 @@ public class SiftSyncAdapter extends AbstractThreadedSyncAdapter {
             }
         }
 
-        InboxPaginator mentions = new InboxPaginator(redditClient, SiftApplication.getContext().getString(R.string.mentions));
+        InboxPaginator mentions = new InboxPaginator(reddit.mRedditClient, SiftApplication.getContext().getString(R.string.mentions));
         mentions.setLimit(Integer.MAX_VALUE);
         mentions.setTimePeriod(TimePeriod.MONTH);
         if (mentions.hasNext()) {
+            reddit.mRateLimiter.acquire();
             Listing<Message> message = mentions.next();
             for (Message m : message) {
                 cv.put(SiftContract.Messages.COLUMN_USER_FROM, m.getAuthor());

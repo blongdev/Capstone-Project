@@ -158,12 +158,14 @@ public class Utilities {
         return null;
     }
 
-    public static long getAccountId (Context context, RedditClient redditClient) {
+    public static long getAccountId (Context context) {
         Cursor cursor = null;
         try {
-            if(redditClient.isAuthenticated() && redditClient.hasActiveUserContext()) {
+            Reddit reddit = Reddit.getInstance();
+            if(reddit.mRedditClient.isAuthenticated() && reddit.mRedditClient.hasActiveUserContext()) {
                 String selection = SiftContract.Accounts.COLUMN_USERNAME + " = ?";
-                String[] selectionArgs = new String[]{redditClient.me().getFullName()};
+                reddit.mRateLimiter.acquire();
+                String[] selectionArgs = new String[]{reddit.mRedditClient.me().getFullName()};
                 cursor = context.getContentResolver().query(SiftContract.Accounts.CONTENT_URI, null, selection, selectionArgs, null);
                 if (cursor != null && cursor.moveToFirst()) {
                     return cursor.getLong(cursor.getColumnIndex(SiftContract.Accounts._ID));

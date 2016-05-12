@@ -277,6 +277,7 @@ class ContributionLoader extends AsyncTaskLoader<List<ContributionInfo>> {
 
         try {
             if (paginator != null && paginator.hasNext()) {
+                reddit.mRateLimiter.acquire();
                 Listing<Contribution> page = paginator.next();
                 int i = 0;
                 for (Contribution contribution : page) {

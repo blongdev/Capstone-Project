@@ -406,6 +406,7 @@ public class PostListAdapter extends RecyclerView.Adapter<PostListAdapter.PostVi
             protected Submission doInBackground(String... params) {
                 try {
                     Reddit reddit = Reddit.getInstance();
+                    reddit.mRateLimiter.acquire();
                     return reddit.mRedditClient.getSubmission(mSubmissionServerId);
                 } catch (RuntimeException e) {
                     e.printStackTrace();
