@@ -115,9 +115,17 @@ public class MainActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        Intent intent = getIntent();
+        if (intent != null) {
+            mCategory = intent.getStringExtra(getString(R.string.category));
+        }
+
         if (findViewById(R.id.tablet) != null) {
-            Intent intent = new Intent(this, SubredditListActivity.class);
-            startActivity(intent);
+            Intent activity = new Intent(this, SubredditListActivity.class);
+            if(mCategory != null) {
+                activity.putExtra(getString(R.string.category), mCategory);
+            }
+            startActivity(activity);
         }
 
         mLoadingSpinner = (ProgressBar) findViewById(R.id.progressSpinnerMain);
@@ -145,11 +153,6 @@ public class MainActivity extends BaseActivity {
         });
 
         mFab.hide();
-
-        Intent intent = getIntent();
-        if (intent != null) {
-            mCategory = intent.getStringExtra(getString(R.string.category));
-        }
 
         if (mCategory != null && mReddit.mRedditClient.isAuthenticated()) {
             getSupportLoaderManager().initLoader(ASYNCTASK_LOADER_ID, null, mPopularSubredditsLoader).forceLoad();

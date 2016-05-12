@@ -10,7 +10,7 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
 
-public class SearchResultsActivity extends BaseActivity {
+public class SearchResultsActivity extends BaseActivity implements SubredditListActivityFragment.Callback{
 
     private SearchPagerAdapter mSearchPagerAdapter;
     private ViewPager mViewPager;
@@ -94,4 +94,11 @@ public class SearchResultsActivity extends BaseActivity {
         }
     }
 
+    @Override
+    public void onItemSelected(long id, String name) {
+            Intent intent = new Intent(this, SubredditActivity.class);
+            intent.putExtra(getString(R.string.subreddit_id), id);
+            intent.putExtra(getString(R.string.subreddit_name), name);
+            startActivity(intent);
+    }
 }

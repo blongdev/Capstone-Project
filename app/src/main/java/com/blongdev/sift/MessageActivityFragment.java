@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.support.v4.view.ViewCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -53,6 +54,9 @@ public class MessageActivityFragment extends Fragment implements LoaderManager.L
         mMessagesListView = (ListView) rootView.findViewById(R.id.messages_list);
         mMessagesAdapter = new MessagesAdapter(getActivity(), mMessages);
         mMessagesListView.setAdapter(mMessagesAdapter);
+
+        ViewCompat.setNestedScrollingEnabled(mMessagesListView, true);
+
 
         getLoaderManager().initLoader(0, null, this);
 

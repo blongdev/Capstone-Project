@@ -19,6 +19,7 @@ import android.widget.Toast;
 
 import com.blongdev.sift.database.SiftContract;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.google.common.util.concurrent.RateLimiter;
 
 import net.dean.jraw.ApiException;
 import net.dean.jraw.RedditClient;

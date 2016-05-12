@@ -295,6 +295,11 @@ class ContributionLoader extends AsyncTaskLoader<List<ContributionInfo>> {
                         posts.add(commentInfo);
                     } else {
                         Submission submission = (Submission) contribution;
+
+                        if (submission.isNsfw()) {
+                            continue;
+                        }
+
                         PostInfo post = new PostInfo();
                         post.mServerId = submission.getId();
                         post.mTitle = submission.getTitle();

@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.support.v4.view.ViewCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -40,6 +41,7 @@ public class FriendsListActivityFragment extends Fragment implements LoaderManag
         mFriendsListView = (ListView) rootView.findViewById(R.id.friends_list);
         mFriendsAdapter = new FriendsAdapter(getActivity(), mFriends);
         mFriendsListView.setAdapter(mFriendsAdapter);
+        ViewCompat.setNestedScrollingEnabled(mFriendsListView, true);
 
         mFriendsListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override

@@ -12,6 +12,7 @@ import android.support.v4.app.LoaderManager;
 import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.support.v4.view.ViewCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -26,6 +27,8 @@ import net.dean.jraw.models.Listing;
 import net.dean.jraw.models.Subreddit;
 import net.dean.jraw.paginators.Paginator;
 import net.dean.jraw.paginators.SubredditSearchPaginator;
+import net.dean.jraw.paginators.SubredditStream;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -117,11 +120,18 @@ public class SubredditListActivityFragment extends Fragment {
         mSubredditListView = (ListView) rootView.findViewById(R.id.subreddit_list);
         mLoadingSpinner = (ProgressBar) rootView.findViewById(R.id.progressSpinner);
 
+        ViewCompat.setNestedScrollingEnabled(mSubredditListView, true);
+
         Bundle args = getArguments();
         if (args != null) {
             mSearchTerm = args.getString(getString(R.string.search_term));
+            boolean popular = args.getBoolean(getString(R.string.popular));
             if (mSearchTerm != null) {
                 mPaginator = new SubredditSearchPaginator(mReddit.mRedditClient, mSearchTerm);
+                getActivity().getSupportLoaderManager().initLoader(ASYNCTASK_LOADER_ID, null, mSearchSubredditsLoader).forceLoad();
+                mLoadingSpinner.setVisibility(View.VISIBLE);
+            } else if (popular) {
+                mPaginator = new SubredditStream(mReddit.mRedditClient, getString(R.string.popular));
                 getActivity().getSupportLoaderManager().initLoader(ASYNCTASK_LOADER_ID, null, mSearchSubredditsLoader).forceLoad();
                 mLoadingSpinner.setVisibility(View.VISIBLE);
             }
@@ -233,6 +243,9 @@ class SubredditLoader extends AsyncTaskLoader<List<SubredditInfo>> {
             if (mPaginator != null && mPaginator.hasNext()) {
                 Listing<Subreddit> page = mPaginator.next();
                 for (Subreddit subreddit : page) {
+                    if(subreddit.isNsfw()) {
+                        continue;
+                    }
                     SubredditInfo sub = new SubredditInfo();
                     sub.mName = subreddit.getDisplayName();
                     sub.mServerId = subreddit.getId();
