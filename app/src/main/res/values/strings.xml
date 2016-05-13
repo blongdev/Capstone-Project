@@ -84,6 +84,7 @@
 
     <string name="frontPage">FrontPage</string>
     <string name="initial_sync">initialSync</string>
+    <string name="isTablet">isTablet</string>
 
     <string name="replies">Replies</string>
     <string name="reply">Reply</string>

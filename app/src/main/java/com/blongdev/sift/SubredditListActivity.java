@@ -1,12 +1,18 @@
 package com.blongdev.sift;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -17,7 +23,6 @@ import android.view.View;
 public class SubredditListActivity extends BaseActivity implements SubredditListActivityFragment.Callback {
 
     FragmentManager mFragmentManager;
-    SubredditFragment mSubredditFragment;
     boolean mIsTablet;
 
     @Override
@@ -36,19 +41,25 @@ public class SubredditListActivity extends BaseActivity implements SubredditList
         }
 
         if(mIsTablet) {
+            ActionBar toolbar = getSupportActionBar();
+            if (toolbar != null) {
+                toolbar.setTitle(getString(R.string.sift));
+            }
+
             SubredditListActivityFragment subListFrag = new SubredditListActivityFragment();
 
             Bundle args = new Bundle();
+            args.putBoolean(getString(R.string.isTablet), true);
             if (!Utilities.loggedIn(this) || !TextUtils.isEmpty(category) ||
                     (mReddit.mRedditClient.isAuthenticated() && !mReddit.mRedditClient.hasActiveUserContext())) {
                 args.putBoolean(getString(R.string.popular), true);
-                subListFrag.setArguments(args);
+
             }
+            subListFrag.setArguments(args);
             android.support.v4.app.FragmentTransaction ft = mFragmentManager.beginTransaction();
             ft.replace(R.id.fragment, subListFrag);
             ft.commit();
         }
-
     }
 
     @Override
@@ -61,12 +72,36 @@ public class SubredditListActivity extends BaseActivity implements SubredditList
             subFrag.setArguments(args);
             android.support.v4.app.FragmentTransaction ft = mFragmentManager.beginTransaction();
             ft.replace(R.id.posts_fragment, subFrag);
-            ft.commit();
+            ft.commitAllowingStateLoss();
         } else {
             Intent intent = new Intent(this, SubredditActivity.class);
             intent.putExtra(getString(R.string.subreddit_id), id);
             intent.putExtra(getString(R.string.subreddit_name), name);
             startActivity(intent);
         }
+    }
+
+    private BroadcastReceiver mBroadcastReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (mReddit.mRedditClient.isAuthenticated()) {
+                if (!Utilities.loggedIn(getApplicationContext())) {
+                    recreate();
+                }
+            }
+        }
+    };
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        LocalBroadcastManager.getInstance(this).registerReceiver(mBroadcastReceiver,
+                new IntentFilter(Reddit.AUTHENTICATED));
+    }
+
+    @Override
+    public void onPause() {
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(mBroadcastReceiver);
+        super.onPause();
     }
 }

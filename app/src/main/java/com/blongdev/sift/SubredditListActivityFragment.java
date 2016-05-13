@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
 import android.support.v4.app.LoaderManager;
@@ -42,11 +43,14 @@ public class SubredditListActivityFragment extends Fragment {
     Paginator mPaginator;
     Reddit mReddit;
     String mSearchTerm;
+    boolean mIsTablet;
+    int mSelectedPosition = -1;
 
     ProgressBar mLoadingSpinner;
 
     private static final int CURSOR_LOADER_ID = 1;
     private static final int ASYNCTASK_LOADER_ID = 2;
+    private static final String POSITION = "position";
 
     public interface Callback {
         public void onItemSelected(long id, String name);
@@ -64,6 +68,14 @@ public class SubredditListActivityFragment extends Fragment {
         @Override
         public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
             mLoadingSpinner.setVisibility(View.GONE);
+
+            if (mIsTablet) {
+                SubredditInfo frontpage = new SubredditInfo();
+                frontpage.mId = -1;
+                frontpage.mName = getString(R.string.frontPage);
+                mSubreddits.add(frontpage);
+            }
+
             if (cursor != null) {
                 while (cursor.moveToNext()) {
                     SubredditInfo sub = new SubredditInfo();
@@ -88,13 +100,18 @@ public class SubredditListActivityFragment extends Fragment {
 
         @Override
         public Loader<List<SubredditInfo>> onCreateLoader(int id, Bundle args) {
-            return new SubredditLoader(getContext(), mPaginator);
+            return new SubredditLoader(getContext(), mPaginator, mIsTablet);
         }
 
         @Override
         public void onLoadFinished(Loader<List<SubredditInfo>> loader, List<SubredditInfo> data) {
             mLoadingSpinner.setVisibility(View.GONE);
             mSubredditAdapter.setData(data);
+//            if (mIsTablet && data.size() > 0 && mSelectedPosition == -1) {
+//                SubredditInfo sub = data.get(0);
+//                ((Callback)getActivity()).onItemSelected(sub.mId, sub.mName);
+//                mSelectedPosition = 0;
+//            }
         }
 
         @Override
@@ -108,6 +125,20 @@ public class SubredditListActivityFragment extends Fragment {
     public SubredditListActivityFragment() {
 
     }
+
+//    @Override
+//    public void onSaveInstanceState(Bundle savedInstanceState) {
+//        savedInstanceState.putInt(POSITION, mSelectedPosition);
+//        super.onSaveInstanceState(savedInstanceState);
+//    }
+//
+//    @Override
+//    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+//        super.onActivityCreated(savedInstanceState);
+//        if (savedInstanceState != null) {
+//            mSelectedPosition = savedInstanceState.getInt(POSITION);
+//        }
+//    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -125,6 +156,7 @@ public class SubredditListActivityFragment extends Fragment {
         Bundle args = getArguments();
         if (args != null) {
             mSearchTerm = args.getString(getString(R.string.search_term));
+            mIsTablet = args.getBoolean(getString(R.string.isTablet), false);
             boolean popular = args.getBoolean(getString(R.string.popular));
             if (mSearchTerm != null) {
                 mPaginator = new SubredditSearchPaginator(mReddit.mRedditClient, mSearchTerm);
@@ -144,6 +176,7 @@ public class SubredditListActivityFragment extends Fragment {
         mSubredditListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                mSelectedPosition = position;
                 SubredditInfo sub = mSubreddits.get(position);
                 if (sub.mId == 0) {
                     //check for subreddit in database, and if not found insert.
@@ -224,13 +257,14 @@ class SubredditLoader extends AsyncTaskLoader<List<SubredditInfo>> {
     List<SubredditInfo> mSubreddits;
     Paginator mPaginator;
     Context mContext;
+    boolean mAddFrontpage;
 
-
-    public SubredditLoader(Context context, Paginator paginator) {
+    public SubredditLoader(Context context, Paginator paginator, boolean addFrontpage) {
         super(context);
         mSubreddits = new ArrayList<SubredditInfo>();
         mPaginator = paginator;
         mContext = context;
+        mAddFrontpage = addFrontpage;
     }
 
     @Override
@@ -240,6 +274,13 @@ class SubredditLoader extends AsyncTaskLoader<List<SubredditInfo>> {
             return mSubreddits;
 
         try {
+            if(mAddFrontpage) {
+                SubredditInfo frontpage = new SubredditInfo();
+                frontpage.mId = -1;
+                frontpage.mName = mContext.getString(R.string.frontPage);
+                mSubreddits.add(frontpage);
+            }
+
             if (mPaginator != null && mPaginator.hasNext()) {
                 reddit.mRateLimiter.acquire();
                 Listing<Subreddit> page = mPaginator.next();

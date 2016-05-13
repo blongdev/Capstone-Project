@@ -21,7 +21,7 @@ public class SiftApplication extends Application {
     public static final String ACCOUNT_NAME = "Sift";
     public static final long SECONDS_PER_MINUTE = 60L;
     public static final long SYNC_INTERVAL_IN_MINUTES = 60L;
-    public static final long SYNC_INTERVAL = SYNC_INTERVAL_IN_MINUTES * SECONDS_PER_MINUTE;
+    public static final long SYNC_INTERVAL = SYNC_INTERVAL_IN_MINUTES * SECONDS_PER_MINUTE * 2;
 
     private Tracker mTracker;
 

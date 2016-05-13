@@ -69,7 +69,7 @@ public class SubredditFragment extends Fragment implements LoaderManager.LoaderC
 
     private TextView mEmptyText;
 
-    private int mRefreshPoint = 0;
+    private int mRefreshPoint = 10;
 
     private static final int CURSOR_LOADER_ID = 1;
     private static final int ASYNCTASK_LOADER_ID = 2;

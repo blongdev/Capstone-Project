@@ -10,18 +10,18 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
 
-public class SearchResultsActivity extends BaseActivity implements SubredditListActivityFragment.Callback{
+public class SearchResultsActivity extends BaseActivity implements SubredditListActivityFragment.Callback {
 
     private SearchPagerAdapter mSearchPagerAdapter;
     private ViewPager mViewPager;
 
     private String mSearchTerm;
+    private boolean mIsTablet;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_search_results);
-
         Intent intent = getIntent();
         if (intent != null && Intent.ACTION_SEARCH.equals(intent.getAction())) {
             String query = intent.getStringExtra(SearchManager.QUERY);
@@ -33,13 +33,31 @@ public class SearchResultsActivity extends BaseActivity implements SubredditList
             }
         }
 
-        mSearchPagerAdapter = new SearchPagerAdapter(getSupportFragmentManager());
+        if (findViewById(R.id.submissions_fragment) != null) {
+            mIsTablet = true;
 
-        mViewPager = (ViewPager) findViewById(R.id.pager);
-        mViewPager.setAdapter(mSearchPagerAdapter);
+            FragmentManager fm = getSupportFragmentManager();
+            SubredditFragment postFrag = new SubredditFragment();
+            SubredditListActivityFragment subsFrag = new SubredditListActivityFragment();
+            Bundle args = new Bundle();
+            args.putString(getString(R.string.search_term), mSearchTerm);
+            args.putInt(getString(R.string.paginator_type), SubredditInfo.SUBMISSION_SEARCH_PAGINATOR);
+            postFrag.setArguments(args);
+            subsFrag.setArguments(args);
+            android.support.v4.app.FragmentTransaction ft = fm.beginTransaction();
+            ft.add(R.id.submissions_fragment, postFrag);
+            ft.add(R.id.subreddits_fragment, subsFrag);
+            ft.commit();
+        } else {
 
-        TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
-        tabLayout.setupWithViewPager(mViewPager);
+            mSearchPagerAdapter = new SearchPagerAdapter(getSupportFragmentManager());
+
+            mViewPager = (ViewPager) findViewById(R.id.pager);
+            mViewPager.setAdapter(mSearchPagerAdapter);
+
+            TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
+            tabLayout.setupWithViewPager(mViewPager);
+        }
 
     }
 
