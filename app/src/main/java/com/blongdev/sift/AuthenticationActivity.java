@@ -47,13 +47,13 @@ public class AuthenticationActivity extends BaseActivity {
                 public void onProgressChanged(WebView view, int newProgress) {
 
                 }
-            });
+    });
 
             mWebView.setWebViewClient(new WebViewClient() {
                 @Override
                 public void onPageStarted(WebView view, String url, Bitmap favicon) {
                     if (url.contains("code=")) {
-                        mReddit.runUserChallengeTask(url, getApplicationContext());
+                        mReddit.runUserChallengeTask(url);
                         Intent intent = new Intent(getApplicationContext(), MainActivity.class);
                         startActivity(intent);
                     }

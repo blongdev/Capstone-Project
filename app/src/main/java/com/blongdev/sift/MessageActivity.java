@@ -108,7 +108,7 @@ public class MessageActivity extends BaseActivity implements MessageActivityFrag
             ft.replace(R.id.detail_fragment, mMessageDetailFragment);
             ft.commit();
         } else {
-            Intent intent = new Intent(this, MessageDetailActivity.class);
+            Intent intent = new Intent(SiftApplication.getContext(), MessageDetailActivity.class);
             intent.putExtra(getString(R.string.username), from);
             intent.putExtra(getString(R.string.title), title);
             intent.putExtra(getString(R.string.body), body);

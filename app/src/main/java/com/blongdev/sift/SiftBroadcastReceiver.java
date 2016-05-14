@@ -17,9 +17,9 @@ public class SiftBroadcastReceiver extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
         if (TextUtils.equals(intent.getAction(), LOGGED_IN)) {
             Toast.makeText(context, context.getString(R.string.logged_in), Toast.LENGTH_LONG).show();
-            Intent activity = new Intent(context, MainActivity.class);
+            Intent activity = new Intent(SiftApplication.getContext(), MainActivity.class);
             activity.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            context.startActivity(activity);
+            SiftApplication.getContext().startActivity(activity);
         }
     }
 }

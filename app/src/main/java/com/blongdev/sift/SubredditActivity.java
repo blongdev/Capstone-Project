@@ -38,7 +38,7 @@ public class SubredditActivity extends BaseActivity {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (!Utilities.loggedIn(getApplicationContext())) {
+                if (!Utilities.loggedIn()) {
                     Toast.makeText(getApplicationContext(), getString(R.string.must_log_in), Toast.LENGTH_LONG).show();
                     return;
                 }
@@ -65,7 +65,7 @@ public class SubredditActivity extends BaseActivity {
 
         if (mReddit.mRedditClient.isAuthenticated() && mReddit.mRedditClient.hasActiveUserContext()) {
             if (!TextUtils.isEmpty(mSubredditName)) {
-                long subscriptionId = Utilities.getSubscriptionId(getApplicationContext(), mSubredditName);
+                long subscriptionId = Utilities.getSubscriptionId(mSubredditName);
                 if (subscriptionId > 0) {
                     mSubscribed = true;
                     mSubscribe.setIcon(R.drawable.ic_favorite_24dp);
@@ -76,7 +76,7 @@ public class SubredditActivity extends BaseActivity {
         mSubscribe.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem item) {
-                if (!Utilities.loggedIn(getApplicationContext())) {
+                if (!Utilities.loggedIn()) {
                     Toast.makeText(getApplicationContext(), getApplicationContext().getString(R.string.must_log_in), Toast.LENGTH_LONG).show();
                     return false;
                 }
@@ -84,12 +84,12 @@ public class SubredditActivity extends BaseActivity {
                 if (mSubscribed) {
                     mSubscribed = false;
                     mSubscribe.setIcon(R.drawable.ic_favorite_outline_24dp);
-                    Reddit.getInstance().unsubscribe(getApplicationContext(), mSubredditName);
+                    Reddit.getInstance().unsubscribe(mSubredditName);
                     Toast.makeText(getApplicationContext(), getApplicationContext().getString(R.string.unsubscribed), Toast.LENGTH_LONG).show();
                 } else {
                     mSubscribed = true;
                     mSubscribe.setIcon(R.drawable.ic_favorite_24dp);
-                    Reddit.getInstance().subscribe(getApplicationContext(), mSubredditName);
+                    Reddit.getInstance().subscribe(mSubredditName);
                     Toast.makeText(getApplicationContext(), getApplicationContext().getString(R.string.subscribed), Toast.LENGTH_LONG).show();
                 }
                 return true;

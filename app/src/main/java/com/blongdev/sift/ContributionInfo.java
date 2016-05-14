@@ -5,8 +5,8 @@ package com.blongdev.sift;
  */
 public class ContributionInfo {
     public String mUsername;
-    public int mUserId;
-    public int mPost;
+    public long mUserId;
+    public long mPost;
     public String mBody;
     public int mPoints;
     public int mComments;

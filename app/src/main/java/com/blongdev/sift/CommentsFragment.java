@@ -97,25 +97,25 @@ public class CommentsFragment extends Fragment implements LoaderManager.LoaderCa
     public void onResume() {
         super.onResume();
 
-        LocalBroadcastManager.getInstance(getContext()).registerReceiver(mBroadcastReceiver,
+        LocalBroadcastManager.getInstance(SiftApplication.getContext()).registerReceiver(mBroadcastReceiver,
                 new IntentFilter(Reddit.AUTHENTICATED));
     }
 
     @Override
     public void onPause() {
-        LocalBroadcastManager.getInstance(getContext()).unregisterReceiver(mBroadcastReceiver);
+        LocalBroadcastManager.getInstance(SiftApplication.getContext()).unregisterReceiver(mBroadcastReceiver);
         super.onPause();
     }
 
     public TreeNode replyToPost(){
         if(mTreeView != null) {
-            return addReplyNode(getContext(), mRoot);
+            return addReplyNode(mRoot);
         }
         return null;
     }
 
-    private TreeNode addReplyNode(Context context, TreeNode node) {
-        String username = Utilities.getLoggedInUsername(context);
+    private TreeNode addReplyNode(TreeNode node) {
+        String username = Utilities.getLoggedInUsername();
         CommentInfo commentInfo = new CommentInfo();
         commentInfo.mUsername = username;
         commentInfo.mPoints = 1;
@@ -126,11 +126,11 @@ public class CommentsFragment extends Fragment implements LoaderManager.LoaderCa
     }
 
     private TreeNode createCommentNode(CommentInfo comment) {
-        return new TreeNode(comment).setViewHolder(new CommentViewHolder(getContext(), false));
+        return new TreeNode(comment).setViewHolder(new CommentViewHolder(SiftApplication.getContext(), false));
     }
 
     private TreeNode createReplyNode(CommentInfo comment) {
-        return new TreeNode(comment).setViewHolder(new CommentViewHolder(getContext(), true));
+        return new TreeNode(comment).setViewHolder(new CommentViewHolder(SiftApplication.getContext(), true));
     }
 
     public class CommentViewHolder extends TreeNode.BaseNodeViewHolder<CommentInfo> {
@@ -161,7 +161,6 @@ public class CommentsFragment extends Fragment implements LoaderManager.LoaderCa
 
             int padding_left = (int) getResources().getDimension(R.dimen.comment_indent) * (node.getLevel()-1);
             int padding = (int) getResources().getDimension(R.dimen.comment_padding);
-
 
             LinearLayout commentView = (LinearLayout) view.findViewById(R.id.comment_view);
             commentView.setPadding(padding_left, 0, padding, 0);
@@ -221,27 +220,27 @@ public class CommentsFragment extends Fragment implements LoaderManager.LoaderCa
             mUpvote.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    upvote(v.getContext());
+                    upvote(SiftApplication.getContext());
                 }
             });
 
             mDownvote.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    downvote(v.getContext());
+                    downvote(SiftApplication.getContext());
                 }
             });
 
             mReply.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    if (!Utilities.loggedIn(v.getContext())) {
-                        Toast.makeText(v.getContext(), getString(R.string.must_log_in), Toast.LENGTH_LONG).show();
+                    if (!Utilities.loggedIn()) {
+                        Toast.makeText(SiftApplication.getContext(), getString(R.string.must_log_in), Toast.LENGTH_LONG).show();
                         return;
                     }
 
                     if(mReplyNode == null) {
-                        mReplyNode = addReplyNode(context, node);
+                        mReplyNode = addReplyNode(node);
                         mReply.setImageResource(R.drawable.ic_clear_24dp);
                         focusOnReply(mReplyNode);
                     } else {
@@ -257,9 +256,9 @@ public class CommentsFragment extends Fragment implements LoaderManager.LoaderCa
                 public void onClick(View v) {
                     if (!TextUtils.isEmpty(mReplyText.getText().toString())) {
                         if (mComment != null) {
-                            Reddit.replyToComment(view.getContext(), mComment, mReplyText.getText().toString());
+                            Reddit.replyToComment(mComment, mReplyText.getText().toString());
                         } else {
-                            Reddit.commentOnPost(view.getContext(), mPostServerId, mReplyText.getText().toString());
+                            Reddit.commentOnPost(mPostServerId, mReplyText.getText().toString());
                         }
                         mBody.setText(mReplyText.getText().toString());
                         mBody.setVisibility(View.VISIBLE);
@@ -267,7 +266,7 @@ public class CommentsFragment extends Fragment implements LoaderManager.LoaderCa
                         mReplyText.clearFocus();
 
                         //hide keyboard
-                        InputMethodManager imm = (InputMethodManager) view.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+                        InputMethodManager imm = (InputMethodManager) SiftApplication.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
                         imm.hideSoftInputFromWindow(mReplyText.getWindowToken(), 0);
                     }
                 }
@@ -310,7 +309,7 @@ public class CommentsFragment extends Fragment implements LoaderManager.LoaderCa
         }
 
         private void upvote(Context context) {
-            if (!Utilities.loggedIn(context)) {
+            if (!Utilities.loggedIn()) {
                 Toast.makeText(context, context.getString(R.string.must_log_in), Toast.LENGTH_LONG).show();
                 return;
             }
@@ -335,11 +334,11 @@ public class CommentsFragment extends Fragment implements LoaderManager.LoaderCa
                 mPoints.setText(String.valueOf(Integer.valueOf(mPoints.getText().toString()) + 1));
             }
 
-            Reddit.voteComment(context, mComment, mVote);
+            Reddit.voteComment(mComment, mVote);
         }
 
         private void downvote(Context context) {
-            if (!Utilities.loggedIn(context)) {
+            if (!Utilities.loggedIn()) {
                 Toast.makeText(context, context.getString(R.string.must_log_in), Toast.LENGTH_LONG).show();
                 return;
             }
@@ -364,7 +363,7 @@ public class CommentsFragment extends Fragment implements LoaderManager.LoaderCa
                 mPoints.setText(String.valueOf(Integer.valueOf(mPoints.getText().toString()) - 1));
             }
 
-            Reddit.voteComment(context, mComment, mVote);
+            Reddit.voteComment(mComment, mVote);
 
         }
     }
@@ -372,7 +371,7 @@ public class CommentsFragment extends Fragment implements LoaderManager.LoaderCa
     public void focusOnReply(TreeNode reply) {
         CommentViewHolder cvh = (CommentViewHolder) reply.getViewHolder();
         cvh.mReplyText.requestFocus();
-        InputMethodManager imm = (InputMethodManager) getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+        InputMethodManager imm = (InputMethodManager) SiftApplication.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
         imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, InputMethodManager.HIDE_IMPLICIT_ONLY);
     }
 
@@ -381,7 +380,7 @@ public class CommentsFragment extends Fragment implements LoaderManager.LoaderCa
         cvh.mReplyText.requestFocus();
 
         //hide keyboard
-        InputMethodManager imm = (InputMethodManager) getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+        InputMethodManager imm = (InputMethodManager) SiftApplication.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
         imm.hideSoftInputFromWindow(cvh.mReplyText.getWindowToken(), 0);
 
         mTreeView.removeNode(node);
@@ -461,11 +460,11 @@ public class CommentsFragment extends Fragment implements LoaderManager.LoaderCa
     @Override
     public Loader<CommentNode> onCreateLoader(int id, Bundle args) {
         mLoadingSpinner.setVisibility(View.VISIBLE);
-        return new CommentLoader(getContext(), mPostServerId);
+        return new CommentLoader(SiftApplication.getContext(), mPostServerId);
     }
     @Override
     public void onLoadFinished(Loader<CommentNode> loader, CommentNode root) {
-        new CopyTreeTask(getContext(), root).execute();
+        new CopyTreeTask(SiftApplication.getContext(), root).execute();
     }
     @Override
     public void onLoaderReset(Loader<CommentNode> loader) {

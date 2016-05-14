@@ -51,12 +51,12 @@ public class WidgetService extends RemoteViewsService {
                     while (cursor.moveToNext() && cursor.getPosition() < LIMIT) {
                         PostInfo post = new PostInfo();
 
-                        post.mId = cursor.getInt(cursor.getColumnIndex(SiftContract.Posts._ID));
+                        post.mId = cursor.getLong(cursor.getColumnIndex(SiftContract.Posts._ID));
                         post.mTitle = cursor.getString(cursor.getColumnIndex(SiftContract.Posts.COLUMN_TITLE));
                         post.mUsername = cursor.getString(cursor.getColumnIndex(SiftContract.Posts.COLUMN_OWNER_USERNAME));
-                        post.mUserId = cursor.getInt(cursor.getColumnIndex(SiftContract.Posts.COLUMN_OWNER_ID));
+                        post.mUserId = cursor.getLong(cursor.getColumnIndex(SiftContract.Posts.COLUMN_OWNER_ID));
                         post.mSubreddit = cursor.getString(cursor.getColumnIndex(SiftContract.Posts.COLUMN_SUBREDDIT_NAME));
-                        post.mSubredditId = cursor.getInt(cursor.getColumnIndex(SiftContract.Posts.COLUMN_SUBREDDIT_ID));
+                        post.mSubredditId = cursor.getLong(cursor.getColumnIndex(SiftContract.Posts.COLUMN_SUBREDDIT_ID));
                         post.mPoints = cursor.getInt(cursor.getColumnIndex(SiftContract.Posts.COLUMN_POINTS));
                         post.mImageUrl = cursor.getString(cursor.getColumnIndex(SiftContract.Posts.COLUMN_IMAGE_URL));
                         post.mUrl = cursor.getString(cursor.getColumnIndex(SiftContract.Posts.COLUMN_URL));

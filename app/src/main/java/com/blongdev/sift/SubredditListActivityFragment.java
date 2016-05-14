@@ -100,7 +100,7 @@ public class SubredditListActivityFragment extends Fragment {
 
         @Override
         public Loader<List<SubredditInfo>> onCreateLoader(int id, Bundle args) {
-            return new SubredditLoader(getContext(), mPaginator, mIsTablet);
+            return new SubredditLoader( mPaginator, mIsTablet);
         }
 
         @Override
@@ -180,7 +180,7 @@ public class SubredditListActivityFragment extends Fragment {
                 SubredditInfo sub = mSubreddits.get(position);
                 if (sub.mId == 0) {
                     //check for subreddit in database, and if not found insert.
-                    sub.mId = Utilities.getSubredditId(getContext(), sub.mServerId);
+                    sub.mId = Utilities.getSubredditId(sub.mServerId);
                     if (sub.mId == -1) {
                         ContentValues cv = new ContentValues();
                         cv.put(SiftContract.Subreddits.COLUMN_NAME, sub.mName);
@@ -256,28 +256,26 @@ class SubredditLoader extends AsyncTaskLoader<List<SubredditInfo>> {
 
     List<SubredditInfo> mSubreddits;
     Paginator mPaginator;
-    Context mContext;
     boolean mAddFrontpage;
 
-    public SubredditLoader(Context context, Paginator paginator, boolean addFrontpage) {
-        super(context);
+    public SubredditLoader(Paginator paginator, boolean addFrontpage) {
+        super(SiftApplication.getContext());
         mSubreddits = new ArrayList<SubredditInfo>();
         mPaginator = paginator;
-        mContext = context;
         mAddFrontpage = addFrontpage;
     }
 
     @Override
     public List<SubredditInfo> loadInBackground() {
         Reddit reddit = Reddit.getInstance();
-        if(!reddit.mRedditClient.isAuthenticated() || !Utilities.connectedToNetwork(mContext))
+        if(!reddit.mRedditClient.isAuthenticated() || !Utilities.connectedToNetwork())
             return mSubreddits;
 
         try {
             if(mAddFrontpage) {
                 SubredditInfo frontpage = new SubredditInfo();
                 frontpage.mId = -1;
-                frontpage.mName = mContext.getString(R.string.frontPage);
+                frontpage.mName = SiftApplication.getContext().getString(R.string.frontPage);
                 mSubreddits.add(frontpage);
             }
 

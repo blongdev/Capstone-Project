@@ -28,7 +28,7 @@ public class PostDetailFragment extends Fragment {
     ProgressBar mLoadingSpinner;
     TextView mBody;
 
-    private int mPostId = 0;
+    private long mPostId = 0;
     private String mPostServerId;
 
     public PostDetailFragment() {
@@ -59,7 +59,7 @@ public class PostDetailFragment extends Fragment {
 
         Bundle args = getArguments();
         if (args != null) {
-            mPostId = args.getInt(getString(R.string.post_id));
+            mPostId = args.getLong(getString(R.string.post_id));
             mPostServerId = args.getString(getString(R.string.server_id));
         }
 

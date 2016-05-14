@@ -4,7 +4,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.VectorDrawable;
 import android.media.Image;
 import android.os.AsyncTask;
 import android.support.v4.content.ContextCompat;
@@ -116,20 +118,22 @@ public class PostListAdapter extends RecyclerView.Adapter<PostListAdapter.PostVi
                 postViewHolder.mPoints.setTextColor(Color.WHITE);
             }
 
+            postViewHolder.mImage.setImageDrawable(null);
+
             //picasso needs to be passed null to prevent listview from displaying incorrectly cached images
             if(!TextUtils.isEmpty(post.mImageUrl)) {
-
-                Picasso.with(postViewHolder.mImage.getContext())
+                Picasso.with(SiftApplication.getContext())
                         .load(post.mImageUrl)
+                        .fit()
+                        .centerCrop()
                         .placeholder(R.drawable.ic_photo_48dp)
-                        .into(postViewHolder.mTarget);
+                        .into(postViewHolder.mImage);
             } else {
-                Picasso.with(postViewHolder.mImage.getContext())
+                Picasso.with(SiftApplication.getContext())
                         .load(post.mImageUrl)
                         .into(postViewHolder.mImage);
             }
         }
-
     }
 
     @Override
@@ -144,7 +148,6 @@ public class PostListAdapter extends RecyclerView.Adapter<PostListAdapter.PostVi
                     from(viewGroup.getContext()).
                     inflate(R.layout.post, viewGroup, false);
         }
-
 
         return new PostViewHolder(itemView, type);
     }
@@ -163,7 +166,7 @@ public class PostListAdapter extends RecyclerView.Adapter<PostListAdapter.PostVi
         protected ImageView mDownvote;
 
         protected String mImageUrl;
-        protected int mPostId;
+        protected long mPostId;
         protected String mServerId;
         protected String mBody;
         protected String mUrl;
@@ -201,30 +204,38 @@ public class PostListAdapter extends RecyclerView.Adapter<PostListAdapter.PostVi
 
                 mUpvote.setOnClickListener(mOnClickListener);
                 mDownvote.setOnClickListener(mOnClickListener);
-
                 mTitle.setOnClickListener(mOnClickListener);
                 mUsername.setOnClickListener(mOnClickListener);
                 mImage.setOnClickListener(mOnClickListener);
                 mSubreddit.setOnClickListener(mOnClickListener);
 
-                mTarget = new Target() {
-                    @Override
-                    public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
-                        mImage.setScaleType(ImageView.ScaleType.CENTER_CROP);
-                        mImage.setImageBitmap(bitmap);
-                    }
-
-                    @Override
-                    public void onBitmapFailed(Drawable errorDrawable) {
-
-                    }
-
-                    @Override
-                    public void onPrepareLoad(Drawable placeHolderDrawable) {
-                        mImage.setScaleType(ImageView.ScaleType.CENTER);
-                        mImage.setImageDrawable(placeHolderDrawable);
-                    }
-                };
+//                mTarget = new Target() {
+//                    @Override
+//                    public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
+//
+//                        int maxHeight = mImage.getHeight();
+//                        if (bitmap.getHeight() > maxHeight) {
+//                            float factor = maxHeight / (float) bitmap.getHeight();
+//                            if (factor > 0) {
+//                                bitmap = Bitmap.createScaledBitmap(bitmap, (int) (bitmap.getWidth() * factor), maxHeight, true);
+//                            }
+//                        }
+//
+//                        mImage.setScaleType(ImageView.ScaleType.CENTER_CROP);
+//                        mImage.setImageBitmap(bitmap);
+//                    }
+//
+//                    @Override
+//                    public void onBitmapFailed(Drawable errorDrawable) {
+//
+//                    }
+//
+//                    @Override
+//                    public void onPrepareLoad(Drawable placeHolderDrawable) {
+//                        mImage.setScaleType(ImageView.ScaleType.CENTER);
+//                        mImage.setImageDrawable(placeHolderDrawable);
+//                    }
+//                };
 
                 mTitle.setOnFocusChangeListener(mTextFocusListener);
                 mUpvote.setOnFocusChangeListener(mImageFocusListener);
@@ -237,12 +248,12 @@ public class PostListAdapter extends RecyclerView.Adapter<PostListAdapter.PostVi
             public void onFocusChange(View v, boolean hasFocus ){
                 TextView text = (TextView) v;
                 if (hasFocus) {
-                    text.setTextColor(ContextCompat.getColor(v.getContext(), R.color.colorAccent));
+                    text.setTextColor(ContextCompat.getColor(SiftApplication.getContext(), R.color.colorAccent));
                 } else {
                     if (v == mTitle) {
                         text.setTextColor(Color.WHITE);
                     } else {
-                        text.setTextColor(ContextCompat.getColor(v.getContext(), R.color.secondary_text));
+                        text.setTextColor(ContextCompat.getColor(SiftApplication.getContext(), R.color.secondary_text));
                     }
                 }
             }
@@ -253,7 +264,7 @@ public class PostListAdapter extends RecyclerView.Adapter<PostListAdapter.PostVi
             public void onFocusChange(View v, boolean hasFocus ){
                 ImageView image = (ImageView) v;
                 if (hasFocus) {
-                    image.setColorFilter(ContextCompat.getColor(v.getContext(), R.color.colorAccent));
+                    image.setColorFilter(ContextCompat.getColor(SiftApplication.getContext(), R.color.colorAccent));
                 } else {
                     image.setColorFilter(Color.TRANSPARENT);
                 }
@@ -270,81 +281,81 @@ public class PostListAdapter extends RecyclerView.Adapter<PostListAdapter.PostVi
                 } else if (v == mSubreddit) {
                     goToSubreddit(v);
                 } else if (v == mUpvote) {
-                    upvote(v.getContext());
+                    upvote();
                 } else if(v == mDownvote) {
-                    downvote(v.getContext());
+                    downvote();
                 }
             }
 
-            private void upvote(Context context) {
-                if (!Utilities.loggedIn(context)) {
-                    Toast.makeText(context, context.getString(R.string.must_log_in), Toast.LENGTH_LONG).show();
+            private void upvote() {
+                if (!Utilities.loggedIn()) {
+                    Toast.makeText(SiftApplication.getContext(), SiftApplication.getContext().getString(R.string.must_log_in), Toast.LENGTH_LONG).show();
                     return;
                 }
 
                 if (mVote == SiftContract.Posts.UPVOTE) {
                     mVote = SiftContract.Posts.NO_VOTE;
-                    mUpvote.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_up_arrow_white_24dp));
-                    mDownvote.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_down_arrow_white_24dp));
+                    mUpvote.setImageDrawable(SiftApplication.getContext().getResources().getDrawable(R.drawable.ic_up_arrow_white_24dp));
+                    mDownvote.setImageDrawable(SiftApplication.getContext().getResources().getDrawable(R.drawable.ic_down_arrow_white_24dp));
                     mPoints.setTextColor(Color.WHITE);
                     mPoints.setText(String.valueOf(Integer.valueOf(mPoints.getText().toString()) - 1));
                 } else if(mVote == SiftContract.Posts.DOWNVOTE) {
                     mVote = SiftContract.Posts.UPVOTE;
-                    mUpvote.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_up_arrow_filled_24dp));
-                    mDownvote.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_down_arrow_white_24dp));
-                    mPoints.setTextColor(context.getResources().getColor(R.color.upvote));
+                    mUpvote.setImageDrawable(SiftApplication.getContext().getResources().getDrawable(R.drawable.ic_up_arrow_filled_24dp));
+                    mDownvote.setImageDrawable(SiftApplication.getContext().getResources().getDrawable(R.drawable.ic_down_arrow_white_24dp));
+                    mPoints.setTextColor(SiftApplication.getContext().getResources().getColor(R.color.upvote));
                     mPoints.setText(String.valueOf(Integer.valueOf(mPoints.getText().toString()) + 2));
                 } else {
                     mVote = SiftContract.Posts.UPVOTE;
-                    mUpvote.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_up_arrow_filled_24dp));
-                    mDownvote.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_down_arrow_white_24dp));
-                    mPoints.setTextColor(context.getResources().getColor(R.color.upvote));
+                    mUpvote.setImageDrawable(SiftApplication.getContext().getResources().getDrawable(R.drawable.ic_up_arrow_filled_24dp));
+                    mDownvote.setImageDrawable(SiftApplication.getContext().getResources().getDrawable(R.drawable.ic_down_arrow_white_24dp));
+                    mPoints.setTextColor(SiftApplication.getContext().getResources().getColor(R.color.upvote));
                     mPoints.setText(String.valueOf(Integer.valueOf(mPoints.getText().toString()) + 1));
                 }
 
                 if (mContributionType == ContributionInfo.CONTRIBUTION_POST) {
-                    Reddit.votePost(context, mServerId, mVote);
+                    Reddit.votePost(mServerId, mVote);
                 } else if(mContributionType == ContributionInfo.CONTRIBUTION_COMMENT) {
-                    Reddit.voteComment(context, mJrawComment, mVote);
+                    Reddit.voteComment(mJrawComment, mVote);
                 }
             }
 
-            private void downvote(Context context) {
-                if (!Utilities.loggedIn(context)) {
-                    Toast.makeText(context, context.getString(R.string.must_log_in), Toast.LENGTH_LONG).show();
+            private void downvote() {
+                if (!Utilities.loggedIn()) {
+                    Toast.makeText(SiftApplication.getContext(), SiftApplication.getContext().getString(R.string.must_log_in), Toast.LENGTH_LONG).show();
                     return;
                 }
 
                 if (mVote == SiftContract.Posts.DOWNVOTE) {
                     mVote = SiftContract.Posts.NO_VOTE;
-                    mDownvote.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_down_arrow_white_24dp));
-                    mUpvote.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_up_arrow_white_24dp));
+                    mDownvote.setImageDrawable(SiftApplication.getContext().getResources().getDrawable(R.drawable.ic_down_arrow_white_24dp));
+                    mUpvote.setImageDrawable(SiftApplication.getContext().getResources().getDrawable(R.drawable.ic_up_arrow_white_24dp));
                     mPoints.setTextColor(Color.WHITE);
                     mPoints.setText(String.valueOf(Integer.valueOf(mPoints.getText().toString()) + 1));
                 } else if (mVote == SiftContract.Posts.UPVOTE) {
                     mVote = SiftContract.Posts.DOWNVOTE;
-                    mDownvote.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_down_arrow_filled_24dp));
-                    mUpvote.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_up_arrow_white_24dp));
-                    mPoints.setTextColor(context.getResources().getColor(R.color.downvote));
+                    mDownvote.setImageDrawable(SiftApplication.getContext().getResources().getDrawable(R.drawable.ic_down_arrow_filled_24dp));
+                    mUpvote.setImageDrawable(SiftApplication.getContext().getResources().getDrawable(R.drawable.ic_up_arrow_white_24dp));
+                    mPoints.setTextColor(SiftApplication.getContext().getResources().getColor(R.color.downvote));
                     mPoints.setText(String.valueOf(Integer.valueOf(mPoints.getText().toString()) - 2));
                 } else {
                     mVote = SiftContract.Posts.DOWNVOTE;
-                    mDownvote.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_down_arrow_filled_24dp));
-                    mUpvote.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_up_arrow_white_24dp));
-                    mPoints.setTextColor(context.getResources().getColor(R.color.downvote));
+                    mDownvote.setImageDrawable(SiftApplication.getContext().getResources().getDrawable(R.drawable.ic_down_arrow_filled_24dp));
+                    mUpvote.setImageDrawable(SiftApplication.getContext().getResources().getDrawable(R.drawable.ic_up_arrow_white_24dp));
+                    mPoints.setTextColor(SiftApplication.getContext().getResources().getColor(R.color.downvote));
                     mPoints.setText(String.valueOf(Integer.valueOf(mPoints.getText().toString()) - 1));
                 }
 
                 if (mContributionType == ContributionInfo.CONTRIBUTION_POST) {
-                    Reddit.votePost(context, mServerId, mVote);
+                    Reddit.votePost(mServerId, mVote);
                 } else if(mContributionType == ContributionInfo.CONTRIBUTION_COMMENT) {
-                    Reddit.voteComment(context, mJrawComment, mVote);
+                    Reddit.voteComment(mJrawComment, mVote);
                 }
             }
 
             private void goToPostDetail(View v) {
                 if (mContributionType == ContributionInfo.CONTRIBUTION_COMMENT) {
-                    new GetPostTask(v.getContext(), mPostServerId).execute();
+                    new GetPostTask(mPostServerId).execute();
                 } else {
                     String title = mTitle.getText().toString();
                     String username = mUsername.getText().toString();
@@ -354,20 +365,20 @@ public class PostListAdapter extends RecyclerView.Adapter<PostListAdapter.PostVi
                     String age = mAge.getText().toString();
                     String domain = mDomain.getText().toString();
 
-                    Intent intent = new Intent(v.getContext(), PostDetailActivity.class);
-                    intent.putExtra(v.getContext().getString(R.string.title), title);
-                    intent.putExtra(v.getContext().getString(R.string.username), username);
-                    intent.putExtra(v.getContext().getString(R.string.subreddit), subreddit);
-                    intent.putExtra(v.getContext().getString(R.string.points), points);
-                    intent.putExtra(v.getContext().getString(R.string.comments), comments);
-                    intent.putExtra(v.getContext().getString(R.string.url), mUrl);
-                    intent.putExtra(v.getContext().getString(R.string.age), age);
-                    intent.putExtra(v.getContext().getString(R.string.image_url), mImageUrl);
-                    intent.putExtra(v.getContext().getString(R.string.post_id), mPostId);
-                    intent.putExtra(v.getContext().getString(R.string.server_id), mServerId);
-                    intent.putExtra(v.getContext().getString(R.string.body), mBody);
-                    intent.putExtra(v.getContext().getString(R.string.domain), domain);
-                    intent.putExtra(v.getContext().getString(R.string.vote), mVote);
+                    Intent intent = new Intent(SiftApplication.getContext(), PostDetailActivity.class);
+                    intent.putExtra(SiftApplication.getContext().getString(R.string.title), title);
+                    intent.putExtra(SiftApplication.getContext().getString(R.string.username), username);
+                    intent.putExtra(SiftApplication.getContext().getString(R.string.subreddit), subreddit);
+                    intent.putExtra(SiftApplication.getContext().getString(R.string.points), points);
+                    intent.putExtra(SiftApplication.getContext().getString(R.string.comments), comments);
+                    intent.putExtra(SiftApplication.getContext().getString(R.string.url), mUrl);
+                    intent.putExtra(SiftApplication.getContext().getString(R.string.age), age);
+                    intent.putExtra(SiftApplication.getContext().getString(R.string.image_url), mImageUrl);
+                    intent.putExtra(SiftApplication.getContext().getString(R.string.post_id), mPostId);
+                    intent.putExtra(SiftApplication.getContext().getString(R.string.server_id), mServerId);
+                    intent.putExtra(SiftApplication.getContext().getString(R.string.body), mBody);
+                    intent.putExtra(SiftApplication.getContext().getString(R.string.domain), domain);
+                    intent.putExtra(SiftApplication.getContext().getString(R.string.vote), mVote);
 
                     v.getContext().startActivity(intent);
                 }
@@ -376,8 +387,8 @@ public class PostListAdapter extends RecyclerView.Adapter<PostListAdapter.PostVi
             private void goToUserInfo(View v) {
                 String username = mUsername.getText().toString();
 
-                Intent intent = new Intent(v.getContext(), UserInfoActivity.class);
-                intent.putExtra(v.getContext().getString(R.string.username), username);
+                Intent intent = new Intent(SiftApplication.getContext(), UserInfoActivity.class);
+                intent.putExtra(SiftApplication.getContext().getString(R.string.username), username);
 
                 v.getContext().startActivity(intent);
             }
@@ -385,8 +396,8 @@ public class PostListAdapter extends RecyclerView.Adapter<PostListAdapter.PostVi
             private void goToSubreddit(View v) {
                 String subreddit = mSubreddit.getText().toString();
 
-                Intent intent = new Intent(v.getContext(), SubredditActivity.class);
-                intent.putExtra(v.getContext().getString(R.string.subreddit_name), subreddit);
+                Intent intent = new Intent(SiftApplication.getContext(), SubredditActivity.class);
+                intent.putExtra(SiftApplication.getContext().getString(R.string.subreddit_name), subreddit);
 
                 v.getContext().startActivity(intent);
             }
@@ -394,11 +405,9 @@ public class PostListAdapter extends RecyclerView.Adapter<PostListAdapter.PostVi
         });
 
         private final class GetPostTask extends AsyncTask<String, Void, Submission> {
-            Context mContext;
             String mSubmissionServerId;
 
-            public GetPostTask(Context context, String submissionServerId) {
-                mContext = context;
+            public GetPostTask(String submissionServerId) {
                 mSubmissionServerId = submissionServerId;
             }
 
@@ -422,21 +431,21 @@ public class PostListAdapter extends RecyclerView.Adapter<PostListAdapter.PostVi
             @Override
             protected void onPostExecute(Submission sub) {
                 if (sub != null) {
-                    Intent intent = new Intent(mContext, PostDetailActivity.class);
-                    intent.putExtra(mContext.getString(R.string.title), sub.getTitle());
-                    intent.putExtra(mContext.getString(R.string.username), sub.getAuthor());
-                    intent.putExtra(mContext.getString(R.string.subreddit), sub.getSubredditName());
-                    intent.putExtra(mContext.getString(R.string.points), sub.getScore());
-                    intent.putExtra(mContext.getString(R.string.comments), sub.getCommentCount());
-                    intent.putExtra(mContext.getString(R.string.url), sub.getUrl());
-                    intent.putExtra(mContext.getString(R.string.age), Utilities.getAgeString(sub.getCreatedUtc().getTime()));
-                    intent.putExtra(mContext.getString(R.string.post_id), mPostId);
-                    intent.putExtra(mContext.getString(R.string.server_id), mPostServerId);
-                    intent.putExtra(mContext.getString(R.string.body), sub.getSelftext());
-                    intent.putExtra(mContext.getString(R.string.domain), sub.getDomain());
-                    intent.putExtra(mContext.getString(R.string.vote), sub.getVote());
+                    Intent intent = new Intent(SiftApplication.getContext(), PostDetailActivity.class);
+                    intent.putExtra(SiftApplication.getContext().getString(R.string.title), sub.getTitle());
+                    intent.putExtra(SiftApplication.getContext().getString(R.string.username), sub.getAuthor());
+                    intent.putExtra(SiftApplication.getContext().getString(R.string.subreddit), sub.getSubredditName());
+                    intent.putExtra(SiftApplication.getContext().getString(R.string.points), sub.getScore());
+                    intent.putExtra(SiftApplication.getContext().getString(R.string.comments), sub.getCommentCount());
+                    intent.putExtra(SiftApplication.getContext().getString(R.string.url), sub.getUrl());
+                    intent.putExtra(SiftApplication.getContext().getString(R.string.age), Utilities.getAgeString(sub.getCreatedUtc().getTime()));
+                    intent.putExtra(SiftApplication.getContext().getString(R.string.post_id), mPostId);
+                    intent.putExtra(SiftApplication.getContext().getString(R.string.server_id), mPostServerId);
+                    intent.putExtra(SiftApplication.getContext().getString(R.string.body), sub.getSelftext());
+                    intent.putExtra(SiftApplication.getContext().getString(R.string.domain), sub.getDomain());
+                    intent.putExtra(SiftApplication.getContext().getString(R.string.vote), sub.getVote());
 
-                    mContext.startActivity(intent);
+                    SiftApplication.getContext().startActivity(intent);
                 }
             }
 

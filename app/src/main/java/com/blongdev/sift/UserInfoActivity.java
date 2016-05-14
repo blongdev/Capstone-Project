@@ -53,7 +53,7 @@ public class UserInfoActivity extends BaseActivity {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (!Utilities.loggedIn(getApplicationContext())) {
+                if (!Utilities.loggedIn()) {
                     Toast.makeText(getApplicationContext(), getString(R.string.must_log_in), Toast.LENGTH_LONG).show();
                     return;
                 }
@@ -154,8 +154,8 @@ public class UserInfoActivity extends BaseActivity {
 
         mAddFriend = (MenuItem) menu.findItem(R.id.subscribe);
 
-        if (Utilities.loggedIn(getApplicationContext())) {
-            if (Utilities.isFriend(getApplicationContext(), mUsername)) {
+        if (Utilities.loggedIn()) {
+            if (Utilities.isFriend(mUsername)) {
                 mIsFriend = true;
                 mAddFriend.setIcon(R.drawable.ic_favorite_24dp);
             }
@@ -164,7 +164,7 @@ public class UserInfoActivity extends BaseActivity {
         mAddFriend.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem item) {
-                if (!Utilities.loggedIn(getApplicationContext())) {
+                if (!Utilities.loggedIn()) {
                     Toast.makeText(getApplicationContext(), getApplicationContext().getString(R.string.must_log_in), Toast.LENGTH_LONG).show();
                     return false;
                 }
@@ -172,18 +172,18 @@ public class UserInfoActivity extends BaseActivity {
                 if (mIsFriend) {
                     mIsFriend = false;
                     mAddFriend.setIcon(R.drawable.ic_favorite_outline_24dp);
-                    Reddit.getInstance().removeFriend(getApplicationContext(), mUsername);
+                    Reddit.getInstance().removeFriend(mUsername);
                 } else {
                     mIsFriend = true;
                     mAddFriend.setIcon(R.drawable.ic_favorite_24dp);
-                    Reddit.getInstance().addFriend(getApplicationContext(), mUsername);
+                    Reddit.getInstance().addFriend(mUsername);
                 }
                 return true;
             }
         });
 
         //hide friend icon on my profile
-        if (TextUtils.equals(Utilities.getLoggedInUsername(getApplicationContext()), mUsername)) {
+        if (TextUtils.equals(Utilities.getLoggedInUsername(), mUsername)) {
             mAddFriend.setVisible(false);
         }
 

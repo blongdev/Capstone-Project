@@ -20,6 +20,7 @@ import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.NumberPicker;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
@@ -52,7 +53,6 @@ public class SubredditFragment extends Fragment implements LoaderManager.LoaderC
     private RecyclerView mRecyclerView;
     private ContentResolver mContentResolver;
     private ProgressBar mLoadingSpinner;
-    private Context mContext;
 
     private Reddit mReddit;
     private Paginator mPaginator;
@@ -89,6 +89,9 @@ public class SubredditFragment extends Fragment implements LoaderManager.LoaderC
             mPostListAdapter.refreshWithList(data);
             if (data.size() >= PAGE_SIZE) {
                 mRefreshPoint = data.size() - PAGE_SIZE;
+                if (mRefreshPoint < 10) {
+                    mRefreshPoint = 10;
+                }
             }
 
             if (data.size() == 0) {
@@ -98,7 +101,9 @@ public class SubredditFragment extends Fragment implements LoaderManager.LoaderC
 
         @Override
         public void onLoaderReset(Loader<List<ContributionInfo>> loader) {
-            mPostListAdapter.refreshWithList(new ArrayList<ContributionInfo>());
+            if(mPostListAdapter != null) {
+                mPostListAdapter.refreshWithList(new ArrayList<ContributionInfo>());
+            }
         }
 
     };
@@ -111,8 +116,7 @@ public class SubredditFragment extends Fragment implements LoaderManager.LoaderC
                              Bundle savedInstanceState) {
 
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
-        mContext = getContext();
-        mContentResolver = mContext.getContentResolver();
+        mContentResolver = SiftApplication.getContext().getContentResolver();
 
         mLoadingSpinner = (ProgressBar) rootView.findViewById(R.id.progressSpinner);
         mEmptyText = (TextView) rootView.findViewById(R.id.empty);
@@ -161,8 +165,7 @@ public class SubredditFragment extends Fragment implements LoaderManager.LoaderC
             getLoaderManager().initLoader(CURSOR_LOADER_ID, null, this);
         }
 
-
-        if (Utilities.connectedToNetwork(mContext)) {
+        if (Utilities.connectedToNetwork()) {
             if (mReddit.mRedditClient.isAuthenticated()) {
                 getLoaderManager().initLoader(ASYNCTASK_LOADER_ID, null, mPostsLoaderCallbacks).forceLoad();
             } else {
@@ -181,21 +184,6 @@ public class SubredditFragment extends Fragment implements LoaderManager.LoaderC
         mPostListAdapter = new PostListAdapter(mPosts);
         mRecyclerView.setAdapter(mPostListAdapter);
 
-        mRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
-            @Override
-            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-                super.onScrolled(recyclerView, dx, dy);
-
-                if (dy > 0 && mLayoutManager.findLastVisibleItemPosition() >= mRefreshPoint && !mLoading) {
-                    if (Utilities.connectedToNetwork(mContext)) {
-                        if (mReddit.mRedditClient.isAuthenticated()) {
-                            getLoaderManager().initLoader(ASYNCTASK_LOADER_ID, null, mPostsLoaderCallbacks).forceLoad();
-                        }
-                    }
-                }
-            }
-        });
-
         return rootView;
     }
 
@@ -213,12 +201,12 @@ public class SubredditFragment extends Fragment implements LoaderManager.LoaderC
             mPosts.clear();
             while (cursor.moveToNext()) {
                 PostInfo post = new PostInfo();
-                post.mId = cursor.getInt(cursor.getColumnIndex(SiftContract.Posts._ID));
+                post.mId = cursor.getLong(cursor.getColumnIndex(SiftContract.Posts._ID));
                 post.mTitle = cursor.getString(cursor.getColumnIndex(SiftContract.Posts.COLUMN_TITLE));
                 post.mUsername = cursor.getString(cursor.getColumnIndex(SiftContract.Posts.COLUMN_OWNER_USERNAME));
-                post.mUserId = cursor.getInt(cursor.getColumnIndex(SiftContract.Posts.COLUMN_OWNER_ID));
+                post.mUserId = cursor.getLong(cursor.getColumnIndex(SiftContract.Posts.COLUMN_OWNER_ID));
                 post.mSubreddit = cursor.getString(cursor.getColumnIndex(SiftContract.Posts.COLUMN_SUBREDDIT_NAME));
-                post.mSubredditId = cursor.getInt(cursor.getColumnIndex(SiftContract.Posts.COLUMN_SUBREDDIT_ID));
+                post.mSubredditId = cursor.getLong(cursor.getColumnIndex(SiftContract.Posts.COLUMN_SUBREDDIT_ID));
                 post.mPoints = cursor.getInt(cursor.getColumnIndex(SiftContract.Posts.COLUMN_POINTS));
                 post.mImageUrl = cursor.getString(cursor.getColumnIndex(SiftContract.Posts.COLUMN_IMAGE_URL));
                 post.mUrl = cursor.getString(cursor.getColumnIndex(SiftContract.Posts.COLUMN_URL));
@@ -238,30 +226,57 @@ public class SubredditFragment extends Fragment implements LoaderManager.LoaderC
     }
 
     public void onLoaderReset(Loader<Cursor> loader) {
-        mPostListAdapter.refreshWithList(new ArrayList<ContributionInfo>());
+        if (mPostListAdapter != null) {
+            mPostListAdapter.refreshWithList(new ArrayList<ContributionInfo>());
+        }
     }
 
     @Override
     public void onResume() {
         super.onResume();
+        mRecyclerView.addOnScrollListener(mOnScrollistener);
     }
 
+    @Override
+    public void onPause() {
+        mRecyclerView.removeOnScrollListener(mOnScrollistener);
+        super.onPause();
+    }
 
+    RecyclerView.OnScrollListener mOnScrollistener = new RecyclerView.OnScrollListener() {
+        @Override
+        public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+            super.onScrolled(recyclerView, dx, dy);
+
+            if (dy > 0 && mLayoutManager.findLastVisibleItemPosition() >= mRefreshPoint && !mLoading) {
+                if (Utilities.connectedToNetwork()) {
+                    if (mReddit.mRedditClient.isAuthenticated()) {
+                        getLoaderManager().initLoader(ASYNCTASK_LOADER_ID, null, mPostsLoaderCallbacks).forceLoad();
+                    }
+                }
+            }
+        }
+    };
+
+    @Override
+    public void onDestroy() {
+        mRecyclerView.clearOnScrollListeners();
+        mRecyclerView.setAdapter(null);
+        mRecyclerView = null;
+        mPostListAdapter = null;
+        super.onDestroy();
+    }
 }
 
 
 class ContributionLoader extends AsyncTaskLoader<List<ContributionInfo>> {
-
-    Context mContext;
     public Paginator paginator;
     ArrayList<ContributionInfo> posts;
     boolean savePosts;
     long subredditId;
 
-
     public ContributionLoader(Context context, Paginator p, boolean save, long subId) {
         super(context);
-        mContext = context;
         paginator = p;
         savePosts = save;
         subredditId = subId;
@@ -272,7 +287,7 @@ class ContributionLoader extends AsyncTaskLoader<List<ContributionInfo>> {
     public List<ContributionInfo> loadInBackground() {
         Reddit reddit = Reddit.getInstance();
         ArrayList<ContributionInfo> newPostArray = new ArrayList<ContributionInfo>();
-        if (!reddit.mRedditClient.isAuthenticated() || !Utilities.connectedToNetwork(mContext))
+        if (!reddit.mRedditClient.isAuthenticated() || !Utilities.connectedToNetwork())
             return newPostArray;
 
         try {
@@ -329,7 +344,7 @@ class ContributionLoader extends AsyncTaskLoader<List<ContributionInfo>> {
         }
 
         if(savePosts) {
-            new AddPostsToDbTask(mContext, newPostArray).execute();
+            new AddPostsToDbTask(newPostArray).execute();
         }
 
         return posts;
@@ -339,10 +354,8 @@ class ContributionLoader extends AsyncTaskLoader<List<ContributionInfo>> {
 final class AddPostsToDbTask extends AsyncTask<String, Void, Void> {
 
     private ArrayList<ContributionInfo> mNewPosts;
-    Context mContext;
 
-    public AddPostsToDbTask(Context context, ArrayList<ContributionInfo> posts) {
-        mContext = context;
+    public AddPostsToDbTask(ArrayList<ContributionInfo> posts) {
         mNewPosts = posts;
     }
 
@@ -380,6 +393,6 @@ final class AddPostsToDbTask extends AsyncTask<String, Void, Void> {
         cv.put(SiftContract.Posts.COLUMN_SERVER_ID, post.mServerId);
         cv.put(SiftContract.Posts.COLUMN_VOTE, post.mVote);
         cv.put(SiftContract.Posts.COLUMN_FAVORITED, post.mFavorited);
-        mContext.getContentResolver().insert(SiftContract.Posts.CONTENT_URI, cv);
+        SiftApplication.getContext().getContentResolver().insert(SiftContract.Posts.CONTENT_URI, cv);
     }
 }

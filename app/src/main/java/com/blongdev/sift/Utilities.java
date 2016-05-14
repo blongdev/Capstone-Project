@@ -24,33 +24,33 @@ public class Utilities {
     private static final int SECONDS_IN_MONTH_ISH = SECONDS_IN_DAY * 30;
     private static final int SECONDS_IN_YEAR_ISH = SECONDS_IN_DAY * 365;
 
-    public static boolean connectedToNetwork(Context context) {
+    public static boolean connectedToNetwork() {
         ConnectivityManager cm =
-                (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+                (ConnectivityManager) SiftApplication.getContext().getSystemService(SiftApplication.getContext().CONNECTIVITY_SERVICE);
         NetworkInfo netInfo = cm.getActiveNetworkInfo();
         return netInfo != null && netInfo.isConnected();
     }
 
 
     //returns _ID or -1 if updated
-    public static long insertOrUpdate(Context context, Uri uri, ContentValues cv, String where, String[] selectionArgs) {
-        int count = context.getContentResolver().update(uri, cv, where, selectionArgs);
+    public static long insertOrUpdate(Uri uri, ContentValues cv, String where, String[] selectionArgs) {
+        int count = SiftApplication.getContext().getContentResolver().update(uri, cv, where, selectionArgs);
         if (count <= 0) {
-            Uri newUri = context.getContentResolver().insert(uri, cv);
+            Uri newUri = SiftApplication.getContext().getContentResolver().insert(uri, cv);
             return ContentUris.parseId(newUri);
         }
         return -1;
     }
 
-    public static int getSubredditId(Context context, String serverId) {
+    public static long getSubredditId(String serverId) {
         String[] projection = new String[]{SiftContract.Subreddits._ID};
         String selection = SiftContract.Subreddits.COLUMN_SERVER_ID + " =?";
         String[] selectionArgs = new String[]{serverId};
         Cursor cursor = null;
         try {
-            cursor = context.getContentResolver().query(SiftContract.Subreddits.CONTENT_URI, projection, selection, selectionArgs, null);
+            cursor = SiftApplication.getContext().getContentResolver().query(SiftContract.Subreddits.CONTENT_URI, projection, selection, selectionArgs, null);
             if (cursor != null && cursor.moveToFirst()) {
-                return cursor.getInt(0);
+                return cursor.getLong(0);
             }
         } finally {
             if (cursor != null) {
@@ -60,15 +60,15 @@ public class Utilities {
         return -1;
     }
 
-    public static int getSubscriptionId(Context context, String subredditName) {
+    public static long getSubscriptionId(String subredditName) {
         String[] projection = new String[]{SiftContract.Subscriptions.COLUMN_SUBREDDIT_ID};
         String selection = SiftContract.Subreddits.COLUMN_NAME + " =?";
         String[] selectionArgs = new String[]{subredditName};
         Cursor cursor = null;
         try {
-            cursor = context.getContentResolver().query(SiftContract.Subscriptions.VIEW_URI, projection, selection, selectionArgs, null);
+            cursor = SiftApplication.getContext().getContentResolver().query(SiftContract.Subscriptions.VIEW_URI, projection, selection, selectionArgs, null);
             if (cursor != null && cursor.moveToFirst()) {
-                return cursor.getInt(0);
+                return cursor.getLong(0);
             }
         } finally {
             if (cursor != null) {
@@ -78,15 +78,15 @@ public class Utilities {
         return -1;
     }
 
-    public static int getFavoriteId(Context context, String serverId) {
+    public static long getFavoriteId(String serverId) {
         String[] projection = new String[]{SiftContract.Favorites.COLUMN_POST_ID};
         String selection = SiftContract.Posts.COLUMN_SERVER_ID + " = ?";
         String[] selectionArgs = new String[]{serverId};
         Cursor cursor = null;
         try {
-            cursor = context.getContentResolver().query(SiftContract.Favorites.VIEW_URI, projection, selection, selectionArgs, null);
+            cursor = SiftApplication.getContext().getContentResolver().query(SiftContract.Favorites.VIEW_URI, projection, selection, selectionArgs, null);
             if (cursor != null && cursor.moveToFirst()) {
-                return cursor.getInt(0);
+                return cursor.getLong(0);
             }
         } finally {
             if (cursor != null) {
@@ -126,10 +126,10 @@ public class Utilities {
         }
     }
 
-    public static boolean loggedIn (Context context) {
+    public static boolean loggedIn () {
         Cursor cursor = null;
         try {
-            cursor = context.getContentResolver().query(SiftContract.Accounts.CONTENT_URI, null, null,null, null);
+            cursor = SiftApplication.getContext().getContentResolver().query(SiftContract.Accounts.CONTENT_URI, null, null,null, null);
             if (cursor != null && cursor.moveToFirst()) {
                 return true;
             }
@@ -142,10 +142,10 @@ public class Utilities {
         return false;
     }
 
-    public static String getLoggedInUsername (Context context) {
+    public static String getLoggedInUsername () {
         Cursor cursor = null;
         try {
-            cursor = context.getContentResolver().query(SiftContract.Accounts.CONTENT_URI, null, null,null, null);
+            cursor = SiftApplication.getContext().getContentResolver().query(SiftContract.Accounts.CONTENT_URI, null, null,null, null);
             if (cursor != null && cursor.moveToFirst()) {
                 return cursor.getString(cursor.getColumnIndex(SiftContract.Accounts.COLUMN_USERNAME));
             }
@@ -158,7 +158,7 @@ public class Utilities {
         return null;
     }
 
-    public static long getAccountId (Context context) {
+    public static long getAccountId () {
         Cursor cursor = null;
         try {
             Reddit reddit = Reddit.getInstance();
@@ -166,7 +166,7 @@ public class Utilities {
                 String selection = SiftContract.Accounts.COLUMN_USERNAME + " = ?";
                 reddit.mRateLimiter.acquire();
                 String[] selectionArgs = new String[]{reddit.mRedditClient.me().getFullName()};
-                cursor = context.getContentResolver().query(SiftContract.Accounts.CONTENT_URI, null, selection, selectionArgs, null);
+                cursor = SiftApplication.getContext().getContentResolver().query(SiftContract.Accounts.CONTENT_URI, null, selection, selectionArgs, null);
                 if (cursor != null && cursor.moveToFirst()) {
                     return cursor.getLong(cursor.getColumnIndex(SiftContract.Accounts._ID));
                 }
@@ -180,12 +180,12 @@ public class Utilities {
         return -1;
     }
 
-    public static long getSavedPostId (Context context, String serverId) {
+    public static long getSavedPostId (String serverId) {
         Cursor cursor = null;
         try {
             String selection = SiftContract.Posts.COLUMN_SERVER_ID + " = ? AND " + SiftContract.Posts.FAVORITED + " = 1";
             String[] selectionArgs = new String[]{serverId};
-            cursor = context.getContentResolver().query(SiftContract.Posts.CONTENT_URI, null, selection, selectionArgs, null);
+            cursor = SiftApplication.getContext().getContentResolver().query(SiftContract.Posts.CONTENT_URI, null, selection, selectionArgs, null);
             if (cursor != null && cursor.moveToFirst()) {
                 return cursor.getLong(cursor.getColumnIndex(SiftContract.Posts._ID));
             }
@@ -198,12 +198,12 @@ public class Utilities {
         return -1;
     }
 
-    public static long getSavedUserId (Context context, String username) {
+    public static long getSavedUserId (String username) {
         Cursor cursor = null;
         try {
             String selection = SiftContract.Users.COLUMN_USERNAME + " = ?";
             String[] selectionArgs = new String[]{username};
-            cursor = context.getContentResolver().query(SiftContract.Users.CONTENT_URI, null, selection, selectionArgs, null);
+            cursor = SiftApplication.getContext().getContentResolver().query(SiftContract.Users.CONTENT_URI, null, selection, selectionArgs, null);
             if (cursor != null && cursor.moveToFirst()) {
                 return cursor.getLong(cursor.getColumnIndex(SiftContract.Users._ID));
             }
@@ -216,12 +216,12 @@ public class Utilities {
         return -1;
     }
 
-    public static boolean isFriend (Context context, String username) {
+    public static boolean isFriend (String username) {
         Cursor cursor = null;
         try {
             String selection = SiftContract.Users.COLUMN_USERNAME + " = ?";
             String[] selectionArgs = new String[]{username};
-            cursor = context.getContentResolver().query(SiftContract.Friends.VIEW_URI, null, selection, selectionArgs, null);
+            cursor = SiftApplication.getContext().getContentResolver().query(SiftContract.Friends.VIEW_URI, null, selection, selectionArgs, null);
             if (cursor != null && cursor.moveToFirst()) {
                 return true;
             }
@@ -242,13 +242,13 @@ public class Utilities {
         return null;
     }
 
-    public static int getVoteValue(Context context, String postServerId) {
+    public static int getVoteValue(String postServerId) {
         Cursor cursor = null;
         try {
             String[] projection = new String[] {SiftContract.Posts.COLUMN_VOTE};
             String selection = SiftContract.Posts.COLUMN_SERVER_ID + " = ?";
             String[] selectionArgs = new String[]{postServerId};
-            cursor = context.getContentResolver().query(SiftContract.Posts.CONTENT_URI, projection, selection, selectionArgs, null);
+            cursor = SiftApplication.getContext().getContentResolver().query(SiftContract.Posts.CONTENT_URI, projection, selection, selectionArgs, null);
             if (cursor != null && cursor.moveToFirst()) {
                 return cursor.getInt(0);
             }

@@ -13,6 +13,8 @@ import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
 import android.text.TextUtils;
 
+import com.blongdev.sift.SiftApplication;
+
 public class SiftProvider extends ContentProvider {
 
     private SiftDbHelper mDbHelper;
@@ -107,7 +109,7 @@ public class SiftProvider extends ContentProvider {
             default:
                 throw new IllegalArgumentException("Unknown URI: " + uri);
         }
-        getContext().getContentResolver().notifyChange(uri, null);
+        SiftApplication.getContext().getContentResolver().notifyChange(uri, null);
         return rowsDeleted;
     }
 
@@ -168,13 +170,13 @@ public class SiftProvider extends ContentProvider {
                 throw new IllegalArgumentException("Unknown URI: " + uri);
         }
 
-        getContext().getContentResolver().notifyChange(uri, null, false);
+        SiftApplication.getContext().getContentResolver().notifyChange(uri, null, false);
         return Uri.parse(SiftContract.Posts.TABLE_NAME + "/" + id);
     }
 
     @Override
     public boolean onCreate() {
-        mDbHelper = new SiftDbHelper(getContext(), null, null, 1);
+        mDbHelper = new SiftDbHelper(null, null, 1);
         return false;
     }
 
@@ -235,7 +237,7 @@ public class SiftProvider extends ContentProvider {
 
         Cursor cursor = queryBuilder.query(mDbHelper.getReadableDatabase(),
                 projection, selection, selectionArgs, null, null, sortOrder);
-        cursor.setNotificationUri(getContext().getContentResolver(), uri);
+        cursor.setNotificationUri(SiftApplication.getContext().getContentResolver(), uri);
         return cursor;
     }
 

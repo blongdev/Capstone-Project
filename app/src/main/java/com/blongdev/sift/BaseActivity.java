@@ -56,8 +56,8 @@ public class BaseActivity extends AppCompatActivity {
     @Override
     protected void onResume(){
         super.onResume();
-        if (!mReddit.mRedditClient.isAuthenticated() && Utilities.connectedToNetwork(getApplicationContext())) {
-            mReddit.refreshKey(getApplicationContext());
+        if (!mReddit.mRedditClient.isAuthenticated() && Utilities.connectedToNetwork()) {
+            mReddit.refreshKey();
         }
     }
 
@@ -100,7 +100,6 @@ public class BaseActivity extends AppCompatActivity {
                 cursor.close();
             }
         }
-
         mNavigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
 
             @Override
@@ -153,7 +152,7 @@ public class BaseActivity extends AppCompatActivity {
                             public void onClick(DialogInterface dialog, int id) {
                                 String user = userInput.getText().toString();
                                 if (!TextUtils.isEmpty(user)) {
-                                    Reddit.goToUser(getApplicationContext(), user);
+                                    Reddit.goToUser(user);
                                 }
                             }
                         })
@@ -178,7 +177,7 @@ public class BaseActivity extends AppCompatActivity {
                                 public void onClick(DialogInterface dialog, int id) {
                                     String sub = subredditInput.getText().toString();
                                     if (!TextUtils.isEmpty(sub)) {
-                                        Reddit.goToSubreddit(getApplicationContext(), sub);
+                                        Reddit.goToSubreddit(sub);
                                     }
                                 }
                             })
@@ -207,7 +206,7 @@ public class BaseActivity extends AppCompatActivity {
                     .setMessage(getString(R.string.remove_account))
                     .setPositiveButton(R.string.remove, new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int id) {
-                            mReddit.removeAccounts(getApplicationContext());
+                            mReddit.removeAccounts();
                         }
                     })
                     .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
@@ -272,4 +271,9 @@ public class BaseActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    @Override
+    protected void onDestroy() {
+        mReddit = null;
+        super.onDestroy();
+    }
 }

@@ -17,6 +17,7 @@ import com.blongdev.sift.FavoritesInfo;
 import com.blongdev.sift.FriendInfo;
 import com.blongdev.sift.MessageInfo;
 import com.blongdev.sift.PostInfo;
+import com.blongdev.sift.SiftApplication;
 import com.blongdev.sift.SubredditInfo;
 import com.blongdev.sift.SubscriptionInfo;
 import com.blongdev.sift.UserInfo;
@@ -26,15 +27,15 @@ public class SiftDbHelper extends SQLiteOpenHelper {
 
     private ContentResolver mContentResolver;
 
-    public SiftDbHelper(Context context, String name,
+    public SiftDbHelper(String name,
                         CursorFactory factory, int version) {
-        super(context, SiftContract.DATABASE_NAME, factory, SiftContract.DATABASE_VERSION);
-        mContentResolver = context.getContentResolver();
+        super(SiftApplication.getContext(), SiftContract.DATABASE_NAME, factory, SiftContract.DATABASE_VERSION);
+        mContentResolver = SiftApplication.getContext().getContentResolver();
     }
 
-    public SiftDbHelper(Context context) {
-        super(context, SiftContract.DATABASE_NAME, null, SiftContract.DATABASE_VERSION);
-        mContentResolver = context.getContentResolver();
+    public SiftDbHelper() {
+        super(SiftApplication.getContext(), SiftContract.DATABASE_NAME, null, SiftContract.DATABASE_VERSION);
+        mContentResolver = SiftApplication.getContext().getContentResolver();
     }
 
     @Override

@@ -50,7 +50,7 @@ public class SubredditListActivity extends BaseActivity implements SubredditList
 
             Bundle args = new Bundle();
             args.putBoolean(getString(R.string.isTablet), true);
-            if (!Utilities.loggedIn(this) || !TextUtils.isEmpty(category) ||
+            if (!Utilities.loggedIn() || !TextUtils.isEmpty(category) ||
                     (mReddit.mRedditClient.isAuthenticated() && !mReddit.mRedditClient.hasActiveUserContext())) {
                 args.putBoolean(getString(R.string.popular), true);
 
@@ -74,7 +74,7 @@ public class SubredditListActivity extends BaseActivity implements SubredditList
             ft.replace(R.id.posts_fragment, subFrag);
             ft.commitAllowingStateLoss();
         } else {
-            Intent intent = new Intent(this, SubredditActivity.class);
+            Intent intent = new Intent(SiftApplication.getContext(), SubredditActivity.class);
             intent.putExtra(getString(R.string.subreddit_id), id);
             intent.putExtra(getString(R.string.subreddit_name), name);
             startActivity(intent);
@@ -85,7 +85,7 @@ public class SubredditListActivity extends BaseActivity implements SubredditList
         @Override
         public void onReceive(Context context, Intent intent) {
             if (mReddit.mRedditClient.isAuthenticated()) {
-                if (!Utilities.loggedIn(getApplicationContext())) {
+                if (!Utilities.loggedIn()) {
                     recreate();
                 }
             }

@@ -39,7 +39,7 @@ public class SiftApplication extends Application {
     {
         super.onCreate();
         //create sync account if it doesnt already exist
-        createSyncAccount(this);
+        createSyncAccount();
     }
 
     synchronized public Tracker getDefaultTracker() {
@@ -50,11 +50,11 @@ public class SiftApplication extends Application {
         return mTracker;
     }
 
-    public static Account createSyncAccount(Context context) {
+    public static Account createSyncAccount() {
         Account newAccount = new Account(
                 ACCOUNT_NAME, ACCOUNT_TYPE);
         AccountManager accountManager =
-                (AccountManager) context.getSystemService(context.ACCOUNT_SERVICE);
+                (AccountManager) getContext().getSystemService(getContext().ACCOUNT_SERVICE);
 
         if (accountManager.addAccountExplicitly(newAccount, null, null)) {
             ContentResolver.setIsSyncable(newAccount, SiftContract.AUTHORITY, 1);

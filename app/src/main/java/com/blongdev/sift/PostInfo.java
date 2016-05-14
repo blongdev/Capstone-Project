@@ -4,7 +4,7 @@ package com.blongdev.sift;
  * Created by Brian on 2/24/2016.
  */
 public class PostInfo extends ContributionInfo {
-    public int mId;
+    public long mId;
     public String mSubreddit;
     public long mSubredditId;
     public String mTitle;

@@ -97,19 +97,19 @@ public class Reddit {
     }
 
 
-    public void refreshKey(Context context) {
+    public void refreshKey() {
         Cursor cursor = null;
         try {
-            cursor = context.getContentResolver().query(SiftContract.Accounts.CONTENT_URI, null, null, null, null);
+            cursor = SiftApplication.getContext().getContentResolver().query(SiftContract.Accounts.CONTENT_URI, null, null, null, null);
             if (cursor != null) {
                  if (cursor.moveToFirst()) {
                     mRefreshToken = cursor.getString(cursor.getColumnIndex(SiftContract.Accounts.COLUMN_REFRESH_KEY));
                     if (mRefreshToken != null && !mRefreshToken.isEmpty()) {
-                        new RefreshTokenTask(context).execute();
+                        new RefreshTokenTask().execute();
                         return;
                     }
                  } else {
-                    new GetUserlessTask(context).execute();
+                    new GetUserlessTask().execute();
                  }
             }
         } finally {
@@ -122,11 +122,8 @@ public class Reddit {
 
     private final class UserChallengeTask extends AsyncTask<String, Void, OAuthData> {
 
-        private Context mContext;
-
-        public UserChallengeTask(Context context) {
+        public UserChallengeTask() {
             Log.v(LOG_TAG, "UserChallengeTask()");
-            mContext = context;
         }
 
         @Override
@@ -138,7 +135,7 @@ public class Reddit {
                 if (oAuthData != null) {
                     mRateLimiter.acquire();
                     mRedditClient.authenticate(oAuthData);
-                    addUser(mContext);
+                    addUser();
 
                 } else {
                     Log.e(LOG_TAG, "Passed in OAuthData was null");
@@ -155,11 +152,11 @@ public class Reddit {
         }
     }
 
-    public AsyncTask runUserChallengeTask(String url, Context context) {
-        return new UserChallengeTask(context).execute(url);
+    public AsyncTask runUserChallengeTask(String url) {
+        return new UserChallengeTask().execute(url);
     }
 
-    public void addUser(Context context) {
+    public void addUser() {
         if (!mRedditClient.isAuthenticated()) {
             return;
         }
@@ -180,7 +177,7 @@ public class Reddit {
         cv.put(SiftContract.Users.COLUMN_COMMENT_KARMA, commentKarma);
         cv.put(SiftContract.Users.COLUMN_LINK_KARMA, linkKarma);
 
-        Uri userUri = context.getContentResolver().insert(SiftContract.Users.CONTENT_URI, cv);
+        Uri userUri = SiftApplication.getContext().getContentResolver().insert(SiftContract.Users.CONTENT_URI, cv);
         long userId = ContentUris.parseId(userUri);
 
         cv.clear();
@@ -191,19 +188,16 @@ public class Reddit {
         cv.put(SiftContract.Accounts.COLUMN_REFRESH_KEY, refreshToken);
         cv.put(SiftContract.Accounts.COLUMN_USER_ID, userId);
         cv.put(SiftContract.Accounts.COLUMN_USERNAME, username);
-        context.getContentResolver().insert(SiftContract.Accounts.CONTENT_URI, cv);
+        SiftApplication.getContext().getContentResolver().insert(SiftContract.Accounts.CONTENT_URI, cv);
 
         cv.clear();
 
-        runInitialSync(context);
+        runInitialSync();
     }
 
     private final class RefreshTokenTask extends AsyncTask<String, Void, OAuthData> {
 
-        private Context mContext;
-
-        public RefreshTokenTask( Context context) {
-            mContext = context;
+        public RefreshTokenTask() {
         }
 
         @Override
@@ -230,7 +224,7 @@ public class Reddit {
             Log.v(LOG_TAG, "onPostExecute()");
 
             Intent refreshIntent = new Intent(AUTHENTICATED);
-            LocalBroadcastManager.getInstance(mContext).sendBroadcast(refreshIntent);
+            LocalBroadcastManager.getInstance(SiftApplication.getContext()).sendBroadcast(refreshIntent);
         }
     }
 
@@ -238,16 +232,13 @@ public class Reddit {
 
     private final class GetUserlessTask extends AsyncTask<String, Void, Void> {
 
-        Context mContext;
-
-        public GetUserlessTask(Context context) {
-            mContext = context;
+        public GetUserlessTask() {
         }
 
         @Override
         protected Void doInBackground(String... params) {
             try {
-                String android_id = Settings.Secure.getString(mContext.getContentResolver(),
+                String android_id = Settings.Secure.getString(SiftApplication.getContext().getContentResolver(),
                         Settings.Secure.ANDROID_ID);
                 UUID uuid = UUID.randomUUID();
                 Credentials credentials = Credentials.userlessApp(CLIENT_ID, uuid);
@@ -271,38 +262,36 @@ public class Reddit {
             Log.v(LOG_TAG, "onPostExecute()");
 
             Intent refreshIntent = new Intent(AUTHENTICATED);
-            LocalBroadcastManager.getInstance(mContext).sendBroadcast(refreshIntent);
+            LocalBroadcastManager.getInstance(SiftApplication.getContext()).sendBroadcast(refreshIntent);
         }
     }
 
 
-    public void runInitialSync(Context context) {
-        AccountManager accountManager = (AccountManager) context.getSystemService(context.ACCOUNT_SERVICE);
+    public void runInitialSync() {
+        AccountManager accountManager = (AccountManager) SiftApplication.getContext().getSystemService(SiftApplication.getContext().ACCOUNT_SERVICE);
         Account account = accountManager.getAccountsByType(ACCOUNT_TYPE)[0];
 
         if (account != null) {
             Bundle bundle = new Bundle();
             bundle.putBoolean(ContentResolver.SYNC_EXTRAS_MANUAL, true);
             bundle.putBoolean(ContentResolver.SYNC_EXTRAS_EXPEDITED, true);
-            bundle.putBoolean(context.getString(R.string.initial_sync), true);
+            bundle.putBoolean(SiftApplication.getContext().getString(R.string.initial_sync), true);
             ContentResolver.requestSync(account, SiftContract.AUTHORITY, bundle);
         }
     }
 
 
-    public void removeAccounts (Context context) {
+    public void removeAccounts() {
         //revoke access token
         if (mRedditClient.isAuthenticated() && mRedditClient.hasActiveUserContext()) {
-            new RevokeTokenTask(context).execute();
+            new RevokeTokenTask().execute();
         }
     }
 
     private final class RevokeTokenTask extends AsyncTask<String, Void, Void> {
 
-        Context mContext;
+        public RevokeTokenTask() {
 
-        public RevokeTokenTask(Context context) {
-            mContext = context;
         }
 
         @Override
@@ -310,7 +299,7 @@ public class Reddit {
 
             Cursor cursor = null;
             try {
-                cursor = mContext.getContentResolver().query(SiftContract.Accounts.CONTENT_URI, null, null, null, null);
+                cursor = SiftApplication.getContext().getContentResolver().query(SiftContract.Accounts.CONTENT_URI, null, null, null, null);
                 if (cursor != null) {
                     if (cursor.moveToFirst()) {
                         String accountId = cursor.getString(cursor.getColumnIndex(SiftContract.Accounts._ID));
@@ -318,7 +307,7 @@ public class Reddit {
                         if (mRefreshToken != null && !mRefreshToken.isEmpty()) {
                             String selection = SiftContract.Accounts._ID + " =?";
                             String[] selectionArgs = new String[]{accountId};
-                            mContext.getContentResolver().delete(SiftContract.Accounts.CONTENT_URI, selection, selectionArgs);
+                            SiftApplication.getContext().getContentResolver().delete(SiftContract.Accounts.CONTENT_URI, selection, selectionArgs);
                             instance = new Reddit();
                         }
                     }
@@ -339,22 +328,19 @@ public class Reddit {
             Log.v(LOG_TAG, "onPostExecute()");
 
             Intent refreshIntent = new Intent(SiftBroadcastReceiver.LOGGED_IN);
-            LocalBroadcastManager.getInstance(mContext).sendBroadcast(refreshIntent);
+            LocalBroadcastManager.getInstance(SiftApplication.getContext()).sendBroadcast(refreshIntent);
         }
     }
 
-    public static void votePost(Context context, String serverId, int vote) {
-        new VotePostTask(context, serverId, vote).execute();
+    public static void votePost(String serverId, int vote) {
+        new VotePostTask(serverId, vote).execute();
     }
 
     private static final class VotePostTask extends AsyncTask<String, Void, Void> {
-
-        Context mContext;
         String mServerId;
         int mVote;
 
-        public VotePostTask(Context context, String serverId, int vote) {
-            mContext = context;
+        public VotePostTask( String serverId, int vote) {
             mServerId = serverId;
             mVote = vote;
         }
@@ -398,7 +384,7 @@ public class Reddit {
                 cv.put(SiftContract.Posts.COLUMN_VOTE, mVote);
                 String selection = SiftContract.Posts.COLUMN_SERVER_ID + " = ?";
                 String[] selectionArgs = new String[]{String.valueOf(mServerId)};
-                int count = mContext.getContentResolver().update(SiftContract.Posts.CONTENT_URI, cv, selection, selectionArgs);
+                int count = SiftApplication.getContext().getContentResolver().update(SiftContract.Posts.CONTENT_URI, cv, selection, selectionArgs);
                 Log.v("Reddit", count + " vote updated");
 
             } catch (ApiException | RuntimeException e) {
@@ -414,18 +400,15 @@ public class Reddit {
         }
     }
 
-    public static void voteComment(Context context, Comment comment, int vote) {
-        new VoteCommentTask(context, comment, vote).execute();
+    public static void voteComment(Comment comment, int vote) {
+        new VoteCommentTask(comment, vote).execute();
     }
 
     private static final class VoteCommentTask extends AsyncTask<String, Void, Void> {
-
-        Context mContext;
         Comment mComment;
         int mVote;
 
-        public VoteCommentTask(Context context, Comment comment, int vote) {
-            mContext = context;
+        public VoteCommentTask(Comment comment, int vote) {
             mComment = comment;
             mVote = vote;
         }
@@ -476,17 +459,14 @@ public class Reddit {
         }
     }
 
-    public static void subscribe(Context context, String name) {
-        new SubscribeTask(context, name).execute();
+    public static void subscribe(String name) {
+        new SubscribeTask(name).execute();
     }
 
     private static final class SubscribeTask extends AsyncTask<String, Void, Void> {
-
-        Context mContext;
         String mName;
 
-        public SubscribeTask(Context context, String name) {
-            mContext = context;
+        public SubscribeTask(String name) {
             mName = name;
         }
 
@@ -515,7 +495,7 @@ public class Reddit {
                 accountManager.subscribe(subreddit);
 
                 ContentValues cv = new ContentValues();
-                long subredditId = Utilities.getSubredditId(mContext, subreddit.getId());
+                long subredditId = Utilities.getSubredditId(subreddit.getId());
                 if (subredditId <= 0) {
                     cv.put(SiftContract.Subreddits.COLUMN_NAME, subreddit.getDisplayName());
                     cv.put(SiftContract.Subreddits.COLUMN_SERVER_ID, subreddit.getId());
@@ -528,17 +508,17 @@ public class Reddit {
                         e.printStackTrace();
                     }
 
-                    Uri subredditUri = mContext.getContentResolver().insert(SiftContract.Subreddits.CONTENT_URI, cv);
+                    Uri subredditUri = SiftApplication.getContext().getContentResolver().insert(SiftContract.Subreddits.CONTENT_URI, cv);
                     subredditId = ContentUris.parseId(subredditUri);
                     cv.clear();
                 }
 
                 //add subscription
-                long accountId = Utilities.getAccountId(mContext);
+                long accountId = Utilities.getAccountId();
                 if (accountId > 0) {
                     cv.put(SiftContract.Subscriptions.COLUMN_ACCOUNT_ID, accountId);
                     cv.put(SiftContract.Subscriptions.COLUMN_SUBREDDIT_ID, subredditId);
-                    mContext.getContentResolver().insert(SiftContract.Subscriptions.CONTENT_URI, cv);
+                    SiftApplication.getContext().getContentResolver().insert(SiftContract.Subscriptions.CONTENT_URI, cv);
                     cv.clear();
                 }
 
@@ -557,17 +537,14 @@ public class Reddit {
         }
     }
 
-    public static void unsubscribe(Context context, String name) {
-        new UnsubscribeTask(context, name).execute();
+    public static void unsubscribe(String name) {
+        new UnsubscribeTask(name).execute();
     }
 
     private static final class UnsubscribeTask extends AsyncTask<String, Void, Void> {
-
-        Context mContext;
         String mName;
 
-        public UnsubscribeTask(Context context, String name) {
-            mContext = context;
+        public UnsubscribeTask(String name) {
             mName = name;
         }
 
@@ -594,11 +571,11 @@ public class Reddit {
                 instance.mRateLimiter.acquire();
                 accountManager.unsubscribe(subreddit);
 
-                long subredditId = Utilities.getSubredditId(mContext, subreddit.getId());
+                long subredditId = Utilities.getSubredditId(subreddit.getId());
 
                 String selection = SiftContract.Subscriptions.COLUMN_SUBREDDIT_ID + " = ?";
                 String[] selectionArgs = new String[]{String.valueOf(subredditId)};
-                int count = mContext.getContentResolver().delete(SiftContract.Subscriptions.CONTENT_URI, selection, selectionArgs);
+                int count = SiftApplication.getContext().getContentResolver().delete(SiftContract.Subscriptions.CONTENT_URI, selection, selectionArgs);
                 Log.v("Reddit", "Unsubscribed");
 
             } catch (RuntimeException e) {
@@ -614,17 +591,14 @@ public class Reddit {
         }
     }
 
-    public static void favoritePost(Context context, String serverId) {
-        new FavoritePostTask(context, serverId).execute();
+    public static void favoritePost(String serverId) {
+        new FavoritePostTask(serverId).execute();
     }
 
     private static final class FavoritePostTask extends AsyncTask<String, Void, Void> {
-
-        Context mContext;
         String mServerId;
 
-        public FavoritePostTask(Context context, String serverId) {
-            mContext = context;
+        public FavoritePostTask(String serverId) {
             mServerId = serverId;
         }
 
@@ -666,19 +640,18 @@ public class Reddit {
                 cv.put(SiftContract.Posts.COLUMN_DATE_CREATED, sub.getCreatedUtc().getTime());
                 cv.put(SiftContract.Posts.COLUMN_VOTE, sub.getVote().getValue());
                 cv.put(SiftContract.Posts.COLUMN_FAVORITED, 1);
-                Uri uri = mContext.getContentResolver().insert(SiftContract.Posts.CONTENT_URI, cv);
+                Uri uri = SiftApplication.getContext().getContentResolver().insert(SiftContract.Posts.CONTENT_URI, cv);
                 long postId = ContentUris.parseId(uri);
 
                 cv.clear();
-                long accountId = Utilities.getAccountId(mContext);
+                long accountId = Utilities.getAccountId();
                 cv.put(SiftContract.Favorites.COLUMN_ACCOUNT_ID, accountId);
                 cv.put(SiftContract.Favorites.COLUMN_POST_ID, postId);
-                mContext.getContentResolver().insert(SiftContract.Favorites.CONTENT_URI, cv);
+                SiftApplication.getContext().getContentResolver().insert(SiftContract.Favorites.CONTENT_URI, cv);
 
             } catch (ApiException | RuntimeException e) {
                 e.printStackTrace();
             }
-
 
             Log.v("Reddit", "Saved");
 
@@ -691,18 +664,15 @@ public class Reddit {
         }
     }
 
-    public static void unfavoritePost(Context context, String serverId) {
-        new UnfavoritePostTask(context, serverId).execute();
+    public static void unfavoritePost(String serverId) {
+        new UnfavoritePostTask(serverId).execute();
     }
 
     private static final class UnfavoritePostTask extends AsyncTask<String, Void, Void> {
-
-        Context mContext;
         String mServerId;
         long mPostId;
 
-        public UnfavoritePostTask(Context context, String serverId) {
-            mContext = context;
+        public UnfavoritePostTask(String serverId) {
             mServerId = serverId;
         }
 
@@ -730,12 +700,12 @@ public class Reddit {
                 instance.mRateLimiter.acquire();
                 accountManager.unsave(sub);
 
-                long postId = Utilities.getSavedPostId(mContext, mServerId);
+                long postId = Utilities.getSavedPostId(mServerId);
 
                 if (postId > 0) {
                     String selection = SiftContract.Favorites.COLUMN_POST_ID + " = ?";
                     String[] selectionArgs = new String[]{String.valueOf(postId)};
-                    int count = mContext.getContentResolver().delete(SiftContract.Favorites.CONTENT_URI, selection, selectionArgs);
+                    int count = SiftApplication.getContext().getContentResolver().delete(SiftContract.Favorites.CONTENT_URI, selection, selectionArgs);
                     Log.v("Reddit", count + " Unsaved");
 
                 }
@@ -754,18 +724,15 @@ public class Reddit {
     }
 
 
-    public static void commentOnPost(Context context, String serverId, String comment) {
-        new CommentOnPostTask(context, serverId, comment).execute();
+    public static void commentOnPost(String serverId, String comment) {
+        new CommentOnPostTask(serverId, comment).execute();
     }
 
     private static final class CommentOnPostTask extends AsyncTask<String, Void, Void> {
-
-        Context mContext;
         String mServerId;
         String mComment;
 
-        public CommentOnPostTask(Context context, String serverId, String comment) {
-            mContext = context;
+        public CommentOnPostTask(String serverId, String comment) {
             mServerId = serverId;
             mComment =  comment;
         }
@@ -801,22 +768,19 @@ public class Reddit {
 
         @Override
         protected void onPostExecute(Void nothing) {
-            Toast.makeText(mContext, mContext.getString(R.string.comment_posted), Toast.LENGTH_LONG).show();
+            Toast.makeText(SiftApplication.getContext(), SiftApplication.getContext().getString(R.string.comment_posted), Toast.LENGTH_LONG).show();
         }
     }
 
-    public static void replyToComment(Context context, Comment comment, String reply) {
-        new ReplyToCommentTask(context, comment, reply).execute();
+    public static void replyToComment(Comment comment, String reply) {
+        new ReplyToCommentTask(comment, reply).execute();
     }
 
     private static final class ReplyToCommentTask extends AsyncTask<String, Void, Void> {
-
-        Context mContext;
         String mReply;
         Comment mComment;
 
-        public ReplyToCommentTask(Context context, Comment comment, String reply) {
-            mContext = context;
+        public ReplyToCommentTask(Comment comment, String reply) {
             mReply = reply;
             mComment =  comment;
         }
@@ -847,22 +811,19 @@ public class Reddit {
 
         @Override
         protected void onPostExecute(Void nothing) {
-            Toast.makeText(mContext, mContext.getString(R.string.comment_posted), Toast.LENGTH_LONG).show();
+            Toast.makeText(SiftApplication.getContext(), SiftApplication.getContext().getString(R.string.comment_posted), Toast.LENGTH_LONG).show();
         }
     }
 
 
-    public static void addFriend(Context context, String username) {
-        new AddFriendTask(context, username).execute();
+    public static void addFriend(String username) {
+        new AddFriendTask(username).execute();
     }
 
     private static final class AddFriendTask extends AsyncTask<String, Void, Void> {
-
-        Context mContext;
         String mUsername;
 
-        public AddFriendTask(Context context, String username) {
-            mContext = context;
+        public AddFriendTask(String username) {
             mUsername = username;
         }
 
@@ -894,15 +855,15 @@ public class Reddit {
                 cv.put(SiftContract.Users.COLUMN_DATE_CREATED, user.getCreatedUtc().getTime());
                 cv.put(SiftContract.Users.COLUMN_COMMENT_KARMA, user.getCommentKarma());
                 cv.put(SiftContract.Users.COLUMN_LINK_KARMA, user.getLinkKarma());
-                Uri userUri = mContext.getContentResolver().insert(SiftContract.Users.CONTENT_URI, cv);
+                Uri userUri = SiftApplication.getContext().getContentResolver().insert(SiftContract.Users.CONTENT_URI, cv);
                 long userId = ContentUris.parseId(userUri);
                 cv.clear();
 
                 //add friend
-                long accountId = Utilities.getAccountId(mContext);
+                long accountId = Utilities.getAccountId();
                 cv.put(SiftContract.Friends.COLUMN_ACCOUNT_ID, accountId);
                 cv.put(SiftContract.Friends.COLUMN_FRIEND_USER_ID, userId);
-                mContext.getContentResolver().insert(SiftContract.Friends.CONTENT_URI, cv);
+                SiftApplication.getContext().getContentResolver().insert(SiftContract.Friends.CONTENT_URI, cv);
             } catch (RuntimeException e) {
                 e.printStackTrace();
             }
@@ -912,22 +873,19 @@ public class Reddit {
 
         @Override
         protected void onPostExecute(Void nothing) {
-            Toast.makeText(mContext, mContext.getString(R.string.friend_added), Toast.LENGTH_LONG).show();
+            Toast.makeText(SiftApplication.getContext(), SiftApplication.getContext().getString(R.string.friend_added), Toast.LENGTH_LONG).show();
         }
     }
 
 
-    public static void removeFriend(Context context, String username) {
-        new RemoveFriendTask(context, username).execute();
+    public static void removeFriend(String username) {
+        new RemoveFriendTask(username).execute();
     }
 
     private static final class RemoveFriendTask extends AsyncTask<String, Void, Void> {
-
-        Context mContext;
         String mUsername;
 
-        public RemoveFriendTask(Context context, String username) {
-            mContext = context;
+        public RemoveFriendTask( String username) {
             mUsername = username;
         }
 
@@ -952,12 +910,12 @@ public class Reddit {
                     accountManager.deleteFriend(mUsername);
                 }
 
-                long userId = Utilities.getSavedUserId(mContext, mUsername);
+                long userId = Utilities.getSavedUserId(mUsername);
 
                 if (userId > 0) {
                     String selection = SiftContract.Friends.COLUMN_FRIEND_USER_ID + " = ?";
                     String[] selectionArgs = new String[]{String.valueOf(userId)};
-                    int count = mContext.getContentResolver().delete(SiftContract.Friends.CONTENT_URI, selection, selectionArgs);
+                    int count = SiftApplication.getContext().getContentResolver().delete(SiftContract.Friends.CONTENT_URI, selection, selectionArgs);
                     Log.v("Reddit", count + " Removed");
                 }
             } catch (RuntimeException e) {
@@ -970,22 +928,19 @@ public class Reddit {
 
         @Override
         protected void onPostExecute(Void nothing) {
-            Toast.makeText(mContext, mContext.getString(R.string.friend_removed), Toast.LENGTH_LONG).show();
+            Toast.makeText(SiftApplication.getContext(), SiftApplication.getContext().getString(R.string.friend_removed), Toast.LENGTH_LONG).show();
         }
     }
 
-    public static void goToUser(Context context, String username) {
-        new GoToUserTask(context, username).execute();
+    public static void goToUser(String username) {
+        new GoToUserTask(username).execute();
     }
 
     private static final class GoToUserTask extends AsyncTask<String, Void, Void> {
-
-        Context mContext;
         String mUsername;
         boolean mUserFound = false;
 
-        public GoToUserTask(Context context, String username) {
-            mContext = context;
+        public GoToUserTask(String username) {
             mUsername = username;
         }
 
@@ -1014,30 +969,27 @@ public class Reddit {
         @Override
         protected void onPostExecute(Void nothing) {
             if (mUserFound) {
-                Intent intent = new Intent(mContext, UserInfoActivity.class);
-                intent.putExtra(mContext.getString(R.string.username), mUsername);
+                Intent intent = new Intent(SiftApplication.getContext(), UserInfoActivity.class);
+                intent.putExtra(SiftApplication.getContext().getString(R.string.username), mUsername);
                 intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                mContext.startActivity(intent);
+                SiftApplication.getContext().startActivity(intent);
             } else {
-                Toast.makeText(mContext, mContext.getString(R.string.user_not_found), Toast.LENGTH_LONG).show();
+                Toast.makeText(SiftApplication.getContext(), SiftApplication.getContext().getString(R.string.user_not_found), Toast.LENGTH_LONG).show();
             }
         }
     }
 
 
 
-    public static void goToSubreddit(Context context, String subreddit) {
-        new GoToSubredditTask(context, subreddit).execute();
+    public static void goToSubreddit(String subreddit) {
+        new GoToSubredditTask(subreddit).execute();
     }
 
     private static final class GoToSubredditTask extends AsyncTask<String, Void, Void> {
-
-        Context mContext;
         String mSubreddit;
         boolean mSubredditFound = false;
 
-        public GoToSubredditTask(Context context, String subreddit) {
-            mContext = context;
+        public GoToSubredditTask(String subreddit) {
             mSubreddit = subreddit;
         }
 
@@ -1066,24 +1018,22 @@ public class Reddit {
         @Override
         protected void onPostExecute(Void nothing) {
             if (mSubredditFound) {
-                Intent intent = new Intent(mContext, SubredditActivity.class);
-                intent.putExtra(mContext.getString(R.string.subreddit_name), mSubreddit);
+                Intent intent = new Intent(SiftApplication.getContext(), SubredditActivity.class);
+                intent.putExtra(SiftApplication.getContext().getString(R.string.subreddit_name), mSubreddit);
                 intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                mContext.startActivity(intent);
+                SiftApplication.getContext().startActivity(intent);
             } else {
-                Toast.makeText(mContext, mContext.getString(R.string.subreddit_not_found), Toast.LENGTH_LONG).show();
+                Toast.makeText(SiftApplication.getContext(), SiftApplication.getContext().getString(R.string.subreddit_not_found), Toast.LENGTH_LONG).show();
             }
         }
     }
 
 
-    public static void textSubmission(Context context, String subreddit, String title, String text, Captcha captcha, String captchaAttempt) {
-        new TextSubmissionTask(context, subreddit, title, text, captcha, captchaAttempt).execute();
+    public static void textSubmission(String subreddit, String title, String text, Captcha captcha, String captchaAttempt) {
+        new TextSubmissionTask(subreddit, title, text, captcha, captchaAttempt).execute();
     }
 
     private static final class TextSubmissionTask extends AsyncTask<String, Void, Void> {
-
-        Context mContext;
         String mSubreddit;
         String mTitle;
         String mText;
@@ -1091,8 +1041,7 @@ public class Reddit {
         String mCaptchaAttempt;
         boolean mSubmitted = false;
 
-        public TextSubmissionTask(Context context, String subreddit, String title, String text, Captcha captcha, String captchaAttempt) {
-            mContext = context;
+        public TextSubmissionTask(String subreddit, String title, String text, Captcha captcha, String captchaAttempt) {
             mSubreddit = subreddit;
             mTitle = title;
             mText = text;
@@ -1134,23 +1083,21 @@ public class Reddit {
         @Override
         protected void onPostExecute(Void nothing) {
             if (mSubmitted) {
-                Toast.makeText(mContext, mContext.getString(R.string.submit_successful), Toast.LENGTH_LONG).show();
-                Intent intent = new Intent(mContext, MainActivity.class);
+                Toast.makeText(SiftApplication.getContext(), SiftApplication.getContext().getString(R.string.submit_successful), Toast.LENGTH_LONG).show();
+                Intent intent = new Intent(SiftApplication.getContext(), MainActivity.class);
                 intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                mContext.startActivity(intent);
+                SiftApplication.getContext().startActivity(intent);
             } else {
-                Toast.makeText(mContext, mContext.getString(R.string.submit_error), Toast.LENGTH_LONG).show();
+                Toast.makeText(SiftApplication.getContext(), SiftApplication.getContext().getString(R.string.submit_error), Toast.LENGTH_LONG).show();
             }
         }
     }
 
-    public static void linkSubmission(Context context, String subreddit, String title, URL url, Captcha captcha, String captchaAttempt) {
-        new LinkSubmissionTask(context, subreddit, title, url, captcha, captchaAttempt).execute();
+    public static void linkSubmission(String subreddit, String title, URL url, Captcha captcha, String captchaAttempt) {
+        new LinkSubmissionTask(subreddit, title, url, captcha, captchaAttempt).execute();
     }
 
     private static final class LinkSubmissionTask extends AsyncTask<String, Void, Void> {
-
-        Context mContext;
         String mSubreddit;
         String mTitle;
         URL mUrl;
@@ -1158,8 +1105,7 @@ public class Reddit {
         String mCaptchaAttempt;
         boolean mSubmitted = false;
 
-        public LinkSubmissionTask(Context context, String subreddit, String title, URL url, Captcha captcha, String captchaAttempt) {
-            mContext = context;
+        public LinkSubmissionTask(String subreddit, String title, URL url, Captcha captcha, String captchaAttempt) {
             mSubreddit = subreddit;
             mTitle = title;
             mUrl = url;
@@ -1202,25 +1148,23 @@ public class Reddit {
         @Override
         protected void onPostExecute(Void nothing) {
             if (mSubmitted) {
-                Toast.makeText(mContext, mContext.getString(R.string.submit_successful), Toast.LENGTH_LONG).show();
-                Intent intent = new Intent(mContext, MainActivity.class);
+                Toast.makeText(SiftApplication.getContext(), SiftApplication.getContext().getString(R.string.submit_successful), Toast.LENGTH_LONG).show();
+                Intent intent = new Intent(SiftApplication.getContext(), MainActivity.class);
                 intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                mContext.startActivity(intent);
+                SiftApplication.getContext().startActivity(intent);
             } else {
-                Toast.makeText(mContext, mContext.getString(R.string.submit_error), Toast.LENGTH_LONG).show();
+                Toast.makeText(SiftApplication.getContext(), SiftApplication.getContext().getString(R.string.submit_error), Toast.LENGTH_LONG).show();
             }
         }
     }
 
 
 
-    public static void sendMessage(Context context, String to, String subject, String body) {
-        new SendMessageTask(context, to, subject, body).execute();
+    public static void sendMessage(String to, String subject, String body) {
+        new SendMessageTask(to, subject, body).execute();
     }
 
     private static final class SendMessageTask extends AsyncTask<String, Void, Void> {
-
-        Context mContext;
         String mTo;
         String mSubject;
         String mBody;
@@ -1228,8 +1172,7 @@ public class Reddit {
         String mCaptchaAttempt;
         boolean mSent = false;
 
-        public SendMessageTask(Context context, String to, String subject, String body) {
-            mContext = context;
+        public SendMessageTask(String to, String subject, String body) {
             mTo = to;
             mSubject = subject;
             mBody = body;
@@ -1261,12 +1204,12 @@ public class Reddit {
         @Override
         protected void onPostExecute(Void nothing) {
             if (mSent) {
-                Toast.makeText(mContext, mContext.getString(R.string.message_sent), Toast.LENGTH_LONG).show();
-                Intent intent = new Intent(mContext, MessageActivity.class);
+                Toast.makeText(SiftApplication.getContext(), SiftApplication.getContext().getString(R.string.message_sent), Toast.LENGTH_LONG).show();
+                Intent intent = new Intent(SiftApplication.getContext(), MessageActivity.class);
                 intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                mContext.startActivity(intent);
+                SiftApplication.getContext().startActivity(intent);
             } else {
-                Toast.makeText(mContext, mContext.getString(R.string.message_error), Toast.LENGTH_LONG).show();
+                Toast.makeText(SiftApplication.getContext(), SiftApplication.getContext().getString(R.string.message_error), Toast.LENGTH_LONG).show();
             }
         }
     }

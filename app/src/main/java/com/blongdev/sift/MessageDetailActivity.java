@@ -34,7 +34,7 @@ public class MessageDetailActivity extends BaseActivity {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (!Utilities.loggedIn(getApplicationContext())) {
+                if (!Utilities.loggedIn()) {
                     Toast.makeText(getApplicationContext(), getString(R.string.must_log_in), Toast.LENGTH_LONG).show();
                     return;
                 }
@@ -47,7 +47,7 @@ public class MessageDetailActivity extends BaseActivity {
         });
 
         //hide reply fab when viewing sent message
-        if(TextUtils.equals(mUsername, Utilities.getLoggedInUsername(getApplicationContext()))) {
+        if(TextUtils.equals(mUsername, Utilities.getLoggedInUsername())) {
             fab.setVisibility(View.GONE);
         }
     }

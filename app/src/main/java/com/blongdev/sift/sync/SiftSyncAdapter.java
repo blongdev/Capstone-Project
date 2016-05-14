@@ -53,15 +53,11 @@ import java.util.ArrayList;
  */
 public class SiftSyncAdapter extends AbstractThreadedSyncAdapter {
     ContentResolver mContentResolver;
-    Context mContext;
-
 
     public SiftSyncAdapter(Context context, boolean autoInitialize) {
         super(context, autoInitialize);
         mContentResolver = context.getContentResolver();
-        mContext = context;
     }
-
 
     public SiftSyncAdapter(Context context, boolean autoInitialize, boolean allowParallelSyncs) {
         super(context, autoInitialize, allowParallelSyncs);
@@ -71,8 +67,7 @@ public class SiftSyncAdapter extends AbstractThreadedSyncAdapter {
     @Override
     public void onPerformSync(Account account, Bundle extras, String authority, ContentProviderClient provider, SyncResult syncResult) {
         Log.v("SiftSyncAdapter", "onPerformSync()");
-        GoogleAnalytics.getInstance(mContext).dispatchLocalHits();
-
+        GoogleAnalytics.getInstance(SiftApplication.getContext()).dispatchLocalHits();
 
         long startTime = System.currentTimeMillis();
         boolean initialSync = extras.getBoolean(SiftApplication.getContext().getString(R.string.initial_sync), false);
@@ -85,7 +80,7 @@ public class SiftSyncAdapter extends AbstractThreadedSyncAdapter {
             if (accountCursor != null) {
                 while (accountCursor.moveToNext()) {
                     AccountInfo info = new AccountInfo();
-                    info.mId = accountCursor.getInt(accountCursor.getColumnIndex(SiftContract.Accounts._ID));
+                    info.mId = accountCursor.getLong(accountCursor.getColumnIndex(SiftContract.Accounts._ID));
                     info.mRefreshKey = accountCursor.getString(accountCursor.getColumnIndex(SiftContract.Accounts.COLUMN_REFRESH_KEY));
                     accounts.add(info);
                 }
@@ -155,12 +150,12 @@ public class SiftSyncAdapter extends AbstractThreadedSyncAdapter {
             }
 
             //update widgets with new frontpage posts
-            AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(mContext);
-            int[] appWidgetIds = appWidgetManager.getAppWidgetIds(new ComponentName(mContext, SiftWidget.class));
+            AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(SiftApplication.getContext());
+            int[] appWidgetIds = appWidgetManager.getAppWidgetIds(new ComponentName(SiftApplication.getContext(), SiftWidget.class));
             Intent updateIntent = new Intent();
             updateIntent.setAction(AppWidgetManager.ACTION_APPWIDGET_UPDATE);
             updateIntent.putExtra(SiftWidget.WIDGET_IDS, appWidgetIds);
-            mContext.sendBroadcast(updateIntent);
+            SiftApplication.getContext().sendBroadcast(updateIntent);
         }
 
         long endTime = System.currentTimeMillis();
@@ -168,7 +163,7 @@ public class SiftSyncAdapter extends AbstractThreadedSyncAdapter {
         Log.v("SiftSyncAdapter", "Sync Completed. Total Time: " + (endTime - startTime) / 1000 + " seconds");
     }
 
-    private void getData(int accountId, ContentProviderClient provider, boolean initialSync) {
+    private void getData(long accountId, ContentProviderClient provider, boolean initialSync) {
         Reddit reddit = Reddit.getInstance();
         ContentValues cv = new ContentValues();
         //Subscribed
@@ -191,7 +186,7 @@ public class SiftSyncAdapter extends AbstractThreadedSyncAdapter {
                 }
 
                 //check if subreddit exists in db
-                long subredditId = Utilities.getSubredditId(SiftApplication.getContext(), serverId);
+                long subredditId = Utilities.getSubredditId(serverId);
                 if (subredditId <= 0) {
                     cv.put(SiftContract.Subreddits.COLUMN_NAME, subName);
                     cv.put(SiftContract.Subreddits.COLUMN_SERVER_ID, serverId);
@@ -369,23 +364,23 @@ public class SiftSyncAdapter extends AbstractThreadedSyncAdapter {
 
         if (newMessages > 0) {
             NotificationCompat.Builder mBuilder =
-                    new NotificationCompat.Builder(mContext)
+                    new NotificationCompat.Builder(SiftApplication.getContext())
                             .setSmallIcon(R.drawable.notification_icon)
-                            .setContentTitle(mContext.getString(R.string.sift));
+                            .setContentTitle(SiftApplication.getContext().getString(R.string.sift));
             if (newMessages == 1) {
-                mBuilder.setContentText(mContext.getString(R.string.new_message, newMessages));
+                mBuilder.setContentText(SiftApplication.getContext().getString(R.string.new_message, newMessages));
             } else {
-                mBuilder.setContentText(mContext.getString(R.string.new_messages, newMessages));
+                mBuilder.setContentText(SiftApplication.getContext().getString(R.string.new_messages, newMessages));
             }
 
-            Intent resultIntent = new Intent(mContext, MessageActivity.class);
+            Intent resultIntent = new Intent(SiftApplication.getContext(), MessageActivity.class);
             PendingIntent resultPendingIntent =
-                    PendingIntent.getActivity(mContext, 0, resultIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+                    PendingIntent.getActivity(SiftApplication.getContext(), 0, resultIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
             mBuilder.setContentIntent(resultPendingIntent);
 
             int mNotificationId = 001;
-            NotificationManager mNotifyMgr = (NotificationManager) mContext.getSystemService(mContext.NOTIFICATION_SERVICE);
+            NotificationManager mNotifyMgr = (NotificationManager) SiftApplication.getContext().getSystemService(SiftApplication.getContext().NOTIFICATION_SERVICE);
             mNotifyMgr.notify(mNotificationId, mBuilder.build());
         }
 

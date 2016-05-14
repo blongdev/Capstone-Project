@@ -104,12 +104,12 @@ public class ComposePostActivity extends BaseActivity implements LoaderManager.L
                 if (mLinkBox.isChecked()) {
                     try {
                         URL url = new URL(body);
-                        Reddit.linkSubmission(getApplicationContext(), mSubredditName, title, url, mCaptcha, captchaText);
+                        Reddit.linkSubmission(mSubredditName, title, url, mCaptcha, captchaText);
                     } catch (MalformedURLException e) {
                         e.printStackTrace();
                     }
                 } else {
-                    Reddit.textSubmission(getApplicationContext(), mSubredditName, title, body, mCaptcha, captchaText);
+                    Reddit.textSubmission(mSubredditName, title, body, mCaptcha, captchaText);
                 }
             }
         });

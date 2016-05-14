@@ -114,7 +114,7 @@ public class SearchResultsActivity extends BaseActivity implements SubredditList
 
     @Override
     public void onItemSelected(long id, String name) {
-            Intent intent = new Intent(this, SubredditActivity.class);
+            Intent intent = new Intent(SiftApplication.getContext(), SubredditActivity.class);
             intent.putExtra(getString(R.string.subreddit_id), id);
             intent.putExtra(getString(R.string.subreddit_name), name);
             startActivity(intent);

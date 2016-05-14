@@ -67,7 +67,7 @@ public class MainActivity extends BaseActivity {
                 data.moveToPosition(-1);
                 while (data.moveToNext()) {
                     SubscriptionInfo sub = new SubscriptionInfo();
-                    sub.mSubredditId = data.getInt(data.getColumnIndex(SiftContract.Subscriptions.COLUMN_SUBREDDIT_ID));
+                    sub.mSubredditId = data.getLong(data.getColumnIndex(SiftContract.Subscriptions.COLUMN_SUBREDDIT_ID));
                     sub.mSubredditName = data.getString(data.getColumnIndex(SiftContract.Subreddits.COLUMN_NAME));
                     mSubreddits.add(sub);
                 }
@@ -77,8 +77,9 @@ public class MainActivity extends BaseActivity {
 
         @Override
         public void onLoaderReset(Loader<Cursor> loader) {
-
-            mPagerAdapter.swapData(null);
+            if (mPagerAdapter != null) {
+                mPagerAdapter.swapData(null);
+            }
         }
     };
 
@@ -88,12 +89,12 @@ public class MainActivity extends BaseActivity {
         @Override
         public Loader<List<SubscriptionInfo>> onCreateLoader(int id, Bundle args) {
             mLoadingSpinner.setVisibility(View.VISIBLE);
-            if (Utilities.loggedIn(getApplicationContext())) {
-                return new PopularSubredditLoader(getApplicationContext(), false);
+            if (Utilities.loggedIn()) {
+                return new PopularSubredditLoader(false);
             } else {
                 //hide fab from frontpage
                 mFab.hide();
-                return new PopularSubredditLoader(getApplicationContext(), true);
+                return new PopularSubredditLoader(true);
             }
         }
 
@@ -105,7 +106,9 @@ public class MainActivity extends BaseActivity {
 
         @Override
         public void onLoaderReset(Loader<List<SubscriptionInfo>> loader) {
-            mPagerAdapter.swapData(new ArrayList<SubscriptionInfo>());
+            if(mPagerAdapter != null) {
+                mPagerAdapter.swapData(new ArrayList<SubscriptionInfo>());
+            }
         }
 
     };
@@ -121,7 +124,7 @@ public class MainActivity extends BaseActivity {
         }
 
         if (findViewById(R.id.tablet) != null) {
-            Intent activity = new Intent(this, SubredditListActivity.class);
+            Intent activity = new Intent(SiftApplication.getContext(), SubredditListActivity.class);
             if(mCategory != null) {
                 activity.putExtra(getString(R.string.category), mCategory);
             }
@@ -141,7 +144,7 @@ public class MainActivity extends BaseActivity {
         mFab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (!Utilities.loggedIn(getApplicationContext())) {
+                if (!Utilities.loggedIn()) {
                     Toast.makeText(getApplicationContext(), getString(R.string.must_log_in), Toast.LENGTH_LONG).show();
                     return;
                 }
@@ -156,7 +159,7 @@ public class MainActivity extends BaseActivity {
 
         if (mCategory != null && mReddit.mRedditClient.isAuthenticated()) {
             getSupportLoaderManager().initLoader(ASYNCTASK_LOADER_ID, null, mPopularSubredditsLoader).forceLoad();
-        } else if (Utilities.loggedIn(getApplicationContext())){
+        } else if (Utilities.loggedIn()){
             getSupportLoaderManager().initLoader(CURSOR_LOADER_ID, null, mSubscriptionLoader).forceLoad();
         } else if (mReddit.mRedditClient.isAuthenticated()){
             getSupportLoaderManager().initLoader(ASYNCTASK_LOADER_ID, null, mPopularSubredditsLoader).forceLoad();
@@ -169,29 +172,28 @@ public class MainActivity extends BaseActivity {
 
         TabLayout tabLayout = (TabLayout) findViewById(R.id.subreddit_tabs);
         tabLayout.setupWithViewPager(mPager);
-
-        mPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
-            @Override
-            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-
-            }
-
-            @Override
-            public void onPageSelected(int position) {
-                if (TextUtils.equals(mPagerAdapter.getPageTitle(mPager.getCurrentItem()), getString(R.string.frontPage))) {
-                    mFab.hide();
-                } else {
-                    mFab.show();
-                }
-            }
-
-            @Override
-            public void onPageScrollStateChanged(int state) {
-
-            }
-        });
-
     }
+
+    ViewPager.OnPageChangeListener mOnPageChangeListener = new ViewPager.OnPageChangeListener() {
+        @Override
+        public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+
+        }
+
+        @Override
+        public void onPageSelected(int position) {
+            if (TextUtils.equals(mPagerAdapter.getPageTitle(mPager.getCurrentItem()), getString(R.string.frontPage))) {
+                mFab.hide();
+            } else {
+                mFab.show();
+            }
+        }
+
+        @Override
+        public void onPageScrollStateChanged(int state) {
+
+        }
+    };
 
 
     private class SubredditPagerAdapter extends FragmentStatePagerAdapter {
@@ -244,10 +246,10 @@ public class MainActivity extends BaseActivity {
         @Override
         public void onReceive(Context context, Intent intent) {
             if (mReddit.mRedditClient.isAuthenticated()) {
-                if (!Utilities.loggedIn(getApplicationContext())) {
+                if (!Utilities.loggedIn()) {
                     if (mCategory != null && mReddit.mRedditClient.isAuthenticated()) {
                         getSupportLoaderManager().initLoader(ASYNCTASK_LOADER_ID, null, mPopularSubredditsLoader).forceLoad();
-                    } else if (Utilities.loggedIn(getApplicationContext())){
+                    } else if (Utilities.loggedIn()){
                         getSupportLoaderManager().initLoader(CURSOR_LOADER_ID, null, mSubscriptionLoader).forceLoad();
                     } else if (mReddit.mRedditClient.isAuthenticated()){
                         getSupportLoaderManager().initLoader(ASYNCTASK_LOADER_ID, null, mPopularSubredditsLoader).forceLoad();
@@ -259,29 +261,36 @@ public class MainActivity extends BaseActivity {
         }
     };
 
+
     @Override
     public void onResume() {
         super.onResume();
         LocalBroadcastManager.getInstance(this).registerReceiver(mBroadcastReceiver,
                 new IntentFilter(Reddit.AUTHENTICATED));
+        mPager.addOnPageChangeListener(mOnPageChangeListener);
     }
 
     @Override
     public void onPause() {
+        mPager.removeOnPageChangeListener(mOnPageChangeListener);
         LocalBroadcastManager.getInstance(this).unregisterReceiver(mBroadcastReceiver);
         super.onPause();
+    }
+
+    @Override
+    public void onDestroy() {
+        mPager.setAdapter(null);
+        mPagerAdapter = null;
+        super.onDestroy();
     }
 }
 
 
 class PopularSubredditLoader extends AsyncTaskLoader<List<SubscriptionInfo>> {
-
-    Context mContext;
     boolean addFrontPage;
 
-    public PopularSubredditLoader(Context context, boolean frontpage) {
-        super(context);
-        mContext = context;
+    public PopularSubredditLoader(boolean frontpage) {
+        super(SiftApplication.getContext());
         addFrontPage = frontpage;
     }
 
@@ -293,7 +302,7 @@ class PopularSubredditLoader extends AsyncTaskLoader<List<SubscriptionInfo>> {
         if(addFrontPage) {
             SubscriptionInfo frontpage = new SubscriptionInfo();
             frontpage.mSubredditId = -1;
-            frontpage.mSubredditName = mContext.getString(R.string.frontPage);
+            frontpage.mSubredditName = SiftApplication.getContext().getString(R.string.frontPage);
             subredditArray.add(frontpage);
         }
 
@@ -320,13 +329,13 @@ class PopularSubredditLoader extends AsyncTaskLoader<List<SubscriptionInfo>> {
                     }
 
                     description = subreddit.getPublicDescription();
-                    subredditId = Utilities.getSubredditId(mContext, serverId);
+                    subredditId = Utilities.getSubredditId(serverId);
                     if (subredditId < 0) {
                         cv.put(SiftContract.Subreddits.COLUMN_NAME, name);
                         cv.put(SiftContract.Subreddits.COLUMN_SERVER_ID, serverId);
                         cv.put(SiftContract.Subreddits.COLUMN_DESCRIPTION, description);
                         cv.put(SiftContract.Subreddits.COLUMN_SUBSCRIBERS, numSubscribers);
-                        Uri uri = mContext.getContentResolver().insert(SiftContract.Subreddits.CONTENT_URI, cv);
+                        Uri uri = SiftApplication.getContext().getContentResolver().insert(SiftContract.Subreddits.CONTENT_URI, cv);
                         subredditId = ContentUris.parseId(uri);
                         cv.clear();
                     }
