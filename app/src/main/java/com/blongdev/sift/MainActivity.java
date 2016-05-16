@@ -48,6 +48,7 @@ public class MainActivity extends BaseActivity {
     private ArrayList<SubscriptionInfo> mSubreddits;
     ProgressBar mLoadingSpinner;
     String mCategory = null;
+    boolean mIsTablet;
 
     FloatingActionButton mFab;
 
@@ -124,6 +125,7 @@ public class MainActivity extends BaseActivity {
         }
 
         if (findViewById(R.id.tablet) != null) {
+            mIsTablet = true;
             Intent activity = new Intent(SiftApplication.getContext(), SubredditListActivity.class);
             if(mCategory != null) {
                 activity.putExtra(getString(R.string.category), mCategory);
@@ -265,15 +267,19 @@ public class MainActivity extends BaseActivity {
     @Override
     public void onResume() {
         super.onResume();
-        LocalBroadcastManager.getInstance(this).registerReceiver(mBroadcastReceiver,
+        if (!mIsTablet) {
+            LocalBroadcastManager.getInstance(this).registerReceiver(mBroadcastReceiver,
                 new IntentFilter(Reddit.AUTHENTICATED));
-        mPager.addOnPageChangeListener(mOnPageChangeListener);
+            mPager.addOnPageChangeListener(mOnPageChangeListener);
+        }
     }
 
     @Override
     public void onPause() {
-        mPager.removeOnPageChangeListener(mOnPageChangeListener);
-        LocalBroadcastManager.getInstance(this).unregisterReceiver(mBroadcastReceiver);
+        if (!mIsTablet) {
+            mPager.removeOnPageChangeListener(mOnPageChangeListener);
+            LocalBroadcastManager.getInstance(this).unregisterReceiver(mBroadcastReceiver);
+        }
         super.onPause();
     }
 

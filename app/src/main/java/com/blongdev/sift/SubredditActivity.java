@@ -5,19 +5,30 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.AsyncTaskLoader;
+import android.support.v4.content.Loader;
 import android.support.v7.app.ActionBar;
 import android.support.v7.widget.SearchView;
 import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.TextView;
 import android.widget.Toast;
 
-public class SubredditActivity extends BaseActivity {
+import com.squareup.picasso.Picasso;
+
+import net.dean.jraw.ApiException;
+import net.dean.jraw.models.Captcha;
+import net.dean.jraw.models.Subreddit;
+
+public class SubredditActivity extends BaseActivity implements LoaderManager.LoaderCallbacks<String>{
 
     MenuItem mSubscribe;
     String mSubredditName;
     boolean mSubscribed;
+    boolean mIsTablet;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,6 +43,11 @@ public class SubredditActivity extends BaseActivity {
             if (toolbar != null) {
                 toolbar.setTitle(mSubredditName);
             }
+        }
+
+        if (findViewById(R.id.description) != null) {
+            mIsTablet = true;
+            getSupportLoaderManager().initLoader(1, null, this).forceLoad();
         }
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
@@ -50,6 +66,25 @@ public class SubredditActivity extends BaseActivity {
         });
     }
 
+
+    public Loader<String> onCreateLoader(int id, Bundle args) {
+        return new SidebarLoader(getApplicationContext(), mSubredditName);
+    }
+
+    @Override
+    public void onLoadFinished(Loader<String> loader, String sidebar) {
+        if (!TextUtils.isEmpty(sidebar)) {
+            TextView desc = (TextView) findViewById(R.id.description);
+            if (desc != null) {
+                desc.setText(sidebar);
+            }
+        }
+    }
+
+    @Override
+    public void onLoaderReset(Loader<String> loader) {
+
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -99,4 +134,32 @@ public class SubredditActivity extends BaseActivity {
         return true;
     }
 
+}
+
+class SidebarLoader extends AsyncTaskLoader<String> {
+
+    String mName;
+
+    public SidebarLoader(Context context, String subredditName) {
+        super(context);
+        mName = subredditName;
+    }
+
+    @Override
+    public String loadInBackground() {
+        Reddit reddit = Reddit.getInstance();
+        if (!reddit.mRedditClient.isAuthenticated()) {
+            return null;
+        }
+
+        try {
+            reddit.mRateLimiter.acquire();
+            Subreddit sub = reddit.mRedditClient.getSubreddit(mName);
+            return sub.getSidebar();
+        } catch (RuntimeException e) {
+            e.printStackTrace();
+        }
+
+        return null;
+    }
 }

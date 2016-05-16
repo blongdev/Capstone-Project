@@ -59,6 +59,7 @@ public class PostListAdapter extends RecyclerView.Adapter<PostListAdapter.PostVi
     @Override
     public void onBindViewHolder(final PostViewHolder postViewHolder, int i) {
         int type = mPostList.get(i).mContributionType;
+        postViewHolder.mContribution = mPostList.get(i);
 
         if (type == ContributionInfo.CONTRIBUTION_COMMENT) {
             CommentInfo comment = (CommentInfo) mPostList.get(i);
@@ -174,6 +175,7 @@ public class PostListAdapter extends RecyclerView.Adapter<PostListAdapter.PostVi
         protected int mVote;
         protected Comment mJrawComment;
         protected String mPostServerId;
+        protected ContributionInfo mContribution;
 
         public PostViewHolder(View v, int contributionType) {
             super(v);
@@ -313,6 +315,8 @@ public class PostListAdapter extends RecyclerView.Adapter<PostListAdapter.PostVi
                     mPoints.setText(String.valueOf(Integer.valueOf(mPoints.getText().toString()) + 1));
                 }
 
+                mContribution.mVote = mVote;
+
                 if (mContributionType == ContributionInfo.CONTRIBUTION_POST) {
                     Reddit.votePost(mServerId, mVote);
                 } else if(mContributionType == ContributionInfo.CONTRIBUTION_COMMENT) {
@@ -345,6 +349,8 @@ public class PostListAdapter extends RecyclerView.Adapter<PostListAdapter.PostVi
                     mPoints.setTextColor(SiftApplication.getContext().getResources().getColor(R.color.downvote));
                     mPoints.setText(String.valueOf(Integer.valueOf(mPoints.getText().toString()) - 1));
                 }
+
+                mContribution.mVote = mVote;
 
                 if (mContributionType == ContributionInfo.CONTRIBUTION_POST) {
                     Reddit.votePost(mServerId, mVote);

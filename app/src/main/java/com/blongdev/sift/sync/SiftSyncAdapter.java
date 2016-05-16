@@ -203,32 +203,32 @@ public class SiftSyncAdapter extends AbstractThreadedSyncAdapter {
                 mContentResolver.insert(SiftContract.Subscriptions.CONTENT_URI, cv);
                 cv.clear();
 
-                if (!initialSync) {
-                    SubredditPaginator paginator = new SubredditPaginator(reddit.mRedditClient, subName);
-                    reddit.mRateLimiter.acquire();
-                    Listing<Submission> submissions = paginator.next();
-                    int i = 0;
-                    for (Submission sub : submissions) {
-                        cv.put(SiftContract.Posts.COLUMN_SERVER_ID, sub.getId());
-                        cv.put(SiftContract.Posts.COLUMN_TITLE, sub.getTitle());
-                        cv.put(SiftContract.Posts.COLUMN_OWNER_USERNAME, sub.getAuthor());
-                        cv.put(SiftContract.Posts.COLUMN_SUBREDDIT_NAME, sub.getSubredditName());
-                        cv.put(SiftContract.Posts.COLUMN_SUBREDDIT_ID, subredditId);
-                        cv.put(SiftContract.Posts.COLUMN_POINTS, sub.getScore());
-                        cv.put(SiftContract.Posts.COLUMN_URL, sub.getUrl());
-                        cv.put(SiftContract.Posts.COLUMN_IMAGE_URL, Reddit.getImageUrl(sub));
-                        cv.put(SiftContract.Posts.COLUMN_NUM_COMMENTS, sub.getCommentCount());
-                        cv.put(SiftContract.Posts.COLUMN_BODY, sub.getSelftext());
-                        cv.put(SiftContract.Posts.COLUMN_DOMAIN, sub.getDomain());
-                        cv.put(SiftContract.Posts.COLUMN_DATE_CREATED, sub.getCreatedUtc().getTime());
-                        cv.put(SiftContract.Posts.COLUMN_VOTE, sub.getVote().getValue());
-                        cv.put(SiftContract.Posts.COLUMN_FAVORITED, sub.isSaved());
-                        cv.put(SiftContract.Posts.COLUMN_POSITION, i);
-                        mContentResolver.insert(SiftContract.Posts.CONTENT_URI, cv);
-                        cv.clear();
-                        i++;
-                    }
-                }
+//                if (!initialSync) {
+//                    SubredditPaginator paginator = new SubredditPaginator(reddit.mRedditClient, subName);
+//                    reddit.mRateLimiter.acquire();
+//                    Listing<Submission> submissions = paginator.next();
+//                    int i = 0;
+//                    for (Submission sub : submissions) {
+//                        cv.put(SiftContract.Posts.COLUMN_SERVER_ID, sub.getId());
+//                        cv.put(SiftContract.Posts.COLUMN_TITLE, sub.getTitle());
+//                        cv.put(SiftContract.Posts.COLUMN_OWNER_USERNAME, sub.getAuthor());
+//                        cv.put(SiftContract.Posts.COLUMN_SUBREDDIT_NAME, sub.getSubredditName());
+//                        cv.put(SiftContract.Posts.COLUMN_SUBREDDIT_ID, subredditId);
+//                        cv.put(SiftContract.Posts.COLUMN_POINTS, sub.getScore());
+//                        cv.put(SiftContract.Posts.COLUMN_URL, sub.getUrl());
+//                        cv.put(SiftContract.Posts.COLUMN_IMAGE_URL, Reddit.getImageUrl(sub));
+//                        cv.put(SiftContract.Posts.COLUMN_NUM_COMMENTS, sub.getCommentCount());
+//                        cv.put(SiftContract.Posts.COLUMN_BODY, sub.getSelftext());
+//                        cv.put(SiftContract.Posts.COLUMN_DOMAIN, sub.getDomain());
+//                        cv.put(SiftContract.Posts.COLUMN_DATE_CREATED, sub.getCreatedUtc().getTime());
+//                        cv.put(SiftContract.Posts.COLUMN_VOTE, sub.getVote().getValue());
+//                        cv.put(SiftContract.Posts.COLUMN_FAVORITED, sub.isSaved());
+//                        cv.put(SiftContract.Posts.COLUMN_POSITION, i);
+//                        mContentResolver.insert(SiftContract.Posts.CONTENT_URI, cv);
+//                        cv.clear();
+//                        i++;
+//                    }
+//                }
             }
         }
 

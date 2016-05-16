@@ -166,6 +166,8 @@ public class SubredditListActivityFragment extends Fragment {
                 mPaginator = new SubredditStream(mReddit.mRedditClient, getString(R.string.popular));
                 getActivity().getSupportLoaderManager().initLoader(ASYNCTASK_LOADER_ID, null, mSearchSubredditsLoader).forceLoad();
                 mLoadingSpinner.setVisibility(View.VISIBLE);
+            } else {
+                getActivity().getSupportLoaderManager().initLoader(CURSOR_LOADER_ID, null, mSubscriptionLoader).forceLoad();
             }
         } else {
             getActivity().getSupportLoaderManager().initLoader(CURSOR_LOADER_ID, null, mSubscriptionLoader).forceLoad();
