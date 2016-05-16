@@ -47,9 +47,7 @@ public class FriendsListActivityFragment extends Fragment implements LoaderManag
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 UserInfo user = mFriends.get(position);
-                Intent intent = new Intent(SiftApplication.getContext(), UserInfoActivity.class);
-                intent.putExtra(getString(R.string.username), user.mUsername);
-                startActivity(intent);
+                ((Callback)getActivity()).onItemSelected(user.mUsername);
             }
         });
 
@@ -131,5 +129,9 @@ public class FriendsListActivityFragment extends Fragment implements LoaderManag
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
         mFriendsAdapter.swapData(null);
+    }
+
+    public interface Callback {
+        public void onItemSelected(String name);
     }
 }

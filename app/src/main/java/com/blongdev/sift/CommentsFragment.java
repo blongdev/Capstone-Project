@@ -126,11 +126,11 @@ public class CommentsFragment extends Fragment implements LoaderManager.LoaderCa
     }
 
     private TreeNode createCommentNode(CommentInfo comment) {
-        return new TreeNode(comment).setViewHolder(new CommentViewHolder(SiftApplication.getContext(), false));
+        return new TreeNode(comment).setViewHolder(new CommentViewHolder(getContext(), false));
     }
 
     private TreeNode createReplyNode(CommentInfo comment) {
-        return new TreeNode(comment).setViewHolder(new CommentViewHolder(SiftApplication.getContext(), true));
+        return new TreeNode(comment).setViewHolder(new CommentViewHolder(getContext(), true));
     }
 
     public class CommentViewHolder extends TreeNode.BaseNodeViewHolder<CommentInfo> {
@@ -464,7 +464,7 @@ public class CommentsFragment extends Fragment implements LoaderManager.LoaderCa
     }
     @Override
     public void onLoadFinished(Loader<CommentNode> loader, CommentNode root) {
-        new CopyTreeTask(SiftApplication.getContext(), root).execute();
+        new CopyTreeTask(getContext(), root).execute();
     }
     @Override
     public void onLoaderReset(Loader<CommentNode> loader) {

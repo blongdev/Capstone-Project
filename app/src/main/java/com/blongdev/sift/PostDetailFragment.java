@@ -69,6 +69,7 @@ public class PostDetailFragment extends Fragment {
                 mWebView.setWebChromeClient(new WebChromeClient() {
                     @Override
                     public void onProgressChanged(WebView view, int newProgress) {
+
                     }
                 });
 

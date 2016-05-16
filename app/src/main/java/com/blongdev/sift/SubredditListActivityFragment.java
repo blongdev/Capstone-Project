@@ -212,7 +212,7 @@ public class SubredditListActivityFragment extends Fragment {
         }
 
         public void setData(List<SubredditInfo> data) {
-            mSubreddits.addAll(data);
+            mSubreddits = data;
             notifyDataSetChanged();
         }
 

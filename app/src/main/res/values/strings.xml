@@ -100,6 +100,7 @@
 
     <string name="link_karma">Link karma: </string>
     <string name="comment_karma">Comment karma: </string>
+    <string name="member_for">Member for </string>
 
     <string name="logged_in_intent">com.blongdev.sift.loggedIn</string>
 

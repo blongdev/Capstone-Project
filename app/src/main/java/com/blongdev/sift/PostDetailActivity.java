@@ -148,7 +148,7 @@ public class PostDetailActivity extends BaseActivity {
                 Intent intent = new Intent(SiftApplication.getContext(), UserInfoActivity.class);
                 intent.putExtra(SiftApplication.getContext().getString(R.string.username), username);
 
-                SiftApplication.getContext().startActivity(intent);
+                v.getContext().startActivity(intent);
             }
         });
 
@@ -160,7 +160,7 @@ public class PostDetailActivity extends BaseActivity {
                 Intent intent = new Intent(SiftApplication.getContext(), SubredditActivity.class);
                 intent.putExtra(SiftApplication.getContext().getString(R.string.subreddit_name), subreddit);
 
-                SiftApplication.getContext().startActivity(intent);
+                v.getContext().startActivity(intent);
             }
         });
 

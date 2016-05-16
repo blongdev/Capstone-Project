@@ -126,6 +126,21 @@ public class Utilities {
         }
     }
 
+    public static String getAgeStringLong(long date) {
+        long age = getAgeInSeconds(date);
+        if (age < SECONDS_IN_HOUR) {
+            return age/SECONDS_IN_MINUTE + " minutes";
+        } else if (age < SECONDS_IN_DAY) {
+            return age/SECONDS_IN_HOUR + " hours";
+        } else if (age < SECONDS_IN_MONTH_ISH){
+            return age/SECONDS_IN_DAY + " days";
+        } else if (age < SECONDS_IN_YEAR_ISH) {
+            return age/SECONDS_IN_MONTH_ISH + " months";
+        } else {
+            return age/SECONDS_IN_YEAR_ISH + " years";
+        }
+    }
+
     public static boolean loggedIn () {
         Cursor cursor = null;
         try {

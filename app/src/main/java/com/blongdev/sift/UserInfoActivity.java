@@ -5,6 +5,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.support.design.widget.TabLayout;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.AsyncTaskLoader;
+import android.support.v4.content.Loader;
 import android.support.v7.app.ActionBar;
 import android.support.v7.widget.SearchView;
 import android.support.v4.app.Fragment;
@@ -16,15 +19,20 @@ import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.TextView;
 import android.widget.Toast;
 
-public class UserInfoActivity extends BaseActivity {
+import net.dean.jraw.models.Account;
+import net.dean.jraw.models.Subreddit;
 
-    private SectionsPagerAdapter mSectionsPagerAdapter;
+public class UserInfoActivity extends BaseActivity implements LoaderManager.LoaderCallbacks<UserInfo>{
+
+    private UserPagerAdapter mUserPagerAdapter;
     private ViewPager mViewPager;
     private String mUsername;
     private MenuItem mAddFriend;
     private boolean mIsFriend;
+    private boolean mIsTablet;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,9 +49,14 @@ public class UserInfoActivity extends BaseActivity {
             }
         }
 
-        mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
+        if (findViewById(R.id.link_karma) != null) {
+            mIsTablet = true;
+            getSupportLoaderManager().initLoader(1, null, this).forceLoad();
+        }
+
+        mUserPagerAdapter = new UserPagerAdapter(getSupportFragmentManager(), mUsername);
         mViewPager = (ViewPager) findViewById(R.id.container);
-        mViewPager.setAdapter(mSectionsPagerAdapter);
+        mViewPager.setAdapter(mUserPagerAdapter);
 
         TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(mViewPager);
@@ -64,83 +77,43 @@ public class UserInfoActivity extends BaseActivity {
             }
         });
 
-        if (mReddit.mRedditClient.isAuthenticated() && mReddit.mRedditClient.hasActiveUserContext()) {
-            if (TextUtils.equals(mReddit.mRedditClient.getAuthenticatedUser(), mUsername)) {
+        if (Utilities.loggedIn()) {
+            if (TextUtils.equals(Utilities.getLoggedInUsername(), mUsername)) {
                 fab.setVisibility(View.GONE);
             }
         }
     }
 
+    public Loader<UserInfo> onCreateLoader(int id, Bundle args) {
+        return new UserSidebarLoader(getApplicationContext(), mUsername);
+    }
 
-    public class SectionsPagerAdapter extends FragmentPagerAdapter {
-
-        public SectionsPagerAdapter(FragmentManager fm) {
-            super(fm);
-        }
-
-        @Override
-        public Fragment getItem(int position) {
-            Bundle args = new Bundle();
-            args.putString(getString(R.string.username), mUsername);
-            args.putInt(getString(R.string.paginator_type), SubredditInfo.USER_CONTRIBUTION_PAGINATOR);
-
-            switch (position) {
-                case 0:
-                    args.putString(getString(R.string.category), getString(R.string.overview));
-                    SubredditFragment overviewFrag = new SubredditFragment();
-                    overviewFrag.setArguments(args);
-                    return overviewFrag;
-                case 1:
-                    args.putString(getString(R.string.category), getString(R.string.submitted));
-                    SubredditFragment subFrag = new SubredditFragment();
-                    subFrag.setArguments(args);
-                    return subFrag;
-                case 2:
-                    args.putString(getString(R.string.category), getString(R.string.comments));
-                    SubredditFragment commentsFrag = new SubredditFragment();
-                    commentsFrag.setArguments(args);
-                    return commentsFrag;
-                case 3:
-                    args.putString(getString(R.string.category), getString(R.string.gilded));
-                    SubredditFragment gildedFrag = new SubredditFragment();
-                    gildedFrag.setArguments(args);
-                    return gildedFrag;
-                case 4:
-                    args.putString(getString(R.string.category), getString(R.string.saved));
-                    SubredditFragment savedFrag = new SubredditFragment();
-                    savedFrag.setArguments(args);
-                    return savedFrag;
+    @Override
+    public void onLoadFinished(Loader<UserInfo> loader, UserInfo user) {
+        if (user != null) {
+            TextView age = (TextView) findViewById(R.id.age);
+            TextView link = (TextView) findViewById(R.id.link_karma);
+            TextView comment = (TextView) findViewById(R.id.comment_karma);
+            if (age != null) {
+                age.setText(getString(R.string.member_for) + " " + Utilities.getAgeStringLong(user.mAge));
             }
-            return null;
-        }
 
-        @Override
-        public int getCount() {
-            if (mReddit.mRedditClient.isAuthenticated() && mReddit.mRedditClient.hasActiveUserContext()) {
-                if (TextUtils.equals(mReddit.mRedditClient.getAuthenticatedUser(), mUsername)) {
-                    return 5;
-                }
+            if (link != null) {
+                link.setText(getString(R.string.link_karma) + " " + user.mLinkKarma);
             }
-            return 4;
-        }
 
-        @Override
-        public CharSequence getPageTitle(int position) {
-            switch (position) {
-                case 0:
-                    return getString(R.string.overview);
-                case 1:
-                    return getString(R.string.submissions);
-                case 2:
-                    return getString(R.string.comments);
-                case 3:
-                    return getString(R.string.gilded);
-                case 4:
-                    return getString(R.string.saved);
+            if (comment != null) {
+                comment.setText(getString(R.string.comment_karma) + " " + user.mCommentKarma);
             }
-            return null;
+
         }
     }
+
+    @Override
+    public void onLoaderReset(Loader<UserInfo> loader) {
+
+    }
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -190,4 +163,36 @@ public class UserInfoActivity extends BaseActivity {
         return true;
     }
 
+}
+
+class UserSidebarLoader extends AsyncTaskLoader<UserInfo> {
+
+    String mName;
+
+    public UserSidebarLoader(Context context, String username) {
+        super(context);
+        mName = username;
+    }
+
+    @Override
+    public UserInfo loadInBackground() {
+        Reddit reddit = Reddit.getInstance();
+        if (!reddit.mRedditClient.isAuthenticated()) {
+            return null;
+        }
+
+        try {
+            reddit.mRateLimiter.acquire();
+            Account user = reddit.mRedditClient.getUser(mName);
+            UserInfo userInfo = new UserInfo();
+            userInfo.mLinkKarma = user.getLinkKarma();
+            userInfo.mCommentKarma = user.getCommentKarma();
+            userInfo.mAge = user.getCreatedUtc().getTime();
+            return userInfo;
+        } catch (RuntimeException e) {
+            e.printStackTrace();
+        }
+
+        return null;
+    }
 }

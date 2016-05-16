@@ -51,6 +51,7 @@ public class BaseActivity extends AppCompatActivity {
         mTracker.enableExceptionReporting(true);
 
         mReddit = Reddit.getInstance();
+
     }
 
     @Override
@@ -100,6 +101,7 @@ public class BaseActivity extends AppCompatActivity {
                 cursor.close();
             }
         }
+
         mNavigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
 
             @Override
