@@ -88,6 +88,10 @@ public class PostDetailFragment extends Fragment {
                 mWebView.getSettings().setJavaScriptEnabled(true);
                 mWebView.getSettings().setJavaScriptCanOpenWindowsAutomatically(true);
 
+//                mWebView.getSettings().setLoadWithOverviewMode(true);
+//                mWebView.getSettings().setUseWideViewPort(true);
+//                mWebView.getSettings().setBuiltInZoomControls(true);
+
         }
 
         return rootView;

@@ -7,7 +7,11 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.Loader;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.webkit.URLUtil;
 import android.widget.CheckBox;
@@ -22,7 +26,7 @@ import net.dean.jraw.models.Captcha;
 import java.net.MalformedURLException;
 import java.net.URL;
 
-public class ComposePostActivity extends BaseActivity implements LoaderManager.LoaderCallbacks<Captcha>{
+public class ComposePostActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Captcha>{
 
     private static final String BODY = "body";
     private static final String TITLE = "title";
@@ -43,6 +47,12 @@ public class ComposePostActivity extends BaseActivity implements LoaderManager.L
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_compose_post);
+
+        android.support.v7.widget.Toolbar toolbar = (android.support.v7.widget.Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+
+        ActionBar actionBar = getSupportActionBar();
+        actionBar.setDisplayHomeAsUpEnabled(true);
 
         TextView subreddit = (TextView) findViewById(R.id.subreddit_label);
         mCaptchaImage = (ImageView) findViewById(R.id.captcha_image);
@@ -149,6 +159,24 @@ public class ComposePostActivity extends BaseActivity implements LoaderManager.L
         mBody.setText(savedInstanceState.getString(BODY));
         mCaptchaText.setText(savedInstanceState.getString(CAPTCHA));
         mLinkBox.setChecked(savedInstanceState.getBoolean(LINK));
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_post_detail, menu);
+
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                this.finish();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
     }
 }
 

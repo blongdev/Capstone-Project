@@ -11,6 +11,8 @@ import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.FragmentManager;
 import android.os.Bundle;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SearchView;
 import android.text.TextUtils;
 import android.view.Menu;
@@ -31,7 +33,7 @@ import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
 import com.unnamed.b.atv.model.TreeNode;
 
-public class PostDetailActivity extends BaseActivity {
+public class PostDetailActivity extends AppCompatActivity {
 
     private static final String VOTE = "vote";
     private static final String FAVORITE = "favorite";
@@ -77,6 +79,11 @@ public class PostDetailActivity extends BaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_post_detail);
+        android.support.v7.widget.Toolbar toolbar = (android.support.v7.widget.Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+
+        ActionBar actionBar = getSupportActionBar();
+        actionBar.setDisplayHomeAsUpEnabled(true);
 
         if (findViewById(R.id.tablet) != null) {
             mIsTablet = true;
@@ -186,7 +193,7 @@ public class PostDetailActivity extends BaseActivity {
                     return;
                 }
 
-                if(mReplyNode == null) {
+                if (mReplyNode == null) {
                     mReplyNode = mCommentsFragment.replyToPost();
                     mReply.setImageResource(R.drawable.ic_clear_24dp);
                     mCommentsFragment.focusOnReply(mReplyNode);
@@ -204,7 +211,8 @@ public class PostDetailActivity extends BaseActivity {
             }
         });
 
-        if (mReddit.mRedditClient.isAuthenticated() && mReddit.mRedditClient.hasActiveUserContext()) {
+        Reddit reddit = Reddit.getInstance();
+        if (reddit.mRedditClient.isAuthenticated() && reddit.mRedditClient.hasActiveUserContext()) {
             if (!TextUtils.isEmpty(mPostServerId)) {
                 long favoriteId = Utilities.getFavoriteId(mPostServerId);
                 if (favoriteId > 0) {
@@ -383,13 +391,7 @@ public class PostDetailActivity extends BaseActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        SearchManager searchManager =
-                (SearchManager) getSystemService(Context.SEARCH_SERVICE);
-        SearchView searchView =
-                (SearchView) menu.findItem(R.id.menu_search).getActionView();
-        searchView.setSearchableInfo(
-                searchManager.getSearchableInfo(getComponentName()));
+        getMenuInflater().inflate(R.menu.menu_post_detail, menu);
 
         return true;
     }

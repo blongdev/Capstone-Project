@@ -3,13 +3,17 @@ package com.blongdev.sift;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class ComposeMessageActivity extends BaseActivity {
+public class ComposeMessageActivity extends AppCompatActivity {
 
     private static final String BODY = "body";
     private static final String SUBJECT = "subject";
@@ -23,6 +27,12 @@ public class ComposeMessageActivity extends BaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_compose_message);
+
+        android.support.v7.widget.Toolbar toolbar = (android.support.v7.widget.Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+
+        ActionBar actionBar = getSupportActionBar();
+        actionBar.setDisplayHomeAsUpEnabled(true);
 
         mTo = (TextView) findViewById(R.id.to_label);
         mSubject = (EditText) findViewById(R.id.subject_text);
@@ -78,5 +88,23 @@ public class ComposeMessageActivity extends BaseActivity {
         super.onRestoreInstanceState(savedInstanceState);
         mSubject.setText(savedInstanceState.getString(SUBJECT));
         mBody.setText(savedInstanceState.getString(BODY));
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_post_detail, menu);
+
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                this.finish();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
     }
 }

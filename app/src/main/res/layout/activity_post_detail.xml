@@ -21,72 +21,71 @@
             android:fitsSystemWindows="true"
             android:theme="@style/AppTheme.AppBarOverlay">
 
-            <include layout="@layout/post_detail"/>
-
-            <LinearLayout
+            <android.support.v7.widget.Toolbar
+                android:id="@+id/toolbar"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
                 app:layout_scrollFlags="scroll"
-                app:layout_collapseMode="pin"
-                android:gravity="center_vertical">
+                android:background="?attr/colorPrimary"
+                app:popupTheme="@style/AppTheme.PopupOverlay">
 
-            <LinearLayout
-                android:orientation="horizontal"
-                android:layout_width="match_parent"
-                android:layout_height="?attr/actionBarSize"
-                android:paddingRight="64dp"
-                app:layout_scrollFlags="scroll"
-                app:layout_collapseMode="pin"
-                android:gravity="center_vertical">
+                <include layout="@layout/post_detail"/>
 
-                <ImageView
-                    android:id="@+id/upvote"
-                    android:layout_width="0dp"
-                    android:layout_weight="1"
-                    android:layout_height="wrap_content"
-                    android:padding="8dp"
-                    android:background="@android:color/transparent"
-                    android:src="@drawable/ic_up_arrow_white_24dp"
-                    android:contentDescription="@string/upvote"
-                    />
+            </android.support.v7.widget.Toolbar>
 
-                <ImageView
-                    android:id="@+id/downvote"
-                    android:layout_width="0dp"
-                    android:layout_weight="1"
-                    android:layout_height="wrap_content"
-                    android:padding="8dp"
-                    android:background="@android:color/transparent"
-                    android:src="@drawable/ic_down_arrow_white_24dp"
-                    android:contentDescription="@string/downvote"
-                    />
+                <LinearLayout
+                    android:orientation="horizontal"
+                    android:layout_width="match_parent"
+                    android:layout_height="?attr/actionBarSize"
+                    android:paddingRight="64dp"
+                    app:layout_collapseMode="pin"
+                    android:gravity="center_vertical">
 
-                <ImageView
-                    android:id="@+id/favorite"
-                    android:layout_width="0dp"
-                    android:layout_weight="1"
-                    android:layout_height="wrap_content"
-                    android:padding="8dp"
-                    android:background="@android:color/transparent"
-                    android:src="@drawable/ic_favorite_outline_24dp"
-                    android:contentDescription="@string/favorite"
-                    />
+                    <ImageView
+                        android:id="@+id/upvote"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="wrap_content"
+                        android:padding="8dp"
+                        android:background="@android:color/transparent"
+                        android:src="@drawable/ic_up_arrow_white_24dp"
+                        android:contentDescription="@string/upvote"
+                        />
 
-                <ImageView
-                    android:id="@+id/reply"
-                    android:layout_width="0dp"
-                    android:layout_weight="1"
-                    android:layout_height="wrap_content"
-                    android:padding="8dp"
-                    android:background="@android:color/transparent"
-                    android:contentDescription="@string/reply"
-                    android:src="@drawable/ic_reply_24dp"
-                    />
+                    <ImageView
+                        android:id="@+id/downvote"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="wrap_content"
+                        android:padding="8dp"
+                        android:background="@android:color/transparent"
+                        android:src="@drawable/ic_down_arrow_white_24dp"
+                        android:contentDescription="@string/downvote"
+                        />
 
-            </LinearLayout>
+                    <ImageView
+                        android:id="@+id/favorite"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="wrap_content"
+                        android:padding="8dp"
+                        android:background="@android:color/transparent"
+                        android:src="@drawable/ic_favorite_outline_24dp"
+                        android:contentDescription="@string/favorite"
+                        />
 
-            </LinearLayout>
+                    <ImageView
+                        android:id="@+id/reply"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="wrap_content"
+                        android:padding="8dp"
+                        android:background="@android:color/transparent"
+                        android:contentDescription="@string/reply"
+                        android:src="@drawable/ic_reply_24dp"
+                        />
+
+                </LinearLayout>
 
         </android.support.design.widget.AppBarLayout>
 
@@ -164,14 +163,14 @@
 
     </android.support.design.widget.CoordinatorLayout>
 
-    <android.support.design.widget.NavigationView
-        android:id="@+id/navigation_view"
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:layout_gravity="start"
-        android:background="@android:color/white"
-        app:itemTextColor="@color/nav_drawer_text"
-        android:focusable="true"
-        app:menu="@layout/nav_menu" />
+    <!--<android.support.design.widget.NavigationView-->
+        <!--android:id="@+id/navigation_view"-->
+        <!--android:layout_width="wrap_content"-->
+        <!--android:layout_height="match_parent"-->
+        <!--android:layout_gravity="start"-->
+        <!--android:background="@android:color/white"-->
+        <!--app:itemTextColor="@color/nav_drawer_text"-->
+        <!--android:focusable="true"-->
+        <!--app:menu="@layout/nav_menu" />-->
 
 </android.support.v4.widget.DrawerLayout>
