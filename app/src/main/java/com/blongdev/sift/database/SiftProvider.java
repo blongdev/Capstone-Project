@@ -272,6 +272,14 @@ public class SiftProvider extends ContentProvider {
                                     selectionArgs);
                 }
                 break;
+
+            case MESSAGES:
+                rowsUpdated = db.update(SiftContract.Messages.TABLE_NAME,
+                        values,
+                        selection,
+                        selectionArgs);
+                break;
+
             default:
                 throw new IllegalArgumentException("Unknown URI: " + uri);
         }

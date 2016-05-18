@@ -5,10 +5,12 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.view.ViewCompat;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -25,6 +27,10 @@ public class FriendsListActivityFragment extends Fragment implements LoaderManag
     ListView mFriendsListView;
     FriendsAdapter mFriendsAdapter;
     ArrayList<UserInfo> mFriends;
+    boolean mIsTablet;
+    int mSelectedPosition = -1;
+
+    private static final String POSITION = "position";
 
     public FriendsListActivityFragment() {
 
@@ -34,6 +40,15 @@ public class FriendsListActivityFragment extends Fragment implements LoaderManag
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_friends_list, container, false);
+
+        if (savedInstanceState != null) {
+            mSelectedPosition = savedInstanceState.getInt(POSITION);
+        }
+
+        Bundle args = getArguments();
+        if(args != null) {
+            mIsTablet = args.getBoolean(getString(R.string.isTablet), false);
+        }
 
         mFriends = new ArrayList<UserInfo>();
         getLoaderManager().initLoader(0, null, this);
@@ -48,11 +63,18 @@ public class FriendsListActivityFragment extends Fragment implements LoaderManag
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 UserInfo user = mFriends.get(position);
                 mFriendsListView.setSelection(position);
+                mSelectedPosition = position;
                 ((Callback)getActivity()).onItemSelected(user.mUsername);
             }
         });
 
         return rootView;
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle savedInstanceState) {
+        savedInstanceState.putInt(POSITION, mSelectedPosition);
+        super.onSaveInstanceState(savedInstanceState);
     }
 
     class FriendsAdapter extends ArrayAdapter<UserInfo> {
@@ -89,9 +111,15 @@ public class FriendsListActivityFragment extends Fragment implements LoaderManag
             UserInfo user = mFriendsList.get(position);
             if(user != null) {
                 viewHolder.mUsername.setText(user.mUsername);
-                viewHolder.mLinkKarma.setText(getString(R.string.link_karma) + " " + user.mLinkKarma);
-                viewHolder.mCommentKarma.setText(getString(R.string.comment_karma) + " " + user.mCommentKarma);
-                viewHolder.mAge.setText(Utilities.getAgeString(user.mAge));
+                if (viewHolder.mLinkKarma != null) {
+                    viewHolder.mLinkKarma.setText(getString(R.string.link_karma) + " " + user.mLinkKarma);
+                }
+                if (viewHolder.mCommentKarma != null) {
+                    viewHolder.mCommentKarma.setText(getString(R.string.comment_karma) + " " + user.mCommentKarma);
+                }
+                if (viewHolder.mAge != null) {
+                    viewHolder.mAge.setText(Utilities.getAgeString(user.mAge));
+                }
             }
 
             return view;
@@ -115,6 +143,8 @@ public class FriendsListActivityFragment extends Fragment implements LoaderManag
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
         if (cursor != null) {
+            mFriends.clear();
+            cursor.moveToPosition(-1);
             while (cursor.moveToNext()) {
                 UserInfo friend = new UserInfo();
                 friend.mUsername = cursor.getString(cursor.getColumnIndex(SiftContract.Users.COLUMN_USERNAME));
@@ -124,6 +154,24 @@ public class FriendsListActivityFragment extends Fragment implements LoaderManag
                 mFriends.add(friend);
             }
             mFriendsAdapter.swapData(mFriends);
+
+            if (mIsTablet && mFriends.size() > 0 && mSelectedPosition == -1) {
+                UserInfo user = mFriends.get(0);
+                ((Callback)getActivity()).onItemSelected(user.mUsername);
+                mSelectedPosition = 0;
+            }
+
+            if (mSelectedPosition >= 0) {
+                mFriendsListView.clearFocus();
+                mFriendsListView.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        mFriendsListView.requestFocusFromTouch();
+                        mFriendsListView.setSelection(mSelectedPosition);
+                        mFriendsListView.requestFocus();
+                    }
+                });
+            }
         }
     }
 
@@ -133,6 +181,6 @@ public class FriendsListActivityFragment extends Fragment implements LoaderManag
     }
 
     public interface Callback {
-        public void onItemSelected(String name);
+        void onItemSelected(String name);
     }
 }

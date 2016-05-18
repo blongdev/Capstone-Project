@@ -185,7 +185,8 @@ public class MainActivity extends BaseActivity {
 
         @Override
         public void onPageSelected(int position) {
-            if (TextUtils.equals(mPagerAdapter.getPageTitle(mPager.getCurrentItem()), getString(R.string.frontPage))) {
+            if (TextUtils.equals(mPagerAdapter.getPageTitle(mPager.getCurrentItem()), getString(R.string.frontPage)) ||
+                    TextUtils.equals(mPagerAdapter.getPageTitle(mPager.getCurrentItem()), getString(R.string.announcements))) {
                 mFab.hide();
             } else {
                 mFab.show();

@@ -5,6 +5,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
+import android.graphics.drawable.StateListDrawable;
 import android.net.Uri;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -111,13 +112,13 @@ public class SubredditListActivityFragment extends Fragment {
 
         @Override
         public Loader<List<SubredditInfo>> onCreateLoader(int id, Bundle args) {
-            return new SubredditLoader( mPaginator, mIsTablet);
+            return new SubredditLoader(mPaginator, mIsTablet);
         }
 
         @Override
         public void onLoadFinished(Loader<List<SubredditInfo>> loader, List<SubredditInfo> data) {
             mLoadingSpinner.setVisibility(View.GONE);
-            mSubredditAdapter.setData(data);
+            mSubredditAdapter.addData(data);
             if (mIsTablet && data.size() > 0 && mSelectedPosition == -1) {
                 SubredditInfo sub = data.get(0);
                 ((Callback)getActivity()).onItemSelected(sub.mId, sub.mName);
@@ -184,6 +185,7 @@ public class SubredditListActivityFragment extends Fragment {
             mIsTablet = args.getBoolean(getString(R.string.isTablet), false);
             boolean popular = args.getBoolean(getString(R.string.popular));
             if (mSearchTerm != null) {
+                mSubredditListView.setSelector(new StateListDrawable());
                 mPaginator = new SubredditSearchPaginator(mReddit.mRedditClient, mSearchTerm);
                 getActivity().getSupportLoaderManager().initLoader(ASYNCTASK_LOADER_ID, null, mSearchSubredditsLoader).forceLoad();
                 mLoadingSpinner.setVisibility(View.VISIBLE);
@@ -225,7 +227,6 @@ public class SubredditListActivityFragment extends Fragment {
                     }
                 }
 
-                mSubredditListView.setSelection(position);
                 mSelectedPosition = position;
 
                 ((Callback)getActivity()).onItemSelected(sub.mId, sub.mName);
@@ -243,6 +244,11 @@ public class SubredditListActivityFragment extends Fragment {
         public SubredditAdapter(Context context, ArrayList<SubredditInfo> subreddits) {
             super(context, 0, subreddits);
             mSubreddits = subreddits;
+        }
+
+        public void addData(List<SubredditInfo> data) {
+            mSubreddits.addAll(data);
+            notifyDataSetChanged();
         }
 
         public void setData(List<SubredditInfo> data) {
@@ -270,7 +276,7 @@ public class SubredditListActivityFragment extends Fragment {
             if(sub != null) {
                 viewHolder.mName.setText(sub.mName);
                 viewHolder.mDescription.setText(sub.mDescription);
-                if (sub.mSubscribers > 0) {
+                if (viewHolder.mSubscribers != null && sub.mSubscribers > 0) {
                     viewHolder.mSubscribers.setText(sub.mSubscribers + " " + getContext().getString(R.string.subscribers));
                 }
             }

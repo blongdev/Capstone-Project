@@ -276,4 +276,11 @@ public class Utilities {
         return SiftContract.Posts.NO_VOTE;
     }
 
+    public static void markRead(long messageId) {
+        ContentValues cv = new ContentValues();
+        cv.put(SiftContract.Messages.COLUMN_READ, 1);
+        String where = SiftContract.Messages._ID + " = ?";
+        String[] whereArgs = new String[]{String.valueOf(messageId)};
+        SiftApplication.getContext().getContentResolver().update(SiftContract.Messages.CONTENT_URI, cv, where, whereArgs);
+    }
 }

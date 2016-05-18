@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.TabLayout;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.view.ViewPager;
 import android.text.TextUtils;
 import android.view.View;
@@ -29,6 +30,18 @@ public class FriendsListActivity extends BaseActivity implements FriendsListActi
 
             TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
             tabLayout.setupWithViewPager(mViewPager);
+
+            if (savedInstanceState == null) {
+                FragmentManager fm = getSupportFragmentManager();
+                FriendsListActivityFragment friendsListFrag = new FriendsListActivityFragment();
+
+                Bundle args = new Bundle();
+                args.putBoolean(getString(R.string.isTablet), true);
+                friendsListFrag.setArguments(args);
+                android.support.v4.app.FragmentTransaction ft = fm.beginTransaction();
+                ft.replace(R.id.fragment, friendsListFrag);
+                ft.commit();
+            }
 
 
             FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
@@ -59,7 +72,6 @@ public class FriendsListActivity extends BaseActivity implements FriendsListActi
         if (mIsTablet) {
             mUserPagerAdapter.setUser(name);
             mUsername = name;
-            mViewPager.setAdapter(null);
             mViewPager.setAdapter(mUserPagerAdapter);
         } else {
             Intent intent = new Intent(SiftApplication.getContext(), UserInfoActivity.class);

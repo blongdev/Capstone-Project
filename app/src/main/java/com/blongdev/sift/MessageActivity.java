@@ -37,7 +37,6 @@ public class MessageActivity extends BaseActivity implements MessageActivityFrag
 
         mFragmentManager = getSupportFragmentManager();
 
-
     }
 
 
@@ -56,6 +55,9 @@ public class MessageActivity extends BaseActivity implements MessageActivityFrag
             switch (position) {
                 case 0:
                     args.putInt(getString(R.string.mailbox), SiftContract.Messages.MAILBOX_TYPE_INBOX);
+                    if (mIsTablet) {
+                        args.putBoolean(getString(R.string.selectFirst), true);
+                    }
                     break;
                 case 1:
                     args.putInt(getString(R.string.mailbox), SiftContract.Messages.MAILBOX_TYPE_INBOX);
@@ -67,6 +69,11 @@ public class MessageActivity extends BaseActivity implements MessageActivityFrag
                 case 3:
                     args.putInt(getString(R.string.mailbox), SiftContract.Messages.MAILBOX_TYPE_MENTIONS);
                     break;
+            }
+
+
+            if (mIsTablet) {
+                args.putBoolean(getString(R.string.isTablet), true);
             }
 
             messageFrag.setArguments(args);
@@ -106,7 +113,7 @@ public class MessageActivity extends BaseActivity implements MessageActivityFrag
             mMessageDetailFragment.setArguments(args);
             android.support.v4.app.FragmentTransaction ft = mFragmentManager.beginTransaction();
             ft.replace(R.id.detail_fragment, mMessageDetailFragment);
-            ft.commit();
+            ft.commitAllowingStateLoss();
         } else {
             Intent intent = new Intent(SiftApplication.getContext(), MessageDetailActivity.class);
             intent.putExtra(getString(R.string.username), from);

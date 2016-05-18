@@ -26,6 +26,12 @@ public class MessageActivityFragment extends Fragment implements LoaderManager.L
     MessagesAdapter mMessagesAdapter;
     int mMailbox;
     boolean mUnread;
+    int mSelectedPosition = -1;
+    boolean mIsTablet;
+    boolean mSelectFirst;
+
+    private static final String POSITION = "position";
+
 
     public MessageActivityFragment() {
     }
@@ -39,10 +45,16 @@ public class MessageActivityFragment extends Fragment implements LoaderManager.L
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_message_list, container, false);
 
+        if (savedInstanceState != null) {
+            mSelectedPosition = savedInstanceState.getInt(POSITION);
+        }
+
         Bundle args = getArguments();
         if (args != null) {
             mMailbox = args.getInt(getString(R.string.mailbox));
             mUnread = args.getBoolean(getString(R.string.unread));
+            mIsTablet = args.getBoolean(getString(R.string.isTablet), false);
+            mSelectFirst = args.getBoolean(getString(R.string.selectFirst), false);
         } else {
             Intent intent = getActivity().getIntent();
             mMailbox  = intent.getIntExtra(getString(R.string.mailbox),0);
@@ -65,12 +77,20 @@ public class MessageActivityFragment extends Fragment implements LoaderManager.L
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 MessageInfo msg = mMessages.get(position);
+                Utilities.markRead(msg.mId);
                 mMessagesListView.setSelection(position);
+                mSelectedPosition = position;
                 ((Callback) getActivity()).onItemSelected(msg.mTitle, msg.mBody, msg.mFrom);
             }
         });
 
         return rootView;
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle savedInstanceState) {
+        savedInstanceState.putInt(POSITION, mSelectedPosition);
+        super.onSaveInstanceState(savedInstanceState);
     }
 
     public class MessagesAdapter extends ArrayAdapter<MessageInfo> {
@@ -97,6 +117,7 @@ public class MessageActivityFragment extends Fragment implements LoaderManager.L
                 viewHolder = new MessageViewHolder();
                 viewHolder.mTitle = (TextView) view.findViewById(R.id.message_title);
                 viewHolder.mBody = (TextView) view.findViewById(R.id.message_body);
+                viewHolder.mFrom = (TextView) view.findViewById(R.id.message_from);
                 view.setTag(viewHolder);
             } else {
                 viewHolder = (MessageViewHolder) view.getTag();
@@ -106,6 +127,7 @@ public class MessageActivityFragment extends Fragment implements LoaderManager.L
             if(msg != null) {
                 viewHolder.mTitle.setText(msg.mTitle);
                 viewHolder.mBody.setText(msg.mBody);
+                viewHolder.mFrom.setText(SiftApplication.getContext().getString(R.string.from_label) + " " + msg.mFrom);
             }
 
             return view;
@@ -143,6 +165,7 @@ public class MessageActivityFragment extends Fragment implements LoaderManager.L
             cursor.moveToPosition(-1);
             while (cursor.moveToNext()) {
                 MessageInfo msg = new MessageInfo();
+                msg.mId = cursor.getLong(cursor.getColumnIndex(SiftContract.Messages._ID));
                 msg.mFrom = cursor.getString(cursor.getColumnIndex(SiftContract.Messages.COLUMN_USER_FROM));
                 msg.mTo = cursor.getString(cursor.getColumnIndex(SiftContract.Messages.COLUMN_USER_TO));
                 msg.mTitle = cursor.getString(cursor.getColumnIndex(SiftContract.Messages.COLUMN_TITLE));
@@ -152,6 +175,24 @@ public class MessageActivityFragment extends Fragment implements LoaderManager.L
             }
         }
         mMessagesAdapter.swapData(mMessages);
+
+        if (mIsTablet && mSelectFirst && mMessages.size() > 0 && mSelectedPosition == -1) {
+            MessageInfo msg = mMessages.get(0);
+            ((Callback)getActivity()).onItemSelected(msg.mTitle, msg.mBody, msg.mFrom);
+            mSelectedPosition = 0;
+        }
+
+        if (mSelectedPosition >= 0) {
+            mMessagesListView.clearFocus();
+            mMessagesListView.post(new Runnable() {
+                @Override
+                public void run() {
+                    mMessagesListView.requestFocusFromTouch();
+                    mMessagesListView.setSelection(mSelectedPosition);
+                    mMessagesListView.requestFocus();
+                }
+            });
+        }
     }
 
     @Override

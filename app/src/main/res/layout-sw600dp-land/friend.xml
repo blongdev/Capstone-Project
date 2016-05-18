@@ -7,33 +7,38 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textColor="@android:color/white"
         android:textSize="18sp"
-        android:id="@+id/message_title"
+        android:textColor="@android:color/white"
+        android:id="@+id/friend_username"
         android:paddingBottom="@dimen/content_spacer"
         android:layout_gravity="center_horizontal" />
 
     <TextView
+        android:id="@+id/friend_age"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textColor="@color/secondary_text"
-        android:textSize="16sp"
-        android:id="@+id/message_from"
-        android:layout_below="@id/message_title"
-        android:paddingBottom="@dimen/content_spacer"
-        android:layout_gravity="center_horizontal" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/message_body"
         android:textSize="14sp"
         android:textColor="@color/secondary_text"
-        android:layout_below="@id/message_from"
-        android:maxLength="140"
-        android:maxLines="3"
-        android:ellipsize="end"
-        android:layout_gravity="center_horizontal" />
+        android:layout_below="@id/friend_username"
+        />
 
+    <TextView
+        android:id="@+id/friend_link_karma"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="14sp"
+        android:textColor="@color/secondary_text"
+        android:paddingBottom="@dimen/content_spacer"
+        android:layout_alignParentRight="true"
+        />
 
+    <TextView
+        android:id="@+id/friend_comment_karma"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="14sp"
+        android:textColor="@color/secondary_text"
+        android:layout_alignParentRight="true"
+        android:layout_below="@id/friend_link_karma"
+        />
 </RelativeLayout>

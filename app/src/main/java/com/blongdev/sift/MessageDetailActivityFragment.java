@@ -21,6 +21,7 @@ public class MessageDetailActivityFragment extends Fragment {
 
         TextView titleView = (TextView) rootView.findViewById(R.id.message_detail_title);
         TextView bodyView = (TextView) rootView.findViewById(R.id.message_detail_body);
+        TextView fromView = (TextView) rootView.findViewById(R.id.message_detail_from);
 
         //Change toolbar title to username
         Intent intent = getActivity().getIntent();
@@ -42,6 +43,10 @@ public class MessageDetailActivityFragment extends Fragment {
 
         if (!TextUtils.isEmpty(body)) {
             bodyView.setText(body);
+        }
+
+        if (!TextUtils.isEmpty(from)) {
+            fromView.setText(SiftApplication.getContext().getString(R.string.from_label) + " " + from);
         }
 
         return rootView;
