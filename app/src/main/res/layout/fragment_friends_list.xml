@@ -9,6 +9,8 @@
     <ListView
         android:id="@+id/friends_list"
         android:layout_width="match_parent"
+        android:listSelector="@color/lightBackground"
+
         android:layout_height="match_parent">
 
     </ListView>

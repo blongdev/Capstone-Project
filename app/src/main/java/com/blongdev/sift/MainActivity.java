@@ -131,6 +131,7 @@ public class MainActivity extends BaseActivity {
                 activity.putExtra(getString(R.string.category), mCategory);
             }
             startActivity(activity);
+            finish();
         }
 
         mLoadingSpinner = (ProgressBar) findViewById(R.id.progressSpinnerMain);

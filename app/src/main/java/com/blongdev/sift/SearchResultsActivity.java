@@ -45,8 +45,8 @@ public class SearchResultsActivity extends BaseActivity implements SubredditList
             postFrag.setArguments(args);
             subsFrag.setArguments(args);
             android.support.v4.app.FragmentTransaction ft = fm.beginTransaction();
-            ft.add(R.id.submissions_fragment, postFrag);
-            ft.add(R.id.subreddits_fragment, subsFrag);
+            ft.replace(R.id.submissions_fragment, postFrag);
+            ft.replace(R.id.subreddits_fragment, subsFrag);
             ft.commit();
         } else {
 

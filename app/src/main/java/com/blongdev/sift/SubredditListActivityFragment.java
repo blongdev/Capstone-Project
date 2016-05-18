@@ -69,13 +69,6 @@ public class SubredditListActivityFragment extends Fragment {
         public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
             mLoadingSpinner.setVisibility(View.GONE);
 
-            if (mIsTablet) {
-                SubredditInfo frontpage = new SubredditInfo();
-                frontpage.mId = -1;
-                frontpage.mName = getString(R.string.frontPage);
-                mSubreddits.add(frontpage);
-            }
-
             if (cursor != null) {
                 while (cursor.moveToNext()) {
                     SubredditInfo sub = new SubredditInfo();
@@ -87,6 +80,24 @@ public class SubredditListActivityFragment extends Fragment {
                 }
             }
             mSubredditAdapter.setData(mSubreddits);
+
+            if (mIsTablet && mSubreddits.size() > 0 && mSelectedPosition == -1) {
+                SubredditInfo sub = mSubreddits.get(0);
+                ((Callback)getActivity()).onItemSelected(sub.mId, sub.mName);
+                mSelectedPosition = 0;
+            }
+
+            if (mSelectedPosition >= 0) {
+                mSubredditListView.clearFocus();
+                mSubredditListView.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        mSubredditListView.requestFocusFromTouch();
+                        mSubredditListView.setSelection(mSelectedPosition);
+                        mSubredditListView.requestFocus();
+                    }
+                });
+            }
         }
 
         @Override
@@ -107,30 +118,40 @@ public class SubredditListActivityFragment extends Fragment {
         public void onLoadFinished(Loader<List<SubredditInfo>> loader, List<SubredditInfo> data) {
             mLoadingSpinner.setVisibility(View.GONE);
             mSubredditAdapter.setData(data);
-//            if (mIsTablet && data.size() > 0 && mSelectedPosition == -1) {
-//                SubredditInfo sub = data.get(0);
-//                ((Callback)getActivity()).onItemSelected(sub.mId, sub.mName);
-//                mSelectedPosition = 0;
-//            }
+            if (mIsTablet && data.size() > 0 && mSelectedPosition == -1) {
+                SubredditInfo sub = data.get(0);
+                ((Callback)getActivity()).onItemSelected(sub.mId, sub.mName);
+                mSelectedPosition = 0;
+            }
+
+            if (mSelectedPosition >= 0) {
+                mSubredditListView.clearFocus();
+                mSubredditListView.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        mSubredditListView.requestFocusFromTouch();
+                        mSubredditListView.setSelection(mSelectedPosition);
+                        mSubredditListView.requestFocus();
+                    }
+                });
+            }
         }
 
         @Override
         public void onLoaderReset(Loader<List<SubredditInfo>> loader) {
             mSubredditAdapter.setData(new ArrayList<SubredditInfo>());
         }
-
     };
-
 
     public SubredditListActivityFragment() {
 
     }
 
-//    @Override
-//    public void onSaveInstanceState(Bundle savedInstanceState) {
-//        savedInstanceState.putInt(POSITION, mSelectedPosition);
-//        super.onSaveInstanceState(savedInstanceState);
-//    }
+    @Override
+    public void onSaveInstanceState(Bundle savedInstanceState) {
+        savedInstanceState.putInt(POSITION, mSelectedPosition);
+        super.onSaveInstanceState(savedInstanceState);
+    }
 //
 //    @Override
 //    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
@@ -144,6 +165,10 @@ public class SubredditListActivityFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_subreddit_list, container, false);
+
+        if (savedInstanceState != null) {
+            mSelectedPosition = savedInstanceState.getInt(POSITION);
+        }
 
         mReddit = Reddit.getInstance();
 
@@ -167,6 +192,12 @@ public class SubredditListActivityFragment extends Fragment {
                 getActivity().getSupportLoaderManager().initLoader(ASYNCTASK_LOADER_ID, null, mSearchSubredditsLoader).forceLoad();
                 mLoadingSpinner.setVisibility(View.VISIBLE);
             } else {
+                if (mIsTablet) {
+                    SubredditInfo frontpage = new SubredditInfo();
+                    frontpage.mId = -1;
+                    frontpage.mName = getString(R.string.frontPage);
+                    mSubreddits.add(frontpage);
+                }
                 getActivity().getSupportLoaderManager().initLoader(CURSOR_LOADER_ID, null, mSubscriptionLoader).forceLoad();
             }
         } else {
@@ -193,6 +224,9 @@ public class SubredditListActivityFragment extends Fragment {
                         sub.mId = ContentUris.parseId(uri);
                     }
                 }
+
+                mSubredditListView.setSelection(position);
+                mSelectedPosition = position;
 
                 ((Callback)getActivity()).onItemSelected(sub.mId, sub.mName);
 

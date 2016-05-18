@@ -47,6 +47,7 @@ public class FriendsListActivityFragment extends Fragment implements LoaderManag
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 UserInfo user = mFriends.get(position);
+                mFriendsListView.setSelection(position);
                 ((Callback)getActivity()).onItemSelected(user.mUsername);
             }
         });

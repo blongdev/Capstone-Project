@@ -361,7 +361,7 @@ public class PostListAdapter extends RecyclerView.Adapter<PostListAdapter.PostVi
 
             private void goToPostDetail(View v) {
                 if (mContributionType == ContributionInfo.CONTRIBUTION_COMMENT) {
-                    new GetPostTask(mPostServerId).execute();
+                    new GetPostTask(v.getContext(), mPostServerId).execute();
                 } else {
                     String title = mTitle.getText().toString();
                     String username = mUsername.getText().toString();
@@ -412,9 +412,11 @@ public class PostListAdapter extends RecyclerView.Adapter<PostListAdapter.PostVi
 
         private final class GetPostTask extends AsyncTask<String, Void, Submission> {
             String mSubmissionServerId;
+            Context mContext;
 
-            public GetPostTask(String submissionServerId) {
+            public GetPostTask(Context context, String submissionServerId) {
                 mSubmissionServerId = submissionServerId;
+                mContext = context;
             }
 
             @Override
@@ -451,7 +453,7 @@ public class PostListAdapter extends RecyclerView.Adapter<PostListAdapter.PostVi
                     intent.putExtra(SiftApplication.getContext().getString(R.string.domain), sub.getDomain());
                     intent.putExtra(SiftApplication.getContext().getString(R.string.vote), sub.getVote());
 
-                    SiftApplication.getContext().startActivity(intent);
+                    mContext.startActivity(intent);
                 }
             }
 

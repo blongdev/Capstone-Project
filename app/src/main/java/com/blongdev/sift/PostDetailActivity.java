@@ -224,8 +224,8 @@ public class PostDetailActivity extends BaseActivity {
         mPostFragment.setArguments(args);
         mCommentsFragment.setArguments(args);
         android.support.v4.app.FragmentTransaction ft = mFragmentManager.beginTransaction();
-        ft.add(R.id.post_detail_fragment, mPostFragment);
-        ft.add(R.id.comments_fragment, mCommentsFragment);
+        ft.replace(R.id.post_detail_fragment, mPostFragment);
+        ft.replace(R.id.comments_fragment, mCommentsFragment);
         ft.commit();
 
         mPostView = (FrameLayout) findViewById(R.id.post_detail_fragment);

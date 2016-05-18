@@ -65,6 +65,7 @@ public class MessageActivityFragment extends Fragment implements LoaderManager.L
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 MessageInfo msg = mMessages.get(position);
+                mMessagesListView.setSelection(position);
                 ((Callback) getActivity()).onItemSelected(msg.mTitle, msg.mBody, msg.mFrom);
             }
         });

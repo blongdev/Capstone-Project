@@ -46,20 +46,23 @@ public class SubredditListActivity extends BaseActivity implements SubredditList
                 toolbar.setTitle(getString(R.string.sift));
             }
 
-            SubredditListActivityFragment subListFrag = new SubredditListActivityFragment();
+            if (savedInstanceState == null) {
+                SubredditListActivityFragment subListFrag = new SubredditListActivityFragment();
 
-            Bundle args = new Bundle();
-            args.putBoolean(getString(R.string.isTablet), true);
-            if (!Utilities.loggedIn() || !TextUtils.isEmpty(category) ||
-                    (mReddit.mRedditClient.isAuthenticated() && !mReddit.mRedditClient.hasActiveUserContext())) {
-                args.putBoolean(getString(R.string.popular), true);
+                Bundle args = new Bundle();
+                args.putBoolean(getString(R.string.isTablet), true);
+                if (!Utilities.loggedIn() || !TextUtils.isEmpty(category) ||
+                        (mReddit.mRedditClient.isAuthenticated() && !mReddit.mRedditClient.hasActiveUserContext())) {
+                    args.putBoolean(getString(R.string.popular), true);
 
+                }
+                subListFrag.setArguments(args);
+                android.support.v4.app.FragmentTransaction ft = mFragmentManager.beginTransaction();
+                ft.replace(R.id.fragment, subListFrag);
+                ft.commit();
             }
-            subListFrag.setArguments(args);
-            android.support.v4.app.FragmentTransaction ft = mFragmentManager.beginTransaction();
-            ft.replace(R.id.fragment, subListFrag);
-            ft.commit();
         }
+
     }
 
     @Override
