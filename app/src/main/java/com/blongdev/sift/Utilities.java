@@ -114,30 +114,30 @@ public class Utilities {
     public static String getAgeString(long date) {
         long age = getAgeInSeconds(date);
         if (age < SECONDS_IN_HOUR) {
-            return age/SECONDS_IN_MINUTE + "m";
+            return age/SECONDS_IN_MINUTE + SiftApplication.getContext().getString(R.string.m);
         } else if (age < SECONDS_IN_DAY) {
-            return age/SECONDS_IN_HOUR + "h";
+            return age/SECONDS_IN_HOUR + SiftApplication.getContext().getString(R.string.h);
         } else if (age < SECONDS_IN_MONTH_ISH){
-            return age/SECONDS_IN_DAY + "d";
+            return age/SECONDS_IN_DAY + SiftApplication.getContext().getString(R.string.d);
         } else if (age < SECONDS_IN_YEAR_ISH) {
-            return age/SECONDS_IN_MONTH_ISH + "M";
+            return age/SECONDS_IN_MONTH_ISH + SiftApplication.getContext().getString(R.string.M);
         } else {
-            return age/SECONDS_IN_YEAR_ISH + "Y";
+            return age/SECONDS_IN_YEAR_ISH + SiftApplication.getContext().getString(R.string.Y);
         }
     }
 
     public static String getAgeStringLong(long date) {
         long age = getAgeInSeconds(date);
         if (age < SECONDS_IN_HOUR) {
-            return age/SECONDS_IN_MINUTE + " minutes";
+            return age/SECONDS_IN_MINUTE + " " + SiftApplication.getContext().getString(R.string.minutes);
         } else if (age < SECONDS_IN_DAY) {
-            return age/SECONDS_IN_HOUR + " hours";
+            return age/SECONDS_IN_HOUR + " " + SiftApplication.getContext().getString(R.string.hours);
         } else if (age < SECONDS_IN_MONTH_ISH){
-            return age/SECONDS_IN_DAY + " days";
+            return age/SECONDS_IN_DAY + " " + SiftApplication.getContext().getString(R.string.days);
         } else if (age < SECONDS_IN_YEAR_ISH) {
-            return age/SECONDS_IN_MONTH_ISH + " months";
+            return age/SECONDS_IN_MONTH_ISH + " " + SiftApplication.getContext().getString(R.string.months);
         } else {
-            return age/SECONDS_IN_YEAR_ISH + " years";
+            return age/SECONDS_IN_YEAR_ISH + " " + SiftApplication.getContext().getString(R.string.years);
         }
     }
 

@@ -125,10 +125,10 @@ public class ComposePostActivity extends AppCompatActivity implements LoaderMana
         });
     }
 
-
     public Loader<Captcha> onCreateLoader(int id, Bundle args) {
         return new CaptchaLoader(getApplicationContext());
     }
+
     @Override
     public void onLoadFinished(Loader<Captcha> loader, Captcha captcha) {
         if (captcha != null) {

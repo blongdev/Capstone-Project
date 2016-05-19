@@ -387,6 +387,24 @@ public class Reddit {
                 int count = SiftApplication.getContext().getContentResolver().update(SiftContract.Posts.CONTENT_URI, cv, selection, selectionArgs);
                 Log.v("Reddit", count + " vote updated");
 
+                if (count == 0) {
+                    cv.clear();
+                    cv.put(SiftContract.Posts.COLUMN_SERVER_ID, sub.getId());
+                    cv.put(SiftContract.Posts.COLUMN_TITLE, sub.getTitle());
+                    cv.put(SiftContract.Posts.COLUMN_OWNER_USERNAME, sub.getAuthor());
+                    cv.put(SiftContract.Posts.COLUMN_SUBREDDIT_NAME, sub.getSubredditName());
+                    cv.put(SiftContract.Posts.COLUMN_POINTS, sub.getScore());
+                    cv.put(SiftContract.Posts.COLUMN_URL, sub.getUrl());
+                    cv.put(SiftContract.Posts.COLUMN_IMAGE_URL, getImageUrl(sub));
+                    cv.put(SiftContract.Posts.COLUMN_NUM_COMMENTS, sub.getCommentCount());
+                    cv.put(SiftContract.Posts.COLUMN_BODY, sub.getSelftext());
+                    cv.put(SiftContract.Posts.COLUMN_DOMAIN, sub.getDomain());
+                    cv.put(SiftContract.Posts.COLUMN_DATE_CREATED, sub.getCreatedUtc().getTime());
+                    cv.put(SiftContract.Posts.COLUMN_VOTE, mVote);
+                    cv.put(SiftContract.Posts.COLUMN_FAVORITED, 1);
+                    SiftApplication.getContext().getContentResolver().insert(SiftContract.Posts.CONTENT_URI, cv);
+                }
+
             } catch (ApiException | RuntimeException e) {
                 e.printStackTrace();
             }

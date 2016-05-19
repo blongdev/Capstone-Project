@@ -152,6 +152,16 @@
     <string name="submit_successful">Submitted successfully</string>
     <string name="submit_error">Error submitting</string>
 
+    <string name="m">m</string>
+    <string name="h">h</string>
+    <string name="d">d</string>
+    <string name="M">M</string>
+    <string name="Y">Y</string>
+    <string name="minutes">minutes</string>
+    <string name="hours">hours</string>
+    <string name="days">days</string>
+    <string name="months">months</string>
+    <string name="years">years</string>
 
     <!-- Messages -->
     <string name="message_sent">Message sent</string>

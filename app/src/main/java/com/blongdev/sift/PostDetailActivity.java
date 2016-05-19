@@ -105,8 +105,12 @@ public class PostDetailActivity extends AppCompatActivity {
         String imageUrl = intent.getStringExtra(getString(R.string.image_url));
         String body = intent.getStringExtra(getString(R.string.body));
         String domain = intent.getStringExtra(getString(R.string.domain));
-        mVote = intent.getIntExtra(getString(R.string.vote),0);
 
+        if (Utilities.getSavedPostId(mPostServerId) >= 0) {
+            mVote = Utilities.getVoteValue(mPostServerId);
+        } else {
+            mVote = intent.getIntExtra(getString(R.string.vote),0);
+        }
 
         mPostDetailLayout = (LinearLayout) findViewById(R.id.post_detail_layout);
         mTitle = (TextView) findViewById(R.id.post_title);
