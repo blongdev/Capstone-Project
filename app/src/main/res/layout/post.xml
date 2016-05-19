@@ -56,13 +56,17 @@
                         android:layout_toRightOf="@id/post_points"
                         style="@style/PostUsername"
                         android:focusable="true"
+                        android:nextFocusRight="@+id/post_subreddit"
+                        android:nextFocusDown="@+id/post_title"
                         android:textColor="@color/secondary_text"
                         />
 
                     <TextView
-                        android:id="@+id/post_subreddit"
+                        android:id="@id/post_subreddit"
                         style="@style/PostSubreddit"
                         android:focusable="true"
+                        android:nextFocusDown="@id/post_title"
+                        android:nextFocusLeft="@id/post_username"
                         android:textColor="@color/secondary_text"
                         android:layout_toRightOf="@id/post_username"
                         />
@@ -70,9 +74,10 @@
 
 
                 <TextView
-                    android:id="@+id/post_title"
+                    android:id="@id/post_title"
                     style="@style/PostTitle"
                     android:focusable="true"
+                    android:nextFocusUp="@id/post_username"
                     android:layout_gravity="start"
                     />
 

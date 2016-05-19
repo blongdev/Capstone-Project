@@ -123,6 +123,7 @@ public class PostListAdapter extends RecyclerView.Adapter<PostListAdapter.PostVi
 
             //picasso needs to be passed null to prevent listview from displaying incorrectly cached images
             if(!TextUtils.isEmpty(post.mImageUrl)) {
+                Picasso.with(SiftApplication.getContext()).cancelRequest(postViewHolder.mImage);
                 Picasso.with(SiftApplication.getContext())
                         .load(post.mImageUrl)
                         .fit()
@@ -240,6 +241,8 @@ public class PostListAdapter extends RecyclerView.Adapter<PostListAdapter.PostVi
 //                };
 
                 mTitle.setOnFocusChangeListener(mTextFocusListener);
+                mUsername.setOnFocusChangeListener(mTextFocusListener);
+                mSubreddit.setOnFocusChangeListener(mTextFocusListener);
                 mUpvote.setOnFocusChangeListener(mImageFocusListener);
                 mDownvote.setOnFocusChangeListener(mImageFocusListener);
             }

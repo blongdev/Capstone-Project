@@ -11,6 +11,7 @@ import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.FragmentManager;
 import android.os.Bundle;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SearchView;
@@ -130,8 +131,14 @@ public class PostDetailActivity extends AppCompatActivity {
         mReplyText = (EditText) findViewById(R.id.reply_text);
         mSendComment = (ImageView) findViewById(R.id.send);
         mAppBar = (AppBarLayout) findViewById(R.id.appbar);
-
         mFavorite = (ImageView) findViewById(R.id.favorite);
+
+        mUsername.setOnFocusChangeListener(mTextFocusListener);
+        mSubreddit.setOnFocusChangeListener(mTextFocusListener);
+        mUpvote.setOnFocusChangeListener(mImageFocusListener);
+        mDownvote.setOnFocusChangeListener(mImageFocusListener);
+        mFavorite.setOnFocusChangeListener(mImageFocusListener);
+        mReply.setOnFocusChangeListener(mImageFocusListener);
 
         mTitle.setText(title);
         mUsername.setText(username);
@@ -410,5 +417,33 @@ public class PostDetailActivity extends AppCompatActivity {
                 return super.onOptionsItemSelected(item);
         }
     }
+
+    private View.OnFocusChangeListener mTextFocusListener = (new View.OnFocusChangeListener() {
+        @Override
+        public void onFocusChange(View v, boolean hasFocus ){
+            TextView text = (TextView) v;
+            if (hasFocus) {
+                text.setTextColor(ContextCompat.getColor(SiftApplication.getContext(), R.color.colorAccent));
+            } else {
+                if (v == mTitle) {
+                    text.setTextColor(Color.WHITE);
+                } else {
+                    text.setTextColor(ContextCompat.getColor(SiftApplication.getContext(), R.color.secondary_text));
+                }
+            }
+        }
+    });
+
+    private View.OnFocusChangeListener mImageFocusListener = (new View.OnFocusChangeListener() {
+        @Override
+        public void onFocusChange(View v, boolean hasFocus ){
+            ImageView image = (ImageView) v;
+            if (hasFocus) {
+                image.setColorFilter(ContextCompat.getColor(SiftApplication.getContext(), R.color.colorAccent));
+            } else {
+                image.setColorFilter(Color.TRANSPARENT);
+            }
+        }
+    });
 
 }

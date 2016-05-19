@@ -19,6 +19,7 @@
             android:textSize="24sp"
             android:textColor="@android:color/white"
             android:id="@+id/nav_username"
+            android:focusable="true"
             android:padding="16dp"
             android:layout_gravity="bottom"/>
 
@@ -29,6 +30,7 @@
             android:layout_gravity="bottom|right"
             android:padding="16dp"
             android:visibility="gone"
+            android:focusable="true"
             android:contentDescription="@string/log_out"
             android:src="@drawable/ic_remove_circle_outline_24dp"/>
 

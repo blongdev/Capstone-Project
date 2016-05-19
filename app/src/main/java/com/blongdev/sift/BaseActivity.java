@@ -9,6 +9,7 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.LayoutRes;
 import android.support.design.widget.NavigationView;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AlertDialog;
@@ -21,6 +22,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
 import com.blongdev.sift.database.SiftContract;
 import com.google.android.gms.analytics.Tracker;
@@ -41,6 +43,7 @@ public class BaseActivity extends AppCompatActivity {
     boolean mHasUser;
     View mRemoveAccount;
     Tracker mTracker;
+    TextView mNavUser;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,8 +78,10 @@ public class BaseActivity extends AppCompatActivity {
         mMySubreddits = mNavMenu.findItem(R.id.nav_subreddits);
         mPopular = mNavMenu.findItem(R.id.nav_popular);
         mRemoveAccount = mNavHeader.findViewById(R.id.remove_account);
+        mNavUser = (TextView) mNavHeader.findViewById(R.id.nav_username);
 
-        TextView navUser = (TextView) mNavHeader.findViewById(R.id.nav_username);
+        mNavHeader.setFocusable(true);
+        mNavUser.setOnFocusChangeListener(mTextFocusListener);
 
         Cursor cursor = null;
         try {
@@ -85,7 +90,7 @@ public class BaseActivity extends AppCompatActivity {
                 if (cursor.moveToFirst()) {
                     mUsername = cursor.getString(cursor.getColumnIndex(SiftContract.Accounts.COLUMN_USERNAME));
                     if (!TextUtils.isEmpty(mUsername)) {
-                        navUser.setText(mUsername);
+                        mNavUser.setText(mUsername);
                         mHasUser = true;
                     }
                 } else {
@@ -221,7 +226,7 @@ public class BaseActivity extends AppCompatActivity {
                 }
             });
         } else {
-            navUser.setOnClickListener(new View.OnClickListener() {
+            mNavUser.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     Intent authIntent = new Intent(getApplicationContext(), AuthenticationActivity.class);
@@ -241,6 +246,7 @@ public class BaseActivity extends AppCompatActivity {
             @Override
             public void onDrawerOpened(View drawerView) {
                 super.onDrawerOpened(drawerView);
+                mDrawerLayout.requestFocus();
             }
         };
 
@@ -278,4 +284,32 @@ public class BaseActivity extends AppCompatActivity {
         mReddit = null;
         super.onDestroy();
     }
+
+    private View.OnFocusChangeListener mTextFocusListener = (new View.OnFocusChangeListener() {
+        @Override
+        public void onFocusChange(View v, boolean hasFocus ){
+            TextView text = (TextView) v;
+            if (hasFocus) {
+                text.setTextColor(ContextCompat.getColor(SiftApplication.getContext(), R.color.colorAccent));
+            } else {
+                if (v == mNavUser) {
+                    text.setTextColor(Color.WHITE);
+                } else {
+                    text.setTextColor(ContextCompat.getColor(SiftApplication.getContext(), R.color.secondary_text));
+                }
+            }
+        }
+    });
+
+    private View.OnFocusChangeListener mImageFocusListener = (new View.OnFocusChangeListener() {
+        @Override
+        public void onFocusChange(View v, boolean hasFocus ){
+            ImageView image = (ImageView) v;
+            if (hasFocus) {
+                image.setColorFilter(ContextCompat.getColor(SiftApplication.getContext(), R.color.colorAccent));
+            } else {
+                image.setColorFilter(Color.TRANSPARENT);
+            }
+        }
+    });
 }

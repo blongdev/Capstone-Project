@@ -233,6 +233,7 @@ public class Reddit {
     private final class GetUserlessTask extends AsyncTask<String, Void, Void> {
 
         public GetUserlessTask() {
+
         }
 
         @Override
@@ -312,8 +313,6 @@ public class Reddit {
                         }
                     }
                 }
-            } catch (RuntimeException e) {
-                e.printStackTrace();
             } finally {
                 if (cursor != null) {
                     cursor.close();
@@ -327,8 +326,8 @@ public class Reddit {
         protected void onPostExecute(Void nothing) {
             Log.v(LOG_TAG, "onPostExecute()");
 
-            Intent refreshIntent = new Intent(SiftBroadcastReceiver.LOGGED_IN);
-            LocalBroadcastManager.getInstance(SiftApplication.getContext()).sendBroadcast(refreshIntent);
+            Intent refreshIntent = new Intent(SiftBroadcastReceiver.LOGGED_OUT);
+            SiftApplication.getContext().sendBroadcast(refreshIntent);
         }
     }
 

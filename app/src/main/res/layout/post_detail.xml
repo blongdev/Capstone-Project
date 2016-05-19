@@ -29,12 +29,14 @@
                     android:id="@+id/post_username"
                     style="@style/PostDetailUsername"
                     android:textColor="@color/secondary_text"
+                    android:focusable="true"
                     />
 
                 <TextView
                     android:id="@+id/post_subreddit"
                     style="@style/PostDetailSubreddit"
                     android:layout_toRightOf="@id/post_username"
+                    android:focusable="true"
                     android:textColor="@color/secondary_text"
                     />
 
