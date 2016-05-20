@@ -114,12 +114,12 @@ public class ComposePostActivity extends AppCompatActivity implements LoaderMana
                 if (mLinkBox.isChecked()) {
                     try {
                         URL url = new URL(body);
-                        Reddit.linkSubmission(mSubredditName, title, url, mCaptcha, captchaText);
+                        Reddit.linkSubmission(ComposePostActivity.this, mSubredditName, title, url, mCaptcha, captchaText);
                     } catch (MalformedURLException e) {
                         e.printStackTrace();
                     }
                 } else {
-                    Reddit.textSubmission(mSubredditName, title, body, mCaptcha, captchaText);
+                    Reddit.textSubmission(ComposePostActivity.this, mSubredditName, title, body, mCaptcha, captchaText);
                 }
             }
         });

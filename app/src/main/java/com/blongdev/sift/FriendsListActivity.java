@@ -1,6 +1,8 @@
 package com.blongdev.sift;
 
+import android.app.ActivityOptions;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.TabLayout;
@@ -55,7 +57,11 @@ public class FriendsListActivity extends BaseActivity implements FriendsListActi
 
                     Intent intent = new Intent(getApplicationContext(), ComposeMessageActivity.class);
                     intent.putExtra(getString(R.string.username), mUsername);
-                    startActivity(intent);
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                        startActivity(intent, ActivityOptions.makeSceneTransitionAnimation(FriendsListActivity.this).toBundle());
+                    } else {
+                        startActivity(intent);
+                    }
                 }
             });
 
@@ -76,7 +82,11 @@ public class FriendsListActivity extends BaseActivity implements FriendsListActi
         } else {
             Intent intent = new Intent(SiftApplication.getContext(), UserInfoActivity.class);
             intent.putExtra(getString(R.string.username), name);
-            startActivity(intent);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                startActivity(intent, ActivityOptions.makeSceneTransitionAnimation(FriendsListActivity.this).toBundle());
+            } else {
+                startActivity(intent);
+            }
         }
     }
 

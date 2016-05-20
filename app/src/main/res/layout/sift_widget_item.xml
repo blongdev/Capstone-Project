@@ -32,6 +32,7 @@
                 <TextView
                     android:id="@+id/post_username"
                     android:layout_toRightOf="@id/post_points"
+                    android:layout_toEndOf="@id/post_points"
                     style="@style/PostUsername"
                     android:textColor="@color/secondary_text"
                     />
@@ -41,6 +42,7 @@
                     style="@style/PostSubreddit"
                     android:textColor="@color/secondary_text"
                     android:layout_toRightOf="@id/post_username"
+                    android:layout_toEndOf="@id/post_username"
                     />
             </RelativeLayout>
 
@@ -66,6 +68,7 @@
                     style="@style/PostUrl"
                     android:textColor="@color/secondary_text"
                     android:layout_toRightOf="@id/post_comments"
+                    android:layout_toEndOf="@id/post_comments"
                     />
 
                 <TextView
@@ -73,6 +76,7 @@
                     style="@style/PostAge"
                     android:textColor="@color/secondary_text"
                     android:layout_toRightOf="@id/post_url"
+                    android:layout_toEndOf="@id/post_url"
                     />
 
             </RelativeLayout>

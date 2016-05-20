@@ -38,6 +38,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="?attr/actionBarSize"
                     android:paddingRight="64dp"
+                    android:paddingEnd="64dp"
                     app:layout_collapseMode="pin"
                     android:gravity="center_vertical">
 
@@ -166,15 +167,5 @@
             android:src="@drawable/ic_forum_24dp" />
 
     </android.support.design.widget.CoordinatorLayout>
-
-    <!--<android.support.design.widget.NavigationView-->
-        <!--android:id="@+id/navigation_view"-->
-        <!--android:layout_width="wrap_content"-->
-        <!--android:layout_height="match_parent"-->
-        <!--android:layout_gravity="start"-->
-        <!--android:background="@android:color/white"-->
-        <!--app:itemTextColor="@color/nav_drawer_text"-->
-        <!--android:focusable="true"-->
-        <!--app:menu="@layout/nav_menu" />-->
 
 </android.support.v4.widget.DrawerLayout>

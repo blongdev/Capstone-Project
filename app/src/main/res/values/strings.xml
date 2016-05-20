@@ -4,6 +4,8 @@
     <string name="client_id">pFsQuM_0DQdv-g</string>
     <string name="redirect_url">http://www.google.com</string>
 
+    <string name="device_id">83A93BC0EF7E3BAB7AF855EAF3421EC4</string>
+
     <string name="action_settings">Settings</string>
     <string name="nav_header_add_account">Log in</string>
     <string name="nav_header_remove_account">Remove Account</string>

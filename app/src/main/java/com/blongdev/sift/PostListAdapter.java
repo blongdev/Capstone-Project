@@ -1,5 +1,7 @@
 package com.blongdev.sift;
 
+import android.app.Activity;
+import android.app.ActivityOptions;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -9,8 +11,10 @@ import android.graphics.drawable.Drawable;
 import android.graphics.drawable.VectorDrawable;
 import android.media.Image;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
+import android.telecom.Call;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -32,9 +36,11 @@ import java.util.List;
 public class PostListAdapter extends RecyclerView.Adapter<PostListAdapter.PostViewHolder> {
 
     private List<ContributionInfo> mPostList;
+    private Callback mCallback;
 
-    public PostListAdapter(List<ContributionInfo> postList) {
-        this.mPostList = postList;
+    public PostListAdapter(List<ContributionInfo> postList, Callback callback) {
+        mPostList = postList;
+        mCallback = callback;
     }
 
     public void refreshWithList(List<ContributionInfo> postList) {
@@ -151,10 +157,11 @@ public class PostListAdapter extends RecyclerView.Adapter<PostListAdapter.PostVi
                     inflate(R.layout.post, viewGroup, false);
         }
 
-        return new PostViewHolder(itemView, type);
+        return new PostViewHolder(mCallback, itemView, type);
     }
 
     public static class PostViewHolder extends RecyclerView.ViewHolder  {
+        protected Callback mCallback;
         protected TextView mUsername;
         protected TextView mSubreddit;
         protected TextView mTitle;
@@ -163,7 +170,6 @@ public class PostListAdapter extends RecyclerView.Adapter<PostListAdapter.PostVi
         protected TextView mDomain;
         protected TextView mAge;
         protected ImageView mImage;
-        protected Target mTarget;
         protected ImageView mUpvote;
         protected ImageView mDownvote;
 
@@ -178,8 +184,9 @@ public class PostListAdapter extends RecyclerView.Adapter<PostListAdapter.PostVi
         protected String mPostServerId;
         protected ContributionInfo mContribution;
 
-        public PostViewHolder(View v, int contributionType) {
+        public PostViewHolder(Callback callback, View v, int contributionType) {
             super(v);
+            mCallback = callback;
 
             if (contributionType == ContributionInfo.CONTRIBUTION_COMMENT) {
                 mUsername =  (TextView) v.findViewById(R.id.comment_username);
@@ -211,34 +218,6 @@ public class PostListAdapter extends RecyclerView.Adapter<PostListAdapter.PostVi
                 mUsername.setOnClickListener(mOnClickListener);
                 mImage.setOnClickListener(mOnClickListener);
                 mSubreddit.setOnClickListener(mOnClickListener);
-
-//                mTarget = new Target() {
-//                    @Override
-//                    public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
-//
-//                        int maxHeight = mImage.getHeight();
-//                        if (bitmap.getHeight() > maxHeight) {
-//                            float factor = maxHeight / (float) bitmap.getHeight();
-//                            if (factor > 0) {
-//                                bitmap = Bitmap.createScaledBitmap(bitmap, (int) (bitmap.getWidth() * factor), maxHeight, true);
-//                            }
-//                        }
-//
-//                        mImage.setScaleType(ImageView.ScaleType.CENTER_CROP);
-//                        mImage.setImageBitmap(bitmap);
-//                    }
-//
-//                    @Override
-//                    public void onBitmapFailed(Drawable errorDrawable) {
-//
-//                    }
-//
-//                    @Override
-//                    public void onPrepareLoad(Drawable placeHolderDrawable) {
-//                        mImage.setScaleType(ImageView.ScaleType.CENTER);
-//                        mImage.setImageDrawable(placeHolderDrawable);
-//                    }
-//                };
 
                 mTitle.setOnFocusChangeListener(mTextFocusListener);
                 mUsername.setOnFocusChangeListener(mTextFocusListener);
@@ -364,7 +343,7 @@ public class PostListAdapter extends RecyclerView.Adapter<PostListAdapter.PostVi
 
             private void goToPostDetail(View v) {
                 if (mContributionType == ContributionInfo.CONTRIBUTION_COMMENT) {
-                    new GetPostTask(v.getContext(), mPostServerId).execute();
+                    new GetPostTask(mPostServerId).execute();
                 } else {
                     String title = mTitle.getText().toString();
                     String username = mUsername.getText().toString();
@@ -389,37 +368,30 @@ public class PostListAdapter extends RecyclerView.Adapter<PostListAdapter.PostVi
                     intent.putExtra(SiftApplication.getContext().getString(R.string.domain), domain);
                     intent.putExtra(SiftApplication.getContext().getString(R.string.vote), mVote);
 
-                    v.getContext().startActivity(intent);
+                    mCallback.onItemSelected(intent);
                 }
             }
 
             private void goToUserInfo(View v) {
                 String username = mUsername.getText().toString();
-
                 Intent intent = new Intent(SiftApplication.getContext(), UserInfoActivity.class);
                 intent.putExtra(SiftApplication.getContext().getString(R.string.username), username);
-
-                v.getContext().startActivity(intent);
+                mCallback.onItemSelected(intent);
             }
 
             private void goToSubreddit(View v) {
                 String subreddit = mSubreddit.getText().toString();
-
                 Intent intent = new Intent(SiftApplication.getContext(), SubredditActivity.class);
                 intent.putExtra(SiftApplication.getContext().getString(R.string.subreddit_name), subreddit);
-
-                v.getContext().startActivity(intent);
+                mCallback.onItemSelected(intent);
             }
-
         });
 
         private final class GetPostTask extends AsyncTask<String, Void, Submission> {
             String mSubmissionServerId;
-            Context mContext;
 
-            public GetPostTask(Context context, String submissionServerId) {
+            public GetPostTask(String submissionServerId) {
                 mSubmissionServerId = submissionServerId;
-                mContext = context;
             }
 
             @Override
@@ -456,10 +428,13 @@ public class PostListAdapter extends RecyclerView.Adapter<PostListAdapter.PostVi
                     intent.putExtra(SiftApplication.getContext().getString(R.string.domain), sub.getDomain());
                     intent.putExtra(SiftApplication.getContext().getString(R.string.vote), sub.getVote());
 
-                    mContext.startActivity(intent);
+                    mCallback.onItemSelected(intent);
                 }
             }
-
         }
+    }
+
+    public interface Callback {
+        void onItemSelected(Intent intent);
     }
 }

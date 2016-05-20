@@ -153,14 +153,6 @@ public class SubredditListActivityFragment extends Fragment {
         savedInstanceState.putInt(POSITION, mSelectedPosition);
         super.onSaveInstanceState(savedInstanceState);
     }
-//
-//    @Override
-//    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-//        super.onActivityCreated(savedInstanceState);
-//        if (savedInstanceState != null) {
-//            mSelectedPosition = savedInstanceState.getInt(POSITION);
-//        }
-//    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,

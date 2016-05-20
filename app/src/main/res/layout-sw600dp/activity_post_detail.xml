@@ -40,7 +40,6 @@
                 android:orientation="horizontal"
                 android:layout_width="match_parent"
                 android:layout_height="?attr/actionBarSize"
-                android:paddingRight="64dp"
                 app:layout_collapseMode="pin"
                 android:gravity="center_vertical">
 

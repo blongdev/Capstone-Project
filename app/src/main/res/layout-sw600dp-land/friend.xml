@@ -30,6 +30,7 @@
         android:textColor="@color/secondary_text"
         android:paddingBottom="@dimen/content_spacer"
         android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
         />
 
     <TextView
@@ -39,6 +40,7 @@
         android:textSize="14sp"
         android:textColor="@color/secondary_text"
         android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
         android:layout_below="@id/friend_link_karma"
         />
 </RelativeLayout>

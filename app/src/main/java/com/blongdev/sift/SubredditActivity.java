@@ -1,8 +1,10 @@
 package com.blongdev.sift;
 
+import android.app.ActivityOptions;
 import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.LoaderManager;
@@ -61,11 +63,14 @@ public class SubredditActivity extends BaseActivity implements LoaderManager.Loa
 
                 Intent intent = new Intent(getApplicationContext(), ComposePostActivity.class);
                 intent.putExtra(getString(R.string.subreddit_name), mSubredditName);
-                startActivity(intent);
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                    SubredditActivity.this.startActivity(intent, ActivityOptions.makeSceneTransitionAnimation(SubredditActivity.this).toBundle());
+                } else {
+                    SubredditActivity.this.startActivity(intent);
+                }
             }
         });
     }
-
 
     public Loader<String> onCreateLoader(int id, Bundle args) {
         return new SidebarLoader(getApplicationContext(), mSubredditName);
@@ -133,7 +138,6 @@ public class SubredditActivity extends BaseActivity implements LoaderManager.Loa
 
         return true;
     }
-
 }
 
 class SidebarLoader extends AsyncTaskLoader<String> {

@@ -1,9 +1,11 @@
 package com.blongdev.sift;
 
+import android.app.ActivityOptions;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
@@ -80,7 +82,11 @@ public class SubredditListActivity extends BaseActivity implements SubredditList
             Intent intent = new Intent(SiftApplication.getContext(), SubredditActivity.class);
             intent.putExtra(getString(R.string.subreddit_id), id);
             intent.putExtra(getString(R.string.subreddit_name), name);
-            startActivity(intent);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                SubredditListActivity.this.startActivity(intent, ActivityOptions.makeSceneTransitionAnimation(SubredditListActivity.this).toBundle());
+            } else {
+                SubredditListActivity.this.startActivity(intent);
+            }
         }
     }
 

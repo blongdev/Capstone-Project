@@ -1,8 +1,10 @@
 package com.blongdev.sift;
 
+import android.app.ActivityOptions;
 import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Build;
 import android.support.design.widget.TabLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.LoaderManager;
@@ -73,7 +75,11 @@ public class UserInfoActivity extends BaseActivity implements LoaderManager.Load
 
                 Intent intent = new Intent(getApplicationContext(), ComposeMessageActivity.class);
                 intent.putExtra(getString(R.string.username), mUsername);
-                startActivity(intent);
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                    UserInfoActivity.this.startActivity(intent, ActivityOptions.makeSceneTransitionAnimation(UserInfoActivity.this).toBundle());
+                } else {
+                    UserInfoActivity.this.startActivity(intent);
+                }
             }
         });
 

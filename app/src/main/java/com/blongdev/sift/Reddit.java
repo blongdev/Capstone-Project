@@ -2,6 +2,8 @@ package com.blongdev.sift;
 
 import android.accounts.Account;
 import android.accounts.AccountManager;
+import android.app.Activity;
+import android.app.ActivityOptions;
 import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.ContentValues;
@@ -10,6 +12,7 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.support.v4.content.LocalBroadcastManager;
@@ -949,16 +952,18 @@ public class Reddit {
         }
     }
 
-    public static void goToUser(String username) {
-        new GoToUserTask(username).execute();
+    public static void goToUser(Activity activity, String username) {
+        new GoToUserTask(activity, username).execute();
     }
 
     private static final class GoToUserTask extends AsyncTask<String, Void, Void> {
         String mUsername;
         boolean mUserFound = false;
+        Activity mActivity;
 
-        public GoToUserTask(String username) {
+        public GoToUserTask(Activity activity, String username) {
             mUsername = username;
+            mActivity = activity;
         }
 
         @Override
@@ -988,8 +993,11 @@ public class Reddit {
             if (mUserFound) {
                 Intent intent = new Intent(SiftApplication.getContext(), UserInfoActivity.class);
                 intent.putExtra(SiftApplication.getContext().getString(R.string.username), mUsername);
-                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                SiftApplication.getContext().startActivity(intent);
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                    mActivity.startActivity(intent, ActivityOptions.makeSceneTransitionAnimation(mActivity).toBundle());
+                } else {
+                    mActivity.startActivity(intent);
+                }
             } else {
                 Toast.makeText(SiftApplication.getContext(), SiftApplication.getContext().getString(R.string.user_not_found), Toast.LENGTH_LONG).show();
             }
@@ -998,15 +1006,17 @@ public class Reddit {
 
 
 
-    public static void goToSubreddit(String subreddit) {
-        new GoToSubredditTask(subreddit).execute();
+    public static void goToSubreddit(Activity activity, String subreddit) {
+        new GoToSubredditTask(activity, subreddit).execute();
     }
 
     private static final class GoToSubredditTask extends AsyncTask<String, Void, Void> {
         String mSubreddit;
         boolean mSubredditFound = false;
+        Activity mActivity;
 
-        public GoToSubredditTask(String subreddit) {
+        public GoToSubredditTask(Activity activity, String subreddit) {
+            mActivity = activity;
             mSubreddit = subreddit;
         }
 
@@ -1037,8 +1047,11 @@ public class Reddit {
             if (mSubredditFound) {
                 Intent intent = new Intent(SiftApplication.getContext(), SubredditActivity.class);
                 intent.putExtra(SiftApplication.getContext().getString(R.string.subreddit_name), mSubreddit);
-                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                SiftApplication.getContext().startActivity(intent);
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                    mActivity.startActivity(intent, ActivityOptions.makeSceneTransitionAnimation(mActivity).toBundle());
+                } else {
+                    mActivity.startActivity(intent);
+                }
             } else {
                 Toast.makeText(SiftApplication.getContext(), SiftApplication.getContext().getString(R.string.subreddit_not_found), Toast.LENGTH_LONG).show();
             }
@@ -1046,8 +1059,8 @@ public class Reddit {
     }
 
 
-    public static void textSubmission(String subreddit, String title, String text, Captcha captcha, String captchaAttempt) {
-        new TextSubmissionTask(subreddit, title, text, captcha, captchaAttempt).execute();
+    public static void textSubmission(Activity activity, String subreddit, String title, String text, Captcha captcha, String captchaAttempt) {
+        new TextSubmissionTask(activity, subreddit, title, text, captcha, captchaAttempt).execute();
     }
 
     private static final class TextSubmissionTask extends AsyncTask<String, Void, Void> {
@@ -1057,13 +1070,15 @@ public class Reddit {
         Captcha mCaptcha;
         String mCaptchaAttempt;
         boolean mSubmitted = false;
+        Activity mActivity;
 
-        public TextSubmissionTask(String subreddit, String title, String text, Captcha captcha, String captchaAttempt) {
+        public TextSubmissionTask(Activity activity, String subreddit, String title, String text, Captcha captcha, String captchaAttempt) {
             mSubreddit = subreddit;
             mTitle = title;
             mText = text;
             mCaptcha = captcha;
             mCaptchaAttempt = captchaAttempt;
+            mActivity = activity;
         }
 
         @Override
@@ -1102,16 +1117,19 @@ public class Reddit {
             if (mSubmitted) {
                 Toast.makeText(SiftApplication.getContext(), SiftApplication.getContext().getString(R.string.submit_successful), Toast.LENGTH_LONG).show();
                 Intent intent = new Intent(SiftApplication.getContext(), MainActivity.class);
-                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                SiftApplication.getContext().startActivity(intent);
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                    mActivity.startActivity(intent, ActivityOptions.makeSceneTransitionAnimation(mActivity).toBundle());
+                } else {
+                    mActivity.startActivity(intent);
+                }
             } else {
                 Toast.makeText(SiftApplication.getContext(), SiftApplication.getContext().getString(R.string.submit_error), Toast.LENGTH_LONG).show();
             }
         }
     }
 
-    public static void linkSubmission(String subreddit, String title, URL url, Captcha captcha, String captchaAttempt) {
-        new LinkSubmissionTask(subreddit, title, url, captcha, captchaAttempt).execute();
+    public static void linkSubmission(Activity activity, String subreddit, String title, URL url, Captcha captcha, String captchaAttempt) {
+        new LinkSubmissionTask(activity, subreddit, title, url, captcha, captchaAttempt).execute();
     }
 
     private static final class LinkSubmissionTask extends AsyncTask<String, Void, Void> {
@@ -1121,13 +1139,15 @@ public class Reddit {
         Captcha mCaptcha;
         String mCaptchaAttempt;
         boolean mSubmitted = false;
+        Activity mActivity;
 
-        public LinkSubmissionTask(String subreddit, String title, URL url, Captcha captcha, String captchaAttempt) {
+        public LinkSubmissionTask(Activity activity, String subreddit, String title, URL url, Captcha captcha, String captchaAttempt) {
             mSubreddit = subreddit;
             mTitle = title;
             mUrl = url;
             mCaptcha = captcha;
             mCaptchaAttempt = captchaAttempt;
+            mActivity = activity;
         }
 
         @Override
@@ -1142,7 +1162,6 @@ public class Reddit {
             }
 
             try {
-
                 net.dean.jraw.managers.AccountManager accountManager = new net.dean.jraw.managers.AccountManager(instance.mRedditClient);
                 net.dean.jraw.managers.AccountManager.SubmissionBuilder submission
                         = new net.dean.jraw.managers.AccountManager.SubmissionBuilder(mUrl, mSubreddit, mTitle);
@@ -1167,8 +1186,11 @@ public class Reddit {
             if (mSubmitted) {
                 Toast.makeText(SiftApplication.getContext(), SiftApplication.getContext().getString(R.string.submit_successful), Toast.LENGTH_LONG).show();
                 Intent intent = new Intent(SiftApplication.getContext(), MainActivity.class);
-                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                SiftApplication.getContext().startActivity(intent);
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                    mActivity.startActivity(intent, ActivityOptions.makeSceneTransitionAnimation(mActivity).toBundle());
+                } else {
+                    mActivity.startActivity(intent);
+                }
             } else {
                 Toast.makeText(SiftApplication.getContext(), SiftApplication.getContext().getString(R.string.submit_error), Toast.LENGTH_LONG).show();
             }
@@ -1177,22 +1199,22 @@ public class Reddit {
 
 
 
-    public static void sendMessage(String to, String subject, String body) {
-        new SendMessageTask(to, subject, body).execute();
+    public static void sendMessage(Activity activity, String to, String subject, String body) {
+        new SendMessageTask(activity, to, subject, body).execute();
     }
 
     private static final class SendMessageTask extends AsyncTask<String, Void, Void> {
         String mTo;
         String mSubject;
         String mBody;
-        Captcha mCaptcha;
-        String mCaptchaAttempt;
         boolean mSent = false;
+        Activity mActivity;
 
-        public SendMessageTask(String to, String subject, String body) {
+        public SendMessageTask(Activity activity, String to, String subject, String body) {
             mTo = to;
             mSubject = subject;
             mBody = body;
+            mActivity = activity;
         }
 
         @Override
@@ -1223,8 +1245,11 @@ public class Reddit {
             if (mSent) {
                 Toast.makeText(SiftApplication.getContext(), SiftApplication.getContext().getString(R.string.message_sent), Toast.LENGTH_LONG).show();
                 Intent intent = new Intent(SiftApplication.getContext(), MessageActivity.class);
-                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                SiftApplication.getContext().startActivity(intent);
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                    mActivity.startActivity(intent, ActivityOptions.makeSceneTransitionAnimation(mActivity).toBundle());
+                } else {
+                    mActivity.startActivity(intent);
+                }
             } else {
                 Toast.makeText(SiftApplication.getContext(), SiftApplication.getContext().getString(R.string.message_error), Toast.LENGTH_LONG).show();
             }

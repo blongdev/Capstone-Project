@@ -27,15 +27,16 @@
 
                 <TextView
                     android:id="@+id/post_username"
-                    style="@style/PostDetailUsername"
+                    style="@style/PostUsername"
                     android:textColor="@color/secondary_text"
                     android:focusable="true"
                     />
 
                 <TextView
                     android:id="@+id/post_subreddit"
-                    style="@style/PostDetailSubreddit"
+                    style="@style/PostSubreddit"
                     android:layout_toRightOf="@id/post_username"
+                    android:layout_toEndOf="@id/post_username"
                     android:focusable="true"
                     android:textColor="@color/secondary_text"
                     />
@@ -45,7 +46,7 @@
 
             <TextView
                 android:id="@+id/post_title"
-                style="@style/PostDetailTitle"
+                style="@style/PostTitle"
                 android:layout_gravity="start"
                 />
 
@@ -55,29 +56,32 @@
 
                 <TextView
                     android:id="@+id/post_points"
-                    style="@style/PostDetailPoints"
+                    style="@style/PostPoints"
                     android:textColor="@color/secondary_text"
                     />
 
                 <TextView
                     android:id="@+id/post_comments"
-                    style="@style/PostDetailComments"
+                    style="@style/PostComments"
                     android:textColor="@color/secondary_text"
                     android:layout_toRightOf="@id/post_points"
+                    android:layout_toEndOf="@id/post_points"
                     />
 
                 <TextView
                     android:id="@+id/post_url"
-                    style="@style/PostDetailUrl"
+                    style="@style/PostUrl"
                     android:textColor="@color/secondary_text"
                     android:layout_toRightOf="@id/post_comments"
+                    android:layout_toEndOf="@id/post_comments"
                     />
 
                 <TextView
                     android:id="@+id/post_age"
-                    style="@style/PostDetailAge"
+                    style="@style/PostAge"
                     android:textColor="@color/secondary_text"
                     android:layout_toRightOf="@id/post_url"
+                    android:layout_toEndOf="@id/post_url"
                     />
 
             </RelativeLayout>

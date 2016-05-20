@@ -1,7 +1,10 @@
 package com.blongdev.sift;
 
+import android.app.Activity;
+import android.app.ActivityOptions;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.webkit.CookieManager;
@@ -16,6 +19,7 @@ public class AuthenticationActivity extends BaseActivity {
 
     WebView mWebView;
     Reddit mReddit;
+    Activity mActivity;
 
     private static final String LOG_TAG = "Authentication Activity";
 
@@ -25,6 +29,8 @@ public class AuthenticationActivity extends BaseActivity {
         setContentView(R.layout.activity_authentication);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+        mActivity = this;
 
         mWebView = (WebView) findViewById(R.id.web_view);
 
@@ -55,15 +61,14 @@ public class AuthenticationActivity extends BaseActivity {
                     if (url.contains("code=")) {
                         mReddit.runUserChallengeTask(url);
                         Intent intent = new Intent(getApplicationContext(), MainActivity.class);
-                        startActivity(intent);
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                            startActivity(intent, ActivityOptions.makeSceneTransitionAnimation(mActivity).toBundle());
+                        } else {
+                            startActivity(intent);
+                        }
                     }
                 }
             });
-
-
-
     }
-
-
 
 }

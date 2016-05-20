@@ -24,7 +24,8 @@
                 android:layout_height="match_parent"
                 android:scaleType="centerCrop"
                 android:contentDescription="@string/image"
-                android:paddingRight="@dimen/content_spacer" />
+                android:paddingRight="@dimen/content_spacer"
+                android:paddingEnd="@dimen/content_spacer"/>
 
             <LinearLayout
                 android:id="@+id/post_content"
@@ -32,6 +33,7 @@
                 android:layout_weight="1"
                 android:layout_height="wrap_content"
                 android:paddingLeft="@dimen/content_spacer"
+                android:paddingStart="@dimen/content_spacer"
                 android:orientation="vertical">
 
                 <RelativeLayout
@@ -47,6 +49,7 @@
                         android:id="@+id/post_subreddit"
                         style="@style/PostSubreddit"
                         android:layout_toRightOf="@id/post_username"
+                        android:layout_toEndOf="@id/post_username"
                         />
                 </RelativeLayout>
 
@@ -70,18 +73,21 @@
                         android:id="@+id/post_comments"
                         style="@style/PostComments"
                         android:layout_toRightOf="@id/post_points"
+                        android:layout_toEndOf="@id/post_points"
                         />
 
                     <TextView
                         android:id="@+id/post_url"
                         style="@style/PostUrl"
                         android:layout_toRightOf="@id/post_comments"
+                        android:layout_toEndOf="@id/post_comments"
                         />
 
                     <TextView
                         android:id="@+id/post_age"
                         style="@style/PostAge"
                         android:layout_toRightOf="@id/post_url"
+                        android:layout_toEndOf="@id/post_url"
                         />
 
                 </RelativeLayout>

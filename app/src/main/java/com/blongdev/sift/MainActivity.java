@@ -1,5 +1,6 @@
 package com.blongdev.sift;
 
+import android.app.ActivityOptions;
 import android.content.BroadcastReceiver;
 import android.content.ContentUris;
 import android.content.ContentValues;
@@ -8,6 +9,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.Build;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -35,7 +37,7 @@ import net.dean.jraw.paginators.SubredditStream;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MainActivity extends BaseActivity {
+public class MainActivity extends BaseActivity{
 
     public static final String LOG_TAG = "MainActivity";
 
@@ -130,7 +132,13 @@ public class MainActivity extends BaseActivity {
             if(mCategory != null) {
                 activity.putExtra(getString(R.string.category), mCategory);
             }
-            startActivity(activity);
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                startActivity(activity, ActivityOptions.makeSceneTransitionAnimation(MainActivity.this).toBundle());
+            } else {
+                startActivity(activity);
+            }
+
             finish();
         }
 
@@ -154,7 +162,11 @@ public class MainActivity extends BaseActivity {
 
                 Intent intent = new Intent(getApplicationContext(), ComposePostActivity.class);
                 intent.putExtra(getString(R.string.subreddit_name), mSubreddits.get(mPager.getCurrentItem()).mSubredditName);
-                startActivity(intent);
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                    startActivity(intent, ActivityOptions.makeSceneTransitionAnimation(MainActivity.this).toBundle());
+                } else {
+                    startActivity(intent);
+                }
             }
         });
 

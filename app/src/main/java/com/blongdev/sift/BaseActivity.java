@@ -1,11 +1,13 @@
 package com.blongdev.sift;
 
+import android.app.ActivityOptions;
 import android.app.SearchManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Color;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.LayoutRes;
 import android.support.design.widget.NavigationView;
@@ -122,29 +124,53 @@ public class BaseActivity extends AppCompatActivity {
             switch (menuItem.getItemId()) {
                 case R.id.nav_home:
                     intent = new Intent(getApplicationContext(), MainActivity.class);
-                    startActivity(intent);
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                        startActivity(intent, ActivityOptions.makeSceneTransitionAnimation(BaseActivity.this).toBundle());
+                    } else {
+                        startActivity(intent);
+                    }
                     return true;
                 case R.id.nav_profile:
                     intent = new Intent(getApplicationContext(), UserInfoActivity.class);
                     intent.putExtra(getString(R.string.username), mUsername);
-                    startActivity(intent);
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                        startActivity(intent, ActivityOptions.makeSceneTransitionAnimation(BaseActivity.this).toBundle());
+                    } else {
+                        startActivity(intent);
+                    }
                     return true;
                 case R.id.nav_inbox:
                     intent = new Intent(getApplicationContext(), MessageActivity.class);
-                    startActivity(intent);
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                        startActivity(intent, ActivityOptions.makeSceneTransitionAnimation(BaseActivity.this).toBundle());
+                    } else {
+                        startActivity(intent);
+                    }
                     return true;
                 case R.id.nav_friends:
                     intent = new Intent(getApplicationContext(), FriendsListActivity.class);
-                    startActivity(intent);
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                        startActivity(intent, ActivityOptions.makeSceneTransitionAnimation(BaseActivity.this).toBundle());
+                    } else {
+                        startActivity(intent);
+                    }
                     return true;
                 case R.id.nav_subreddits:
                     intent = new Intent(getApplicationContext(), SubredditListActivity.class);
-                    startActivity(intent);
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                        startActivity(intent, ActivityOptions.makeSceneTransitionAnimation(BaseActivity.this).toBundle());
+                    } else {
+                        startActivity(intent);
+                    }
                     return true;
                 case R.id.nav_popular:
                     intent = new Intent(getApplicationContext(), MainActivity.class);
                     intent.putExtra(getString(R.string.category), getString(R.string.popular));
-                    startActivity(intent);
+                    if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                        startActivity(intent, ActivityOptions.makeSceneTransitionAnimation(BaseActivity.this).toBundle());
+                    } else {
+                        startActivity(intent);
+                    }
                     return true;
                 case R.id.nav_go_to_user:
                     AlertDialog.Builder userBuilder = new AlertDialog.Builder(BaseActivity.this);
@@ -159,7 +185,7 @@ public class BaseActivity extends AppCompatActivity {
                             public void onClick(DialogInterface dialog, int id) {
                                 String user = userInput.getText().toString();
                                 if (!TextUtils.isEmpty(user)) {
-                                    Reddit.goToUser(user);
+                                    Reddit.goToUser(BaseActivity.this, user);
                                 }
                             }
                         })
@@ -184,7 +210,7 @@ public class BaseActivity extends AppCompatActivity {
                                 public void onClick(DialogInterface dialog, int id) {
                                     String sub = subredditInput.getText().toString();
                                     if (!TextUtils.isEmpty(sub)) {
-                                        Reddit.goToSubreddit(sub);
+                                        Reddit.goToSubreddit(BaseActivity.this, sub);
                                     }
                                 }
                             })
@@ -230,7 +256,11 @@ public class BaseActivity extends AppCompatActivity {
                 @Override
                 public void onClick(View v) {
                     Intent authIntent = new Intent(getApplicationContext(), AuthenticationActivity.class);
-                    startActivity(authIntent);
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                        startActivity(authIntent, ActivityOptions.makeSceneTransitionAnimation(BaseActivity.this).toBundle());
+                    } else {
+                        startActivity(authIntent);
+                    }
                 }
             });
         }

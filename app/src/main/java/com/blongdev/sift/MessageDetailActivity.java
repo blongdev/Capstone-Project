@@ -1,6 +1,8 @@
 package com.blongdev.sift;
 
+import android.app.ActivityOptions;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.ActionBar;
@@ -49,7 +51,11 @@ public class MessageDetailActivity extends AppCompatActivity {
                 Intent intent = new Intent(getApplicationContext(), ComposeMessageActivity.class);
                 intent.putExtra(getString(R.string.username), mUsername);
                 intent.putExtra(getString(R.string.title), getString(R.string.re) + mTitle);
-                startActivity(intent);
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                    startActivity(intent, ActivityOptions.makeSceneTransitionAnimation(MessageDetailActivity.this).toBundle());
+                } else {
+                    startActivity(intent);
+                }
             }
         });
 

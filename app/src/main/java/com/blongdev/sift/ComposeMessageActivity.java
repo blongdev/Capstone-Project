@@ -68,7 +68,7 @@ public class ComposeMessageActivity extends AppCompatActivity {
                     return;
                 }
 
-                Reddit.sendMessage(mUserTo, subject, body);
+                Reddit.sendMessage(ComposeMessageActivity.this, mUserTo, subject, body);
             }
 
 //                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)

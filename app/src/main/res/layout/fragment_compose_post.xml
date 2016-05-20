@@ -113,7 +113,9 @@
                 android:layout_below="@id/captcha_image"
                 android:focusable="true"
                 android:layout_alignLeft="@id/captcha_image"
-                android:layout_alignRight="@id/captcha_image"/>
+                android:layout_alignStart="@id/captcha_image"
+                android:layout_alignRight="@id/captcha_image"
+                android:layout_alignEnd="@id/captcha_image"/>
 
         </RelativeLayout>
 

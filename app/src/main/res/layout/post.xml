@@ -54,6 +54,7 @@
                     <TextView
                         android:id="@+id/post_username"
                         android:layout_toRightOf="@id/post_points"
+                        android:layout_toEndOf="@id/post_points"
                         style="@style/PostUsername"
                         android:focusable="true"
                         android:nextFocusRight="@+id/post_subreddit"
@@ -69,6 +70,7 @@
                         android:nextFocusLeft="@id/post_username"
                         android:textColor="@color/secondary_text"
                         android:layout_toRightOf="@id/post_username"
+                        android:layout_toEndOf="@id/post_username"
                         />
                 </RelativeLayout>
 
@@ -95,15 +97,15 @@
                         android:id="@+id/post_url"
                         style="@style/PostUrl"
                         android:layout_toRightOf="@id/post_comments"
-                        android:textColor="@color/secondary_text"
-                        android:text="Url"/>
+                        android:layout_toEndOf="@id/post_comments"
+                        android:textColor="@color/secondary_text" />
 
                     <TextView
                         android:id="@+id/post_age"
                         style="@style/PostAge"
                         android:layout_toRightOf="@id/post_url"
-                        android:textColor="@color/secondary_text"
-                        android:text="Age"/>
+                        android:layout_toEndOf="@id/post_url"
+                        android:textColor="@color/secondary_text" />
 
                 </RelativeLayout>
 

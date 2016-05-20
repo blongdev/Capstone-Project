@@ -2,11 +2,13 @@ package com.blongdev.sift;
 
 
 
+import android.app.ActivityOptions;
 import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.RippleDrawable;
+import android.os.Build;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.FragmentManager;
@@ -166,7 +168,11 @@ public class PostDetailActivity extends AppCompatActivity {
                 Intent intent = new Intent(SiftApplication.getContext(), UserInfoActivity.class);
                 intent.putExtra(SiftApplication.getContext().getString(R.string.username), username);
 
-                v.getContext().startActivity(intent);
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                    startActivity(intent, ActivityOptions.makeSceneTransitionAnimation(PostDetailActivity.this).toBundle());
+                } else {
+                    v.getContext().startActivity(intent);
+                }
             }
         });
 
@@ -308,8 +314,7 @@ public class PostDetailActivity extends AppCompatActivity {
         //admob
         AdView mAdView = (AdView) findViewById(R.id.adView);
         AdRequest adRequest = new AdRequest.Builder()
-                .addTestDevice("83A93BC0EF7E3BAB7AF855EAF3421EC4")
-                .addTestDevice("8ECA7CA419932CA97BD67F76A2A69C4F")
+                .addTestDevice(getString(R.string.device_id))
                 .build();
         mAdView.loadAd(adRequest);
     }
@@ -411,7 +416,7 @@ public class PostDetailActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
-                this.finish();
+                this.onBackPressed();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);

@@ -1,11 +1,16 @@
 package com.blongdev.sift;
 
+import android.app.Activity;
+import android.app.ActivityOptions;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
+import android.graphics.drawable.ColorDrawable;
 import android.os.AsyncTask;
+import android.os.Build;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
 import android.support.v4.app.LoaderManager;
@@ -17,9 +22,11 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
+import android.transition.Slide;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.widget.NumberPicker;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -42,10 +49,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public class SubredditFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>{
+public class SubredditFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>, PostListAdapter.Callback {
 
-    ViewPager mPager;
-    PagerAdapter mPagerAdapter;
+    Activity mActivity;
     private long mSubredditId;
     private String mSubredditName;
     private List<ContributionInfo> mPosts;
@@ -63,13 +69,10 @@ public class SubredditFragment extends Fragment implements LoaderManager.LoaderC
     private String mSearchTerm;
     private String mUsername;
     private String mCategory;
-
     protected static final int PAGE_SIZE = 25;
-    private boolean savePosts;
-
     private TextView mEmptyText;
-
     private int mRefreshPoint = 10;
+    private boolean savePosts;
 
     private static final int CURSOR_LOADER_ID = 1;
     private static final int ASYNCTASK_LOADER_ID = 2;
@@ -112,11 +115,17 @@ public class SubredditFragment extends Fragment implements LoaderManager.LoaderC
     }
 
     @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+    }
+
+    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
         mContentResolver = SiftApplication.getContext().getContentResolver();
+        mActivity = getActivity();
 
         mLoadingSpinner = (ProgressBar) rootView.findViewById(R.id.progressSpinner);
         mEmptyText = (TextView) rootView.findViewById(R.id.empty);
@@ -181,7 +190,7 @@ public class SubredditFragment extends Fragment implements LoaderManager.LoaderC
         mLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
         mRecyclerView.setLayoutManager(mLayoutManager);
 
-        mPostListAdapter = new PostListAdapter(mPosts);
+        mPostListAdapter = new PostListAdapter(mPosts, this);
         mRecyclerView.setAdapter(mPostListAdapter);
 
         return rootView;
@@ -265,6 +274,15 @@ public class SubredditFragment extends Fragment implements LoaderManager.LoaderC
         mRecyclerView = null;
         mPostListAdapter = null;
         super.onDestroy();
+    }
+
+    @Override
+    public void onItemSelected(Intent intent) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            mActivity.startActivity(intent, ActivityOptions.makeSceneTransitionAnimation(mActivity).toBundle());
+        } else {
+            mActivity.startActivity(intent);
+        }
     }
 }
 

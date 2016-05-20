@@ -1,7 +1,9 @@
 package com.blongdev.sift;
 
+import android.app.ActivityOptions;
 import android.app.SearchManager;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
@@ -114,9 +116,13 @@ public class SearchResultsActivity extends BaseActivity implements SubredditList
 
     @Override
     public void onItemSelected(long id, String name) {
-            Intent intent = new Intent(SiftApplication.getContext(), SubredditActivity.class);
-            intent.putExtra(getString(R.string.subreddit_id), id);
-            intent.putExtra(getString(R.string.subreddit_name), name);
-            startActivity(intent);
+        Intent intent = new Intent(SiftApplication.getContext(), SubredditActivity.class);
+        intent.putExtra(getString(R.string.subreddit_id), id);
+        intent.putExtra(getString(R.string.subreddit_name), name);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            SearchResultsActivity.this.startActivity(intent, ActivityOptions.makeSceneTransitionAnimation(SearchResultsActivity.this).toBundle());
+        } else {
+            SearchResultsActivity.this.startActivity(intent);
+        }
     }
 }

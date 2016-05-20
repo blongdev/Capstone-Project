@@ -1,6 +1,8 @@
 package com.blongdev.sift;
 
+import android.app.ActivityOptions;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
@@ -119,7 +121,11 @@ public class MessageActivity extends BaseActivity implements MessageActivityFrag
             intent.putExtra(getString(R.string.username), from);
             intent.putExtra(getString(R.string.title), title);
             intent.putExtra(getString(R.string.body), body);
-            startActivity(intent);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                startActivity(intent, ActivityOptions.makeSceneTransitionAnimation(MessageActivity.this).toBundle());
+            } else {
+                startActivity(intent);
+            }
         }
     }
 }
