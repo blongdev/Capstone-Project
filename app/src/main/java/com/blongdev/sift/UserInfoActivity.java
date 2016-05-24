@@ -123,7 +123,7 @@ public class UserInfoActivity extends BaseActivity implements LoaderManager.Load
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_subreddit, menu);
+        getMenuInflater().inflate(R.menu.menu_user, menu);
         SearchManager searchManager =
                 (SearchManager) getSystemService(Context.SEARCH_SERVICE);
         SearchView searchView =

@@ -1,18 +1,12 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    tools:context="com.blongdev.sift.SubredditActivity">
+    tools:context="com.blongdev.sift.MainActivity">
 
     <item
         android:id="@+id/menu_search"
         android:title="@string/menu_search"
         app:actionViewClass="android.support.v7.widget.SearchView"
-        app:showAsAction="always"/>
-
-    <item
-        android:id="@+id/subscribe"
-        android:icon="@drawable/ic_favorite_outline_24dp"
-        android:title="@string/subscribe"
         app:showAsAction="always"/>
 
     <item
@@ -26,4 +20,6 @@
         android:title="@string/sort"
         android:icon="@drawable/ic_sort_24dp"
         app:showAsAction="always"/>
+
+
 </menu>

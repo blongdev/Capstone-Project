@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.Loader;
@@ -137,6 +138,32 @@ public class SubredditActivity extends BaseActivity implements LoaderManager.Loa
         });
 
         return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.menu_sort:
+                showSortFragment();
+                return true;
+            case R.id.menu_time:
+                showTimeFragment();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
+    public void showSortFragment() {
+        FragmentManager fm = getSupportFragmentManager();
+        SortFragment sortFragment = new SortFragment();
+        sortFragment.show(fm, getString(R.string.sort));
+    }
+
+    public void showTimeFragment() {
+        FragmentManager fm = getSupportFragmentManager();
+        TimeFragment timeFragment = new TimeFragment();
+        timeFragment.show(fm, getString(R.string.time));
     }
 }
 

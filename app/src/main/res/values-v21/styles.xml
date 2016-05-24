@@ -8,8 +8,6 @@
 
         <item name="android:windowActivityTransitions">true</item>
         <item name="android:windowEnterTransition">@transition/slide</item>
-        <item name="android:windowReturnTransition">@null</item>
-        <item name="android:windowReenterTransition">@null</item>
         <!--<item name="android:windowExitTransition">@transition/slide</item>-->
         <item name="android:windowBackground">@color/background</item>
     </style>

@@ -1,6 +1,7 @@
 package com.blongdev.sift;
 
 import android.app.ActivityOptions;
+import android.app.SearchManager;
 import android.content.BroadcastReceiver;
 import android.content.ContentUris;
 import android.content.ContentValues;
@@ -22,7 +23,10 @@ import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.ViewPager;
+import android.support.v7.widget.SearchView;
 import android.text.TextUtils;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.Toast;
@@ -302,6 +306,46 @@ public class MainActivity extends BaseActivity{
         mPager.setAdapter(null);
         mPagerAdapter = null;
         super.onDestroy();
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_sort, menu);
+
+        SearchManager searchManager =
+                (SearchManager) getSystemService(Context.SEARCH_SERVICE);
+        SearchView searchView =
+                (SearchView) menu.findItem(R.id.menu_search).getActionView();
+        searchView.setSearchableInfo(
+                searchManager.getSearchableInfo(getComponentName()));
+
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.menu_sort:
+                showSortFragment();
+                return true;
+            case R.id.menu_time:
+                showTimeFragment();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
+    public void showSortFragment() {
+        FragmentManager fm = getSupportFragmentManager();
+        SortFragment sortFragment = new SortFragment();
+        sortFragment.show(fm, getString(R.string.sort));
+    }
+
+    public void showTimeFragment() {
+        FragmentManager fm = getSupportFragmentManager();
+        TimeFragment timeFragment = new TimeFragment();
+        timeFragment.show(fm, getString(R.string.time));
     }
 }
 

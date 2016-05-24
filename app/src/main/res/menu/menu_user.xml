@@ -15,15 +15,4 @@
         android:title="@string/subscribe"
         app:showAsAction="always"/>
 
-    <item
-        android:id="@+id/menu_time"
-        android:title="@string/time"
-        android:icon="@drawable/ic_schedule_24dp"
-        app:showAsAction="always"/>
-
-    <item
-        android:id="@+id/menu_sort"
-        android:title="@string/sort"
-        android:icon="@drawable/ic_sort_24dp"
-        app:showAsAction="always"/>
 </menu>

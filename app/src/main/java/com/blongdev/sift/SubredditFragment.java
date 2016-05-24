@@ -2,44 +2,37 @@ package com.blongdev.sift;
 
 import android.app.Activity;
 import android.app.ActivityOptions;
+import android.content.BroadcastReceiver;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.database.Cursor;
-import android.graphics.drawable.ColorDrawable;
 import android.os.AsyncTask;
 import android.os.Build;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.app.Fragment;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
-import android.support.v4.view.PagerAdapter;
-import android.support.v4.view.ViewPager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
-import android.transition.Slide;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.Window;
-import android.widget.NumberPicker;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.blongdev.sift.database.SiftContract;
 
-import net.dean.jraw.http.NetworkException;
 import net.dean.jraw.models.Comment;
 import net.dean.jraw.models.Contribution;
 import net.dean.jraw.models.Listing;
 import net.dean.jraw.models.Submission;
 import net.dean.jraw.paginators.Paginator;
-import net.dean.jraw.paginators.Sorting;
 import net.dean.jraw.paginators.SubmissionSearchPaginator;
 import net.dean.jraw.paginators.SubredditPaginator;
 import net.dean.jraw.paginators.TimePeriod;
@@ -151,13 +144,30 @@ public class SubredditFragment extends Fragment implements LoaderManager.LoaderC
             mCategory = intent.getStringExtra(getString(R.string.category));
         }
 
+        setPaginator();
+
+        mRecyclerView = (RecyclerView) rootView.findViewById(R.id.cardList);
+        mRecyclerView.setHasFixedSize(true);
+        mRecyclerView.setNestedScrollingEnabled(true);
+        mLayoutManager = new LinearLayoutManager(getActivity());
+        mLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
+        mRecyclerView.setLayoutManager(mLayoutManager);
+
+        mPostListAdapter = new PostListAdapter(mPosts, this);
+        mRecyclerView.setAdapter(mPostListAdapter);
+
+        return rootView;
+    }
+
+    public void setPaginator() {
         if (mPaginatorType == SubredditInfo.SUBMISSION_SEARCH_PAGINATOR && !TextUtils.isEmpty(mSearchTerm)) {
             mPaginator = new SubmissionSearchPaginator(mReddit.mRedditClient, mSearchTerm);
-            mPaginator.setTimePeriod(TimePeriod.ALL);
             savePosts = false;
+            //have to use setSearchSorting for submissionSearchPaginator;
         } else if (mPaginatorType == SubredditInfo.USER_CONTRIBUTION_PAGINATOR && !TextUtils.isEmpty(mUsername) && !TextUtils.isEmpty(mCategory)) {
             mPaginator = new UserContributionPaginator(mReddit.mRedditClient, mCategory, mUsername);
             savePosts = false;
+            mPaginator.setSorting(mReddit.mSort);
         } else {
             if (TextUtils.equals(mSubredditName, getString(R.string.frontPage))) {
                 mPaginator = new SubredditPaginator(mReddit.mRedditClient);
@@ -165,9 +175,10 @@ public class SubredditFragment extends Fragment implements LoaderManager.LoaderC
                 mPaginator = new SubredditPaginator(mReddit.mRedditClient, mSubredditName);
             }
             savePosts = true;
-            //have to use setSearchSorting for submissionSearchPaginator;
-            mPaginator.setSorting(Sorting.HOT);
+
+            mPaginator.setSorting(mReddit.mSort);
         }
+        mPaginator.setTimePeriod(mReddit.mTime);
         mPaginator.setLimit(PAGE_SIZE);
 
         if (savePosts) {
@@ -182,18 +193,6 @@ public class SubredditFragment extends Fragment implements LoaderManager.LoaderC
                 mLoadingSpinner.setVisibility(View.VISIBLE);
             }
         }
-
-        mRecyclerView = (RecyclerView) rootView.findViewById(R.id.cardList);
-        mRecyclerView.setHasFixedSize(true);
-        mRecyclerView.setNestedScrollingEnabled(true);
-        mLayoutManager = new LinearLayoutManager(getActivity());
-        mLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
-        mRecyclerView.setLayoutManager(mLayoutManager);
-
-        mPostListAdapter = new PostListAdapter(mPosts, this);
-        mRecyclerView.setAdapter(mPostListAdapter);
-
-        return rootView;
     }
 
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
@@ -244,13 +243,37 @@ public class SubredditFragment extends Fragment implements LoaderManager.LoaderC
     public void onResume() {
         super.onResume();
         mRecyclerView.addOnScrollListener(mOnScrollistener);
+
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(getString(R.string.sortChanged));
+        mActivity.registerReceiver(mReceiver, filter);
     }
 
     @Override
     public void onPause() {
         mRecyclerView.removeOnScrollListener(mOnScrollistener);
+        mActivity.unregisterReceiver(mReceiver);
         super.onPause();
     }
+
+    BroadcastReceiver mReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            setPaginator();
+
+            if (savePosts) {
+                getLoaderManager().restartLoader(CURSOR_LOADER_ID, null, SubredditFragment.this);
+            }
+
+            if (Utilities.connectedToNetwork()) {
+                if (mReddit.mRedditClient.isAuthenticated()) {
+                    getLoaderManager().restartLoader(ASYNCTASK_LOADER_ID, null, mPostsLoaderCallbacks).forceLoad();
+                } else {
+                    mLoadingSpinner.setVisibility(View.VISIBLE);
+                }
+            }
+        }
+    };
 
     RecyclerView.OnScrollListener mOnScrollistener = new RecyclerView.OnScrollListener() {
         @Override

@@ -194,4 +194,26 @@
     <string name="message">message</string>
     <string name="image">image</string>
     <string name="log_out">log out</string>
+
+    <!-- sort options-->
+    <string name="sort">Sort</string>
+    <string name="sort_hot">Hot</string>
+    <string name="sort_new">New</string>
+    <string name="sort_rising">Rising</string>
+    <string name="sort_controversial">Controversial</string>
+    <string name="sort_top">Top</string>
+
+    <string name="time">Time</string>
+    <string name="timeHour">Hour</string>
+    <string name="timeDay">Day</string>
+    <string name="timeWeek">Week</string>
+    <string name="timeMonth">Month</string>
+    <string name="timeYear">Year</string>
+    <string name="timeAll">All</string>
+
+    <string name="sortChanged">com.blongdev.sift.sortChanged</string>
+
+
+
+
 </resources>

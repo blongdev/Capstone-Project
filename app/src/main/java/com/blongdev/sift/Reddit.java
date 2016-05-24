@@ -39,6 +39,9 @@ import net.dean.jraw.models.LoggedInAccount;
 import net.dean.jraw.models.Submission;
 import net.dean.jraw.models.Subreddit;
 import net.dean.jraw.models.VoteDirection;
+import net.dean.jraw.paginators.Paginator;
+import net.dean.jraw.paginators.Sorting;
+import net.dean.jraw.paginators.TimePeriod;
 
 
 import java.net.URL;
@@ -72,6 +75,8 @@ public class Reddit {
     public Credentials mCredentials;
     public OAuthHelper mOAuthHelper;
     public RateLimiter mRateLimiter;
+    public Sorting mSort;
+    public TimePeriod mTime;
 
     private static final String LOG_TAG = "Reddit Singleton";
 
@@ -86,6 +91,8 @@ public class Reddit {
         mCredentials = getCredentials();
         mOAuthHelper = mRedditClient.getOAuthHelper();
         mRateLimiter = RateLimiter.create(1);
+        mSort = Paginator.DEFAULT_SORTING;
+        mTime = Paginator.DEFAULT_TIME_PERIOD;
 
         mRedditClient.setLoggingMode(LoggingMode.ALWAYS);
         mRedditClient.setSaveResponseHistory(true);
