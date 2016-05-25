@@ -7,19 +7,19 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textColor="@android:color/white"
-        android:textSize="18sp"
-        android:id="@+id/message_title"
+        android:textColor="@color/secondary_text"
+        android:textSize="16sp"
+        android:id="@+id/message_from"
         android:paddingBottom="@dimen/content_spacer"
         android:layout_gravity="center_horizontal" />
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textColor="@color/secondary_text"
-        android:textSize="16sp"
-        android:id="@+id/message_from"
-        android:layout_below="@id/message_title"
+        android:textColor="@android:color/white"
+        android:textSize="18sp"
+        android:id="@+id/message_title"
+        android:layout_below="@id/message_from"
         android:paddingBottom="@dimen/content_spacer"
         android:layout_gravity="center_horizontal" />
 
@@ -29,7 +29,7 @@
         android:id="@+id/message_body"
         android:textSize="14sp"
         android:textColor="@color/secondary_text"
-        android:layout_below="@id/message_from"
+        android:layout_below="@id/message_title"
         android:maxLength="140"
         android:maxLines="3"
         android:ellipsize="end"
