@@ -317,9 +317,6 @@ class SubredditLoader extends AsyncTaskLoader<List<SubredditInfo>> {
                 reddit.mRateLimiter.acquire();
                 Listing<Subreddit> page = mPaginator.next();
                 for (Subreddit subreddit : page) {
-                    if(subreddit.isNsfw()) {
-                        continue;
-                    }
                     SubredditInfo sub = new SubredditInfo();
                     sub.mName = subreddit.getDisplayName();
                     sub.mServerId = subreddit.getId();
