@@ -62,7 +62,7 @@ public class BaseActivity extends AppCompatActivity {
     @Override
     protected void onResume(){
         super.onResume();
-        if (!mReddit.mRedditClient.isAuthenticated() && Utilities.connectedToNetwork()) {
+        if ((!mReddit.mRedditClient.isAuthenticated() || System.currentTimeMillis() > mReddit.mRefreshTime) && Utilities.connectedToNetwork()) {
             mReddit.refreshKey();
         }
     }

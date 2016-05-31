@@ -213,6 +213,8 @@
 
     <string name="sortChanged">com.blongdev.sift.sortChanged</string>
 
+    <string name="network_error">Network Error</string>
+
 
 
 

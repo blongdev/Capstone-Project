@@ -17,6 +17,7 @@ import android.os.Bundle;
 import android.provider.Settings;
 import android.support.v4.content.LocalBroadcastManager;
 import android.text.TextUtils;
+import android.text.format.Time;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -77,6 +78,7 @@ public class Reddit {
     public RateLimiter mRateLimiter;
     public Sorting mSort;
     public TimePeriod mTime;
+    public long mRefreshTime;
 
     private static final String LOG_TAG = "Reddit Singleton";
 
@@ -96,6 +98,8 @@ public class Reddit {
 
         mRedditClient.setLoggingMode(LoggingMode.ALWAYS);
         mRedditClient.setSaveResponseHistory(true);
+
+        mRefreshTime = System.currentTimeMillis() + (60 * 60 * 1000);
     }
 
     public static UserAgent getUserAgent () {
@@ -145,8 +149,8 @@ public class Reddit {
                 if (oAuthData != null) {
                     mRateLimiter.acquire();
                     mRedditClient.authenticate(oAuthData);
+                    mRefreshTime = System.currentTimeMillis() + (60 * 60 * 1000);
                     addUser();
-
                 } else {
                     Log.e(LOG_TAG, "Passed in OAuthData was null");
                 }
@@ -219,6 +223,7 @@ public class Reddit {
                     OAuthData finalData = mOAuthHelper.refreshToken(mCredentials);
                     mRateLimiter.acquire();
                     mRedditClient.authenticate(finalData);
+                    mRefreshTime = System.currentTimeMillis() + (60 * 60 * 1000);
                     if (mRedditClient.isAuthenticated()) {
                         Log.v(LOG_TAG, "Authenticated");
                     }
@@ -258,6 +263,7 @@ public class Reddit {
                 OAuthData authData = mRedditClient.getOAuthHelper().easyAuth(credentials);
                 mRateLimiter.acquire();
                 mRedditClient.authenticate(authData);
+                mRefreshTime = System.currentTimeMillis() + (60 * 60 * 1000);
                 if (mRedditClient.isAuthenticated()) {
                     Log.v(LOG_TAG, "Authenticated");
                 }
